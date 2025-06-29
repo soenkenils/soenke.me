@@ -4,6 +4,5 @@ import tailwind from '@astrojs/tailwind';
 export default defineConfig({
   integrations: [tailwind()],
   output: 'static',
-  site: 'https://soenke.me',
-  base: '/soenke.me'
+  site: 'https://soenke.me'
 });
