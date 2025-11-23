@@ -14,12 +14,50 @@
         <a href="#contact" class="text-catppuccin-subtext1 hover:text-catppuccin-text transition-colors">Contact</a>
       </div>
       <div class="md:hidden">
-        <button class="text-catppuccin-subtext1 hover:text-catppuccin-text">
+        <button id="mobile-menu-button" class="text-catppuccin-subtext1 hover:text-catppuccin-text transition-colors" aria-label="Toggle menu" aria-expanded="false">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3 12h18M3 6h18M3 18h18"></path>
           </svg>
         </button>
       </div>
     </div>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="md:hidden hidden overflow-hidden">
+      <div class="pt-4 pb-3 space-y-3">
+        <a href="#about" class="block text-catppuccin-subtext1 hover:text-catppuccin-text transition-colors py-2 mobile-menu-link">About</a>
+        <a href="#experience" class="block text-catppuccin-subtext1 hover:text-catppuccin-text transition-colors py-2 mobile-menu-link">Experience</a>
+        <a href="#projects" class="block text-catppuccin-subtext1 hover:text-catppuccin-text transition-colors py-2 mobile-menu-link">What I Do</a>
+        <a href="#contact" class="block text-catppuccin-subtext1 hover:text-catppuccin-text transition-colors py-2 mobile-menu-link">Contact</a>
+      </div>
+    </div>
   </nav>
 </header>
+
+<script>
+  const menuButton = document.getElementById('mobile-menu-button');
+  const mobileMenu = document.getElementById('mobile-menu');
+  const menuLinks = document.querySelectorAll('.mobile-menu-link');
+
+  if (menuButton && mobileMenu) {
+    menuButton.addEventListener('click', () => {
+      const isHidden = mobileMenu.classList.contains('hidden');
+
+      if (isHidden) {
+        mobileMenu.classList.remove('hidden');
+        menuButton.setAttribute('aria-expanded', 'true');
+      } else {
+        mobileMenu.classList.add('hidden');
+        menuButton.setAttribute('aria-expanded', 'false');
+      }
+    });
+
+    // Close menu when a link is clicked
+    menuLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        mobileMenu.classList.add('hidden');
+        menuButton.setAttribute('aria-expanded', 'false');
+      });
+    });
+  }
+</script>

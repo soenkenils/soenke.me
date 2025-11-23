@@ -1,14 +1,19 @@
 ---
+import { Image } from 'astro:assets';
+import profileImage from '../assets/profile.jpg';
 ---
 
 <section class="min-h-screen flex items-center justify-center bg-gradient-to-br from-catppuccin-mantle to-catppuccin-crust">
   <div class="container mx-auto px-6 py-20">
     <div class="text-center">
       <div class="mb-8">
-        <img 
-          src="/profile.jpg" 
-          alt="Sönke Nommensen" 
+        <Image
+          src={profileImage}
+          alt="Sönke Nommensen"
           class="w-32 h-32 md:w-40 md:h-40 rounded-full mx-auto object-cover shadow-lg ring-4 ring-catppuccin-surface0"
+          width={160}
+          height={160}
+          loading="eager"
         />
       </div>
       <h1 class="text-4xl md:text-5xl font-bold text-catppuccin-text mb-6">
