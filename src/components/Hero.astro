@@ -3,40 +3,46 @@ import { Image } from 'astro:assets';
 import profileImage from '../assets/profile.jpg';
 ---
 
-<section class="min-h-screen flex items-center justify-center bg-gradient-to-br from-catppuccin-mantle to-catppuccin-crust">
-  <div class="container mx-auto px-6 py-20">
+<section id="hero" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-catppuccin-mantle to-catppuccin-crust relative overflow-hidden">
+  <!-- Parallax background decoration -->
+  <div class="parallax-bg absolute inset-0 opacity-20">
+    <div class="absolute top-20 left-10 w-64 h-64 bg-catppuccin-blue/10 rounded-full blur-3xl"></div>
+    <div class="absolute bottom-20 right-10 w-96 h-96 bg-catppuccin-mauve/10 rounded-full blur-3xl"></div>
+  </div>
+
+  <div class="container mx-auto px-6 py-20 relative z-10">
     <div class="text-center">
-      <div class="mb-8">
+      <div class="mb-8 profile-image-container">
         <Image
           src={profileImage}
           alt="Sönke Nommensen"
-          class="w-32 h-32 md:w-40 md:h-40 rounded-full mx-auto object-cover shadow-lg ring-4 ring-catppuccin-surface0"
+          class="w-32 h-32 md:w-40 md:h-40 rounded-full mx-auto object-cover shadow-2xl ring-4 ring-catppuccin-surface0 hover:ring-catppuccin-blue transition-all duration-500 hover:scale-105"
           width={160}
           height={160}
           loading="eager"
         />
       </div>
-      <h1 class="text-4xl md:text-5xl font-bold text-catppuccin-text mb-6">
-        Sönke Nommensen
+      <h1 class="text-4xl md:text-5xl font-bold mb-6">
+        <span class="gradient-text">Sönke Nommensen</span>
       </h1>
       <p class="text-xl md:text-2xl text-catppuccin-subtext1 mb-8 max-w-3xl mx-auto">
-        Engineering Team Lead at Tomorrow | Building financial technology solutions
+        <span class="gradient-text-subtle">Engineering Team Lead</span> at Tomorrow | Building financial technology solutions
       </p>
-      <p class="text-lg text-catppuccin-subtext0 mb-12 max-w-2xl mx-auto">
+      <p class="text-lg text-catppuccin-subtext0 mb-12 max-w-2xl mx-auto leading-relaxed">
         Software engineer from Lübeck, Germany. I lead teams, write code, and occasionally convince people that tests are worth writing.
       </p>
       <div class="flex flex-col sm:flex-row gap-4 justify-center">
-        <a 
-          href="#contact" 
-          class="bg-catppuccin-blue text-catppuccin-base px-8 py-3 rounded-lg hover:bg-catppuccin-sapphire transition-colors font-semibold"
+        <a
+          href="#contact"
+          class="group bg-catppuccin-blue text-catppuccin-base px-8 py-3 rounded-lg hover:bg-catppuccin-sapphire transition-all duration-300 font-semibold shadow-lg hover:shadow-xl hover:shadow-catppuccin-blue/30 active:scale-95 hover:-translate-y-1"
         >
           Get In Touch
         </a>
-        <a 
-          href="https://github.com/soenkenils" 
+        <a
+          href="https://github.com/soenkenils"
           target="_blank"
           rel="noopener noreferrer"
-          class="border-2 border-catppuccin-blue text-catppuccin-blue px-8 py-3 rounded-lg hover:bg-catppuccin-blue hover:text-catppuccin-base transition-colors font-semibold"
+          class="group border-2 border-catppuccin-blue text-catppuccin-blue px-8 py-3 rounded-lg hover:bg-catppuccin-blue hover:text-catppuccin-base transition-all duration-300 font-semibold shadow-lg hover:shadow-xl hover:shadow-catppuccin-blue/30 active:scale-95 hover:-translate-y-1"
         >
           View GitHub
         </a>
@@ -44,3 +50,61 @@ import profileImage from '../assets/profile.jpg';
     </div>
   </div>
 </section>
+
+<style>
+  /* Gradient text effect */
+  .gradient-text {
+    background: linear-gradient(135deg, #89b4fa 0%, #cba6f7 50%, #f5c2e7 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradient-shift 8s ease infinite;
+    background-size: 200% 200%;
+  }
+
+  .gradient-text-subtle {
+    background: linear-gradient(135deg, #89b4fa 0%, #74c7ec 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  @keyframes gradient-shift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* Profile image entrance animation */
+  .profile-image-container {
+    animation: fadeInScale 1s ease-out;
+  }
+
+  @keyframes fadeInScale {
+    0% {
+      opacity: 0;
+      transform: scale(0.8);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+</style>
+
+<script>
+  // Parallax effect for background
+  const parallaxBg = document.querySelector('.parallax-bg');
+
+  if (parallaxBg) {
+    window.addEventListener('scroll', () => {
+      const scrolled = window.pageYOffset;
+      const heroSection = document.getElementById('hero');
+
+      if (heroSection && scrolled < heroSection.offsetHeight) {
+        const parallaxElement = parallaxBg as HTMLElement;
+        parallaxElement.style.transform = `translateY(${scrolled * 0.5}px)`;
+      }
+    });
+  }
+</script>

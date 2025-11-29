@@ -1,13 +1,15 @@
 ---
 ---
 
-<section id="about" class="py-20 bg-catppuccin-mantle">
+<section id="about" class="py-20 bg-catppuccin-mantle fade-in-section">
   <div class="container mx-auto px-6">
-    <h2 class="text-4xl font-bold text-center text-catppuccin-text mb-16">About Me</h2>
-    
+    <h2 class="text-4xl font-bold text-center text-catppuccin-text mb-16">
+      <span class="gradient-heading">About Me</span>
+    </h2>
+
     <div class="max-w-4xl mx-auto">
       <div class="grid md:grid-cols-2 gap-12 items-center">
-        <div>
+        <div class="fade-in-section">
           <h3 class="text-2xl font-semibold text-catppuccin-text mb-6">Engineering Leader</h3>
           <p class="text-catppuccin-subtext1 mb-6 leading-relaxed">
             I'm an Engineering Team Lead at Tomorrow, where I help build financial products that people actually use.
@@ -18,23 +20,23 @@
             architecture decisions, code reviews, and helping developers grow.
           </p>
           <div class="flex flex-wrap gap-3">
-            <span class="bg-catppuccin-blue/20 text-catppuccin-blue px-3 py-1 rounded-full text-sm font-medium">Team Leadership</span>
-            <span class="bg-catppuccin-green/20 text-catppuccin-green px-3 py-1 rounded-full text-sm font-medium">Software Engineering</span>
-            <span class="bg-catppuccin-mauve/20 text-catppuccin-mauve px-3 py-1 rounded-full text-sm font-medium">FinTech</span>
-            <span class="bg-catppuccin-peach/20 text-catppuccin-peach px-3 py-1 rounded-full text-sm font-medium">Development</span>
+            <span class="bg-catppuccin-blue/20 text-catppuccin-blue px-3 py-1 rounded-full text-sm font-medium hover:bg-catppuccin-blue/30 transition-all duration-300 cursor-default hover:scale-105">Team Leadership</span>
+            <span class="bg-catppuccin-green/20 text-catppuccin-green px-3 py-1 rounded-full text-sm font-medium hover:bg-catppuccin-green/30 transition-all duration-300 cursor-default hover:scale-105">Software Engineering</span>
+            <span class="bg-catppuccin-mauve/20 text-catppuccin-mauve px-3 py-1 rounded-full text-sm font-medium hover:bg-catppuccin-mauve/30 transition-all duration-300 cursor-default hover:scale-105">FinTech</span>
+            <span class="bg-catppuccin-peach/20 text-catppuccin-peach px-3 py-1 rounded-full text-sm font-medium hover:bg-catppuccin-peach/30 transition-all duration-300 cursor-default hover:scale-105">Development</span>
           </div>
         </div>
-        
+
         <div class="space-y-6">
-          <div class="bg-catppuccin-surface0 p-6 rounded-lg">
+          <div class="stagger-item bg-catppuccin-surface0/80 backdrop-blur-sm p-6 rounded-lg border border-catppuccin-surface1/50 hover:bg-catppuccin-surface0 hover:border-catppuccin-blue/30 transition-all duration-300 hover:shadow-lg hover:shadow-catppuccin-blue/10 hover:-translate-y-1">
             <h4 class="font-semibold text-catppuccin-text mb-2">Current Role</h4>
-            <p class="text-catppuccin-subtext1">Engineering Team Lead at <a href="https://www.tomorrow.one" class="text-catppuccin-blue hover:text-catppuccin-sapphire">Tomorrow</a></p>
+            <p class="text-catppuccin-subtext1">Engineering Team Lead at <a href="https://www.tomorrow.one" class="text-catppuccin-blue hover:text-catppuccin-sapphire transition-colors">Tomorrow</a></p>
           </div>
-          <div class="bg-catppuccin-surface0 p-6 rounded-lg">
+          <div class="stagger-item bg-catppuccin-surface0/80 backdrop-blur-sm p-6 rounded-lg border border-catppuccin-surface1/50 hover:bg-catppuccin-surface0 hover:border-catppuccin-blue/30 transition-all duration-300 hover:shadow-lg hover:shadow-catppuccin-blue/10 hover:-translate-y-1">
             <h4 class="font-semibold text-catppuccin-text mb-2">Location</h4>
             <p class="text-catppuccin-subtext1">Lübeck, Germany</p>
           </div>
-          <div class="bg-catppuccin-surface0 p-6 rounded-lg">
+          <div class="stagger-item bg-catppuccin-surface0/80 backdrop-blur-sm p-6 rounded-lg border border-catppuccin-surface1/50 hover:bg-catppuccin-surface0 hover:border-catppuccin-blue/30 transition-all duration-300 hover:shadow-lg hover:shadow-catppuccin-blue/10 hover:-translate-y-1">
             <h4 class="font-semibold text-catppuccin-text mb-2">Education</h4>
             <p class="text-catppuccin-subtext1">Master of Science in Computer Science at University of Lübeck</p>
           </div>
@@ -43,3 +45,12 @@
     </div>
   </div>
 </section>
+
+<style>
+  .gradient-heading {
+    background: linear-gradient(135deg, #89b4fa 0%, #74c7ec 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+</style>
