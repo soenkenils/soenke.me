@@ -1,51 +1,53 @@
 ---
 ---
 
-<section id="experience" class="py-20 bg-catppuccin-base">
+<section id="experience" class="py-20 bg-catppuccin-base fade-in-section">
   <div class="container mx-auto px-6">
-    <h2 class="text-4xl font-bold text-center text-catppuccin-text mb-16">Experience</h2>
-    
+    <h2 class="text-4xl font-bold text-center text-catppuccin-text mb-16">
+      <span class="gradient-heading">Experience</span>
+    </h2>
+
     <div class="max-w-4xl mx-auto">
       <div class="relative">
         <div class="absolute left-8 top-0 bottom-0 w-0.5 bg-catppuccin-surface1"></div>
-        
+
         <div class="space-y-12">
-          <div class="relative flex items-start">
-            <div class="absolute left-6 w-4 h-4 bg-catppuccin-blue rounded-full border-4 border-catppuccin-base shadow"></div>
+          <div class="relative flex items-start stagger-item">
+            <div class="timeline-dot absolute left-6 w-4 h-4 bg-catppuccin-blue rounded-full border-4 border-catppuccin-base shadow-lg shadow-catppuccin-blue/50"></div>
             <div class="ml-16">
-              <div class="bg-catppuccin-surface0 p-6 rounded-lg border border-catppuccin-surface1">
+              <div class="bg-catppuccin-surface0/80 backdrop-blur-sm p-6 rounded-lg border border-catppuccin-surface1/50 hover:bg-catppuccin-surface0 hover:border-catppuccin-blue/30 transition-all duration-300 hover:shadow-xl hover:shadow-catppuccin-blue/10 hover:-translate-y-1">
                 <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
                   <h3 class="text-xl font-semibold text-catppuccin-text">Engineering Team Lead</h3>
-                  <span class="text-catppuccin-blue font-medium">Current</span>
+                  <span class="bg-catppuccin-blue/20 text-catppuccin-blue px-3 py-1 rounded-full text-sm font-medium">Current</span>
                 </div>
                 <p class="text-catppuccin-subtext1 font-medium mb-2">Tomorrow</p>
-                <p class="text-catppuccin-subtext0 mb-4">
+                <p class="text-catppuccin-subtext0 mb-4 leading-relaxed">
                   Leading the engineering team building Tomorrow's mobile banking platform. I spend my days on system design,
                   code reviews, and helping my team ship features without breaking prod.
                 </p>
                 <div class="flex flex-wrap gap-2">
-                  <span class="bg-catppuccin-blue/20 text-catppuccin-blue px-2 py-1 rounded text-sm">Leadership</span>
-                  <span class="bg-catppuccin-green/20 text-catppuccin-green px-2 py-1 rounded text-sm">FinTech</span>
-                  <span class="bg-catppuccin-mauve/20 text-catppuccin-mauve px-2 py-1 rounded text-sm">Team Management</span>
+                  <span class="bg-catppuccin-blue/20 text-catppuccin-blue px-2 py-1 rounded text-sm hover:bg-catppuccin-blue/30 transition-colors">Leadership</span>
+                  <span class="bg-catppuccin-green/20 text-catppuccin-green px-2 py-1 rounded text-sm hover:bg-catppuccin-green/30 transition-colors">FinTech</span>
+                  <span class="bg-catppuccin-mauve/20 text-catppuccin-mauve px-2 py-1 rounded text-sm hover:bg-catppuccin-mauve/30 transition-colors">Team Management</span>
                 </div>
               </div>
             </div>
           </div>
-          
-          <div class="relative flex items-start">
-            <div class="absolute left-6 w-4 h-4 bg-catppuccin-overlay0 rounded-full border-4 border-catppuccin-base shadow"></div>
+
+          <div class="relative flex items-start stagger-item">
+            <div class="timeline-dot absolute left-6 w-4 h-4 bg-catppuccin-overlay0 rounded-full border-4 border-catppuccin-base shadow"></div>
             <div class="ml-16">
-              <div class="bg-catppuccin-surface0 p-6 rounded-lg border border-catppuccin-surface1">
+              <div class="bg-catppuccin-surface0/80 backdrop-blur-sm p-6 rounded-lg border border-catppuccin-surface1/50 hover:bg-catppuccin-surface0 hover:border-catppuccin-mauve/30 transition-all duration-300 hover:shadow-xl hover:shadow-catppuccin-mauve/10 hover:-translate-y-1">
                 <h3 class="text-xl font-semibold text-catppuccin-text mb-2">Software Engineer</h3>
                 <p class="text-catppuccin-subtext1 font-medium mb-2">Previous Roles</p>
-                <p class="text-catppuccin-subtext0 mb-4">
+                <p class="text-catppuccin-subtext0 mb-4 leading-relaxed">
                   Spent years building software across different domains and technologies before transitioning into
                   leadership. Still write code whenever I can.
                 </p>
                 <div class="flex flex-wrap gap-2">
-                  <span class="bg-catppuccin-peach/20 text-catppuccin-peach px-2 py-1 rounded text-sm">Development</span>
-                  <span class="bg-catppuccin-red/20 text-catppuccin-red px-2 py-1 rounded text-sm">Problem Solving</span>
-                  <span class="bg-catppuccin-yellow/20 text-catppuccin-yellow px-2 py-1 rounded text-sm">Technology</span>
+                  <span class="bg-catppuccin-peach/20 text-catppuccin-peach px-2 py-1 rounded text-sm hover:bg-catppuccin-peach/30 transition-colors">Development</span>
+                  <span class="bg-catppuccin-red/20 text-catppuccin-red px-2 py-1 rounded text-sm hover:bg-catppuccin-red/30 transition-colors">Problem Solving</span>
+                  <span class="bg-catppuccin-yellow/20 text-catppuccin-yellow px-2 py-1 rounded text-sm hover:bg-catppuccin-yellow/30 transition-colors">Technology</span>
                 </div>
               </div>
             </div>
@@ -55,3 +57,28 @@
     </div>
   </div>
 </section>
+
+<style>
+  .gradient-heading {
+    background: linear-gradient(135deg, #89b4fa 0%, #74c7ec 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Timeline dot pulse animation */
+  .timeline-dot {
+    animation: pulse-dot 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.8;
+      transform: scale(1.1);
+    }
+  }
+</style>

@@ -1,20 +1,32 @@
 ---
 ---
 
-<header class="fixed top-0 w-full bg-catppuccin-base/80 backdrop-blur-md border-b border-catppuccin-surface0 z-50">
+<header class="fixed top-0 w-full bg-catppuccin-base/70 backdrop-blur-xl border-b border-catppuccin-surface0/50 z-50 shadow-lg shadow-catppuccin-crust/10">
   <nav class="container mx-auto px-6 py-4">
     <div class="flex items-center justify-between">
       <div class="text-xl font-bold text-catppuccin-text">
         soenke.me
       </div>
       <div class="hidden md:flex space-x-8">
-        <a href="#about" class="text-catppuccin-subtext1 hover:text-catppuccin-text transition-colors">About</a>
-        <a href="#experience" class="text-catppuccin-subtext1 hover:text-catppuccin-text transition-colors">Experience</a>
-        <a href="#projects" class="text-catppuccin-subtext1 hover:text-catppuccin-text transition-colors">What I Do</a>
-        <a href="#contact" class="text-catppuccin-subtext1 hover:text-catppuccin-text transition-colors">Contact</a>
+        <a href="#about" class="nav-link relative text-catppuccin-subtext1 hover:text-catppuccin-text transition-colors py-2">
+          <span>About</span>
+          <span class="nav-indicator absolute bottom-0 left-0 w-0 h-0.5 bg-catppuccin-blue transition-all duration-300"></span>
+        </a>
+        <a href="#experience" class="nav-link relative text-catppuccin-subtext1 hover:text-catppuccin-text transition-colors py-2">
+          <span>Experience</span>
+          <span class="nav-indicator absolute bottom-0 left-0 w-0 h-0.5 bg-catppuccin-blue transition-all duration-300"></span>
+        </a>
+        <a href="#projects" class="nav-link relative text-catppuccin-subtext1 hover:text-catppuccin-text transition-colors py-2">
+          <span>What I Do</span>
+          <span class="nav-indicator absolute bottom-0 left-0 w-0 h-0.5 bg-catppuccin-blue transition-all duration-300"></span>
+        </a>
+        <a href="#contact" class="nav-link relative text-catppuccin-subtext1 hover:text-catppuccin-text transition-colors py-2">
+          <span>Contact</span>
+          <span class="nav-indicator absolute bottom-0 left-0 w-0 h-0.5 bg-catppuccin-blue transition-all duration-300"></span>
+        </a>
       </div>
       <div class="md:hidden">
-        <button id="mobile-menu-button" class="text-catppuccin-subtext1 hover:text-catppuccin-text transition-colors" aria-label="Toggle menu" aria-expanded="false">
+        <button id="mobile-menu-button" class="text-catppuccin-subtext1 hover:text-catppuccin-text transition-all duration-200 hover:scale-110" aria-label="Toggle menu" aria-expanded="false">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3 12h18M3 6h18M3 18h18"></path>
           </svg>
@@ -23,31 +35,52 @@
     </div>
 
     <!-- Mobile Menu -->
-    <div id="mobile-menu" class="md:hidden hidden overflow-hidden">
+    <div id="mobile-menu" class="md:hidden max-h-0 opacity-0 overflow-hidden transition-all duration-300 ease-in-out">
       <div class="pt-4 pb-3 space-y-3">
-        <a href="#about" class="block text-catppuccin-subtext1 hover:text-catppuccin-text transition-colors py-2 mobile-menu-link">About</a>
-        <a href="#experience" class="block text-catppuccin-subtext1 hover:text-catppuccin-text transition-colors py-2 mobile-menu-link">Experience</a>
-        <a href="#projects" class="block text-catppuccin-subtext1 hover:text-catppuccin-text transition-colors py-2 mobile-menu-link">What I Do</a>
-        <a href="#contact" class="block text-catppuccin-subtext1 hover:text-catppuccin-text transition-colors py-2 mobile-menu-link">Contact</a>
+        <a href="#about" class="block text-catppuccin-subtext1 hover:text-catppuccin-text transition-all duration-200 hover:translate-x-2 py-2 mobile-menu-link">About</a>
+        <a href="#experience" class="block text-catppuccin-subtext1 hover:text-catppuccin-text transition-all duration-200 hover:translate-x-2 py-2 mobile-menu-link">Experience</a>
+        <a href="#projects" class="block text-catppuccin-subtext1 hover:text-catppuccin-text transition-all duration-200 hover:translate-x-2 py-2 mobile-menu-link">What I Do</a>
+        <a href="#contact" class="block text-catppuccin-subtext1 hover:text-catppuccin-text transition-all duration-200 hover:translate-x-2 py-2 mobile-menu-link">Contact</a>
       </div>
     </div>
   </nav>
 </header>
 
+<style>
+  /* Active nav link styling */
+  .nav-link.active {
+    color: var(--catppuccin-blue, #89b4fa);
+  }
+
+  .nav-link.active .nav-indicator {
+    width: 100%;
+  }
+
+  .nav-link:hover .nav-indicator {
+    width: 100%;
+  }
+</style>
+
 <script>
   const menuButton = document.getElementById('mobile-menu-button');
   const mobileMenu = document.getElementById('mobile-menu');
   const menuLinks = document.querySelectorAll('.mobile-menu-link');
+  const navLinks = document.querySelectorAll('.nav-link');
 
+  // Mobile menu toggle with smooth animation
   if (menuButton && mobileMenu) {
-    menuButton.addEventListener('click', () => {
-      const isHidden = mobileMenu.classList.contains('hidden');
+    let isOpen = false;
 
-      if (isHidden) {
-        mobileMenu.classList.remove('hidden');
+    menuButton.addEventListener('click', () => {
+      isOpen = !isOpen;
+
+      if (isOpen) {
+        mobileMenu.style.maxHeight = mobileMenu.scrollHeight + 'px';
+        mobileMenu.style.opacity = '1';
         menuButton.setAttribute('aria-expanded', 'true');
       } else {
-        mobileMenu.classList.add('hidden');
+        mobileMenu.style.maxHeight = '0';
+        mobileMenu.style.opacity = '0';
         menuButton.setAttribute('aria-expanded', 'false');
       }
     });
@@ -55,9 +88,36 @@
     // Close menu when a link is clicked
     menuLinks.forEach(link => {
       link.addEventListener('click', () => {
-        mobileMenu.classList.add('hidden');
+        isOpen = false;
+        mobileMenu.style.maxHeight = '0';
+        mobileMenu.style.opacity = '0';
         menuButton.setAttribute('aria-expanded', 'false');
       });
     });
   }
+
+  // Active section highlighting on scroll
+  const sections = document.querySelectorAll('section[id]');
+
+  function highlightActiveSection() {
+    const scrollY = window.pageYOffset;
+
+    sections.forEach(section => {
+      const sectionHeight = section.offsetHeight;
+      const sectionTop = section.offsetTop - 100;
+      const sectionId = section.getAttribute('id');
+
+      if (scrollY > sectionTop && scrollY <= sectionTop + sectionHeight) {
+        navLinks.forEach(link => {
+          link.classList.remove('active');
+          if (link.getAttribute('href') === `#${sectionId}`) {
+            link.classList.add('active');
+          }
+        });
+      }
+    });
+  }
+
+  window.addEventListener('scroll', highlightActiveSection);
+  window.addEventListener('load', highlightActiveSection);
 </script>
