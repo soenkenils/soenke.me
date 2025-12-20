@@ -3,107 +3,205 @@ import { Image } from 'astro:assets';
 import profileImage from '../assets/profile.jpg';
 ---
 
-<section id="hero" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-catppuccin-mantle to-catppuccin-crust relative overflow-hidden">
-  <!-- Parallax background decoration -->
-  <div class="parallax-bg absolute inset-0 opacity-20">
-    <div class="absolute top-20 left-10 w-64 h-64 bg-catppuccin-blue/10 rounded-full blur-3xl"></div>
-    <div class="absolute bottom-20 right-10 w-96 h-96 bg-catppuccin-mauve/10 rounded-full blur-3xl"></div>
+<section id="hero" class="min-h-screen flex items-center justify-center bg-nordic-base relative overflow-hidden grain-overlay">
+  <!-- Atmospheric background -->
+  <div class="absolute inset-0 overflow-hidden">
+    <!-- Gradient orbs -->
+    <div class="absolute top-1/4 -left-32 w-96 h-96 bg-nordic-amber/5 rounded-full blur-[120px] animate-glow-pulse"></div>
+    <div class="absolute bottom-1/4 -right-32 w-[500px] h-[500px] bg-nordic-sky/5 rounded-full blur-[150px] animate-glow-pulse" style="animation-delay: 1.5s;"></div>
+
+    <!-- Geometric decorations -->
+    <div class="absolute top-20 left-[15%] w-px h-32 bg-gradient-to-b from-transparent via-nordic-amber/30 to-transparent hero-line" style="animation-delay: 0.5s;"></div>
+    <div class="absolute bottom-32 right-[20%] w-px h-24 bg-gradient-to-b from-transparent via-nordic-muted/20 to-transparent hero-line" style="animation-delay: 0.8s;"></div>
+
+    <!-- Corner dots -->
+    <div class="absolute top-24 right-[10%] w-1.5 h-1.5 rounded-full bg-nordic-amber/40 hero-dot"></div>
+    <div class="absolute bottom-40 left-[12%] w-1 h-1 rounded-full bg-nordic-muted/30 hero-dot" style="animation-delay: 0.3s;"></div>
   </div>
 
   <div class="container mx-auto px-6 py-20 relative z-10">
-    <div class="text-center">
-      <div class="mb-8 profile-image-container">
-        <Image
-          src={profileImage}
-          alt="Sönke Nommensen"
-          class="w-32 h-32 md:w-40 md:h-40 rounded-full mx-auto object-cover shadow-2xl ring-4 ring-catppuccin-surface0 hover:ring-catppuccin-blue transition-all duration-500 hover:scale-105"
-          width={160}
-          height={160}
-          loading="eager"
-        />
+    <div class="max-w-4xl mx-auto">
+      <!-- Profile image with artistic treatment -->
+      <div class="mb-12 hero-image">
+        <div class="relative w-28 h-28 md:w-36 md:h-36 mx-auto">
+          <div class="absolute inset-0 rounded-2xl bg-gradient-to-br from-nordic-amber/20 to-nordic-sky/10 rotate-6 scale-105"></div>
+          <Image
+            src={profileImage}
+            alt="Sönke Nommensen"
+            class="relative w-full h-full rounded-2xl object-cover shadow-2xl shadow-nordic-void/50 ring-1 ring-nordic-border"
+            width={144}
+            height={144}
+            loading="eager"
+          />
+        </div>
       </div>
-      <h1 class="text-4xl md:text-5xl font-bold mb-6">
-        <span class="gradient-text">Sönke Nommensen</span>
-      </h1>
-      <p class="text-xl md:text-2xl text-catppuccin-subtext1 mb-8 max-w-3xl mx-auto">
-        <span class="gradient-text-subtle">Engineering Team Lead</span> at Tomorrow | Building financial technology solutions
-      </p>
-      <p class="text-lg text-catppuccin-subtext0 mb-12 max-w-2xl mx-auto leading-relaxed">
-        Software engineer from Lübeck, Germany. I lead teams, write code, and occasionally convince people that tests are worth writing.
-      </p>
-      <div class="flex flex-col sm:flex-row gap-4 justify-center">
-        <a
-          href="#contact"
-          class="group bg-catppuccin-blue text-catppuccin-base px-8 py-3 rounded-lg hover:bg-catppuccin-sapphire transition-all duration-300 font-semibold shadow-lg hover:shadow-xl hover:shadow-catppuccin-blue/30 active:scale-95 hover:-translate-y-1"
-        >
-          Get In Touch
-        </a>
-        <a
-          href="https://github.com/soenkenils"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="group border-2 border-catppuccin-blue text-catppuccin-blue px-8 py-3 rounded-lg hover:bg-catppuccin-blue hover:text-catppuccin-base transition-all duration-300 font-semibold shadow-lg hover:shadow-xl hover:shadow-catppuccin-blue/30 active:scale-95 hover:-translate-y-1"
-        >
-          View GitHub
-        </a>
+
+      <!-- Main headline with editorial typography -->
+      <div class="text-center">
+        <h1 class="hero-title mb-6">
+          <span class="block text-4xl md:text-5xl lg:text-6xl font-serif italic text-nordic-text tracking-tight">
+            Sönke Nommensen
+          </span>
+        </h1>
+
+        <!-- Role with accent -->
+        <div class="hero-role mb-8 flex items-center justify-center gap-4">
+          <span class="w-12 h-px bg-nordic-border hidden sm:block"></span>
+          <p class="text-lg md:text-xl text-nordic-amber font-medium tracking-wide uppercase">
+            Engineering Team Lead
+          </p>
+          <span class="w-12 h-px bg-nordic-border hidden sm:block"></span>
+        </div>
+
+        <!-- Subtitle -->
+        <p class="hero-subtitle text-xl md:text-2xl text-nordic-text-secondary mb-6 max-w-2xl mx-auto font-light leading-relaxed">
+          Building financial technology at <a href="https://www.tomorrow.one" target="_blank" rel="noopener noreferrer" class="text-nordic-sky hover:text-nordic-amber transition-colors duration-300 link-underline">Tomorrow</a>
+        </p>
+
+        <!-- Personal tagline -->
+        <p class="hero-tagline text-base md:text-lg text-nordic-muted mb-14 max-w-xl mx-auto leading-relaxed">
+          Software engineer from Lübeck, Germany. I lead teams, write code, and occasionally convince people that tests are worth writing.
+        </p>
+
+        <!-- CTA -->
+        <div class="hero-cta">
+          <a
+            href="#contact"
+            class="group relative inline-block bg-nordic-amber text-nordic-void px-8 py-3.5 rounded-lg font-semibold text-sm tracking-wide uppercase overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-nordic-amber/20 active:scale-[0.98]"
+          >
+            <span class="relative z-10">Get In Touch</span>
+            <div class="absolute inset-0 bg-gradient-to-r from-nordic-amber to-nordic-amber-dim opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          </a>
+        </div>
+      </div>
+
+      <!-- Scroll indicator -->
+      <div class="absolute bottom-8 left-1/2 -translate-x-1/2 scroll-indicator">
+        <div class="flex flex-col items-center gap-2 text-nordic-muted">
+          <span class="text-xs tracking-widest uppercase">Scroll</span>
+          <div class="w-px h-8 bg-gradient-to-b from-nordic-muted to-transparent"></div>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
 <style>
-  /* Gradient text effect */
-  .gradient-text {
-    background: linear-gradient(135deg, #89b4fa 0%, #cba6f7 50%, #f5c2e7 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    animation: gradient-shift 8s ease infinite;
-    background-size: 200% 200%;
+  /* Staggered entrance animations */
+  .hero-image {
+    opacity: 0;
+    animation: heroFadeIn 1s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
   }
 
-  .gradient-text-subtle {
-    background: linear-gradient(135deg, #89b4fa 0%, #74c7ec 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+  .hero-title {
+    opacity: 0;
+    animation: heroFadeIn 1s cubic-bezier(0.16, 1, 0.3, 1) 0.4s forwards;
   }
 
-  @keyframes gradient-shift {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+  .hero-role {
+    opacity: 0;
+    animation: heroFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.6s forwards;
   }
 
-  /* Profile image entrance animation */
-  .profile-image-container {
-    animation: fadeInScale 1s ease-out;
+  .hero-subtitle {
+    opacity: 0;
+    animation: heroFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.7s forwards;
   }
 
-  @keyframes fadeInScale {
-    0% {
+  .hero-tagline {
+    opacity: 0;
+    animation: heroFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.8s forwards;
+  }
+
+  .hero-cta {
+    opacity: 0;
+    animation: heroFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.9s forwards;
+  }
+
+  .scroll-indicator {
+    opacity: 0;
+    animation: heroFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 1.2s forwards;
+  }
+
+  .hero-line {
+    opacity: 0;
+    transform: scaleY(0);
+    animation: lineReveal 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  .hero-dot {
+    opacity: 0;
+    transform: scale(0);
+    animation: dotReveal 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+
+  @keyframes heroFadeIn {
+    from {
       opacity: 0;
-      transform: scale(0.8);
+      transform: translateY(20px);
     }
-    100% {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes lineReveal {
+    from {
+      opacity: 0;
+      transform: scaleY(0);
+    }
+    to {
+      opacity: 1;
+      transform: scaleY(1);
+    }
+  }
+
+  @keyframes dotReveal {
+    from {
+      opacity: 0;
+      transform: scale(0);
+    }
+    to {
       opacity: 1;
       transform: scale(1);
+    }
+  }
+
+  /* Scroll indicator pulse */
+  .scroll-indicator {
+    animation: heroFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 1.2s forwards,
+               scrollPulse 2s ease-in-out 2s infinite;
+  }
+
+  @keyframes scrollPulse {
+    0%, 100% {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    50% {
+      opacity: 0.5;
+      transform: translateX(-50%) translateY(4px);
     }
   }
 </style>
 
 <script>
-  // Parallax effect for background
-  const parallaxBg = document.querySelector('.parallax-bg');
+  // Parallax effect for background elements
+  const hero = document.getElementById('hero');
 
-  if (parallaxBg) {
+  if (hero) {
     window.addEventListener('scroll', () => {
       const scrolled = window.pageYOffset;
-      const heroSection = document.getElementById('hero');
+      const heroHeight = hero.offsetHeight;
 
-      if (heroSection && scrolled < heroSection.offsetHeight) {
-        const parallaxElement = parallaxBg as HTMLElement;
-        parallaxElement.style.transform = `translateY(${scrolled * 0.5}px)`;
+      if (scrolled < heroHeight) {
+        const parallaxElements = hero.querySelectorAll('.animate-glow-pulse');
+        parallaxElements.forEach((el, i) => {
+          const element = el as HTMLElement;
+          const speed = 0.3 + (i * 0.1);
+          element.style.transform = `translateY(${scrolled * speed}px)`;
+        });
       }
     });
   }

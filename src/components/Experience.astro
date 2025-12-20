@@ -1,54 +1,95 @@
 ---
 ---
 
-<section id="experience" class="py-20 bg-catppuccin-base fade-in-section">
-  <div class="container mx-auto px-6">
-    <h2 class="text-4xl font-bold text-center text-catppuccin-text mb-16">
-      <span class="gradient-heading">Experience</span>
-    </h2>
+<section id="experience" class="py-24 md:py-32 bg-nordic-base relative overflow-hidden grain-overlay">
+  <div class="container mx-auto px-6 relative z-10">
+    <!-- Section header -->
+    <div class="max-w-4xl mx-auto mb-16 fade-in-section">
+      <div class="flex items-center gap-4 mb-6">
+        <span class="text-nordic-amber font-mono text-sm tracking-wider">02</span>
+        <span class="w-12 h-px bg-nordic-border"></span>
+      </div>
+      <h2 class="text-4xl md:text-5xl font-serif italic text-nordic-text mb-4">
+        Experience
+      </h2>
+    </div>
 
     <div class="max-w-4xl mx-auto">
+      <!-- Timeline -->
       <div class="relative">
-        <div class="absolute left-8 top-0 bottom-0 w-0.5 bg-catppuccin-surface1"></div>
+        <!-- Timeline line -->
+        <div class="absolute left-0 md:left-8 top-0 bottom-0 w-px bg-gradient-to-b from-nordic-amber via-nordic-border to-transparent"></div>
 
         <div class="space-y-12">
-          <div class="relative flex items-start stagger-item">
-            <div class="timeline-dot absolute left-6 w-4 h-4 bg-catppuccin-blue rounded-full border-4 border-catppuccin-base shadow-lg shadow-catppuccin-blue/50"></div>
-            <div class="ml-16">
-              <div class="bg-catppuccin-surface0/80 backdrop-blur-sm p-6 rounded-lg border border-catppuccin-surface1/50 hover:bg-catppuccin-surface0 hover:border-catppuccin-blue/30 transition-all duration-300 hover:shadow-xl hover:shadow-catppuccin-blue/10 hover:-translate-y-1">
-                <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
-                  <h3 class="text-xl font-semibold text-catppuccin-text">Engineering Team Lead</h3>
-                  <span class="bg-catppuccin-blue/20 text-catppuccin-blue px-3 py-1 rounded-full text-sm font-medium">Current</span>
+          <!-- Current role -->
+          <div class="relative pl-8 md:pl-20 stagger-item">
+            <!-- Timeline dot -->
+            <div class="absolute left-0 md:left-8 top-2 -translate-x-1/2">
+              <div class="relative">
+                <div class="w-4 h-4 rounded-full bg-nordic-amber shadow-lg shadow-nordic-amber/30"></div>
+                <div class="absolute inset-0 w-4 h-4 rounded-full bg-nordic-amber/50 animate-ping"></div>
+              </div>
+            </div>
+
+            <!-- Card -->
+            <div class="group bg-nordic-card border border-nordic-border/50 rounded-xl p-6 md:p-8 transition-all duration-300 hover:border-nordic-amber/30 card-glow">
+              <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-4">
+                <div>
+                  <h3 class="text-xl md:text-2xl font-medium text-nordic-text mb-1">Engineering Team Lead</h3>
+                  <p class="text-nordic-amber font-medium">Tomorrow</p>
                 </div>
-                <p class="text-catppuccin-subtext1 font-medium mb-2">Tomorrow</p>
-                <p class="text-catppuccin-subtext0 mb-4 leading-relaxed">
-                  Leading the engineering team building Tomorrow's mobile banking platform. I spend my days on system design,
-                  code reviews, and helping my team ship features without breaking prod.
-                </p>
-                <div class="flex flex-wrap gap-2">
-                  <span class="bg-catppuccin-blue/20 text-catppuccin-blue px-2 py-1 rounded text-sm hover:bg-catppuccin-blue/30 transition-colors">Leadership</span>
-                  <span class="bg-catppuccin-green/20 text-catppuccin-green px-2 py-1 rounded text-sm hover:bg-catppuccin-green/30 transition-colors">FinTech</span>
-                  <span class="bg-catppuccin-mauve/20 text-catppuccin-mauve px-2 py-1 rounded text-sm hover:bg-catppuccin-mauve/30 transition-colors">Team Management</span>
-                </div>
+                <span class="inline-flex items-center gap-2 bg-nordic-amber/10 text-nordic-amber px-3 py-1 rounded-full text-sm font-medium w-fit">
+                  <span class="w-1.5 h-1.5 rounded-full bg-nordic-amber animate-pulse"></span>
+                  Current
+                </span>
+              </div>
+
+              <p class="text-nordic-muted leading-relaxed mb-6">
+                Leading the engineering team building Tomorrow's mobile banking platform. I spend my days on system design, code reviews, and helping my team ship features without breaking prod.
+              </p>
+
+              <div class="flex flex-wrap gap-2">
+                <span class="text-xs font-mono text-nordic-text-secondary bg-nordic-surface/50 px-3 py-1 rounded-md border border-nordic-border/30">
+                  Leadership
+                </span>
+                <span class="text-xs font-mono text-nordic-text-secondary bg-nordic-surface/50 px-3 py-1 rounded-md border border-nordic-border/30">
+                  FinTech
+                </span>
+                <span class="text-xs font-mono text-nordic-text-secondary bg-nordic-surface/50 px-3 py-1 rounded-md border border-nordic-border/30">
+                  Team Management
+                </span>
               </div>
             </div>
           </div>
 
-          <div class="relative flex items-start stagger-item">
-            <div class="timeline-dot absolute left-6 w-4 h-4 bg-catppuccin-overlay0 rounded-full border-4 border-catppuccin-base shadow"></div>
-            <div class="ml-16">
-              <div class="bg-catppuccin-surface0/80 backdrop-blur-sm p-6 rounded-lg border border-catppuccin-surface1/50 hover:bg-catppuccin-surface0 hover:border-catppuccin-mauve/30 transition-all duration-300 hover:shadow-xl hover:shadow-catppuccin-mauve/10 hover:-translate-y-1">
-                <h3 class="text-xl font-semibold text-catppuccin-text mb-2">Software Engineer</h3>
-                <p class="text-catppuccin-subtext1 font-medium mb-2">Previous Roles</p>
-                <p class="text-catppuccin-subtext0 mb-4 leading-relaxed">
-                  Spent years building software across different domains and technologies before transitioning into
-                  leadership. Still write code whenever I can.
-                </p>
-                <div class="flex flex-wrap gap-2">
-                  <span class="bg-catppuccin-peach/20 text-catppuccin-peach px-2 py-1 rounded text-sm hover:bg-catppuccin-peach/30 transition-colors">Development</span>
-                  <span class="bg-catppuccin-red/20 text-catppuccin-red px-2 py-1 rounded text-sm hover:bg-catppuccin-red/30 transition-colors">Problem Solving</span>
-                  <span class="bg-catppuccin-yellow/20 text-catppuccin-yellow px-2 py-1 rounded text-sm hover:bg-catppuccin-yellow/30 transition-colors">Technology</span>
-                </div>
+          <!-- Previous role -->
+          <div class="relative pl-8 md:pl-20 stagger-item">
+            <!-- Timeline dot -->
+            <div class="absolute left-0 md:left-8 top-2 -translate-x-1/2">
+              <div class="w-3 h-3 rounded-full bg-nordic-border border-2 border-nordic-base"></div>
+            </div>
+
+            <!-- Card -->
+            <div class="group bg-nordic-card/50 border border-nordic-border/30 rounded-xl p-6 md:p-8 transition-all duration-300 hover:border-nordic-muted/30 hover:bg-nordic-card">
+              <div class="mb-4">
+                <h3 class="text-xl font-medium text-nordic-text-secondary mb-1">Software Engineer</h3>
+                <p class="text-nordic-muted">Previous Roles</p>
+              </div>
+
+              <p class="text-nordic-muted leading-relaxed mb-6">
+                Spent years building software across different domains and technologies before transitioning into leadership. Still write code whenever I can.
+              </p>
+
+              <div class="flex flex-wrap gap-2">
+                <span class="text-xs font-mono text-nordic-muted bg-nordic-surface/30 px-3 py-1 rounded-md border border-nordic-border/20">
+                  Development
+                </span>
+                <span class="text-xs font-mono text-nordic-muted bg-nordic-surface/30 px-3 py-1 rounded-md border border-nordic-border/20">
+                  Problem Solving
+                </span>
+                <span class="text-xs font-mono text-nordic-muted bg-nordic-surface/30 px-3 py-1 rounded-md border border-nordic-border/20">
+                  Technology
+                </span>
               </div>
             </div>
           </div>
@@ -57,28 +98,3 @@
     </div>
   </div>
 </section>
-
-<style>
-  .gradient-heading {
-    background: linear-gradient(135deg, #89b4fa 0%, #74c7ec 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  /* Timeline dot pulse animation */
-  .timeline-dot {
-    animation: pulse-dot 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  }
-
-  @keyframes pulse-dot {
-    0%, 100% {
-      opacity: 1;
-      transform: scale(1);
-    }
-    50% {
-      opacity: 0.8;
-      transform: scale(1.1);
-    }
-  }
-</style>

@@ -7,78 +7,32 @@ import Footer from '../components/Footer.astro';
 <Layout title="Impressum - Sönke Nommensen">
   <Header />
   <main>
-    <section class="py-20 bg-catppuccin-base min-h-screen">
-      <div class="container mx-auto px-6">
-        <div class="max-w-4xl mx-auto">
-          <h1 class="text-4xl font-bold text-catppuccin-text mb-8">Impressum</h1>
-          
-          <div class="bg-catppuccin-surface0 p-8 rounded-lg">
-            <h2 class="text-2xl font-semibold text-catppuccin-text mb-6">Angaben gemäß § 5 TMG</h2>
-            
-            <div class="space-y-6">
-              <div>
-                <h3 class="text-lg font-medium text-catppuccin-text mb-2">Verantwortlich für den Inhalt:</h3>
-                <p class="text-catppuccin-subtext1">
-                  Sönke Nommensen<br>
-                  Herderplatz 5a<br>
-                  23564 Lübeck<br>
-                  Deutschland
-                </p>
-              </div>
-              
-              <div>
-                <h3 class="text-lg font-medium text-catppuccin-text mb-2">Kontakt:</h3>
-                <p class="text-catppuccin-subtext1">
-                  E-Mail: <a href="mailto:hi@soenke.me" class="text-catppuccin-blue hover:text-catppuccin-sapphire">hi@soenke.me</a>
-                </p>
-              </div>
-              
-              <div>
-                <h3 class="text-lg font-medium text-catppuccin-text mb-2">Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV:</h3>
-                <p class="text-catppuccin-subtext1">
-                  Sönke Nommensen<br>
-                  Herderplatz 5a<br>
-                  23564 Lübeck<br>
-                  Deutschland
-                </p>
-              </div>
-              
-              <div>
-                <h3 class="text-lg font-medium text-catppuccin-text mb-2">Streitschlichtung:</h3>
-                <p class="text-catppuccin-subtext1">
-                  Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit:
-                  <a href="https://ec.europa.eu/consumers/odr" target="_blank" rel="noopener noreferrer" class="text-catppuccin-blue hover:text-catppuccin-sapphire">
-                    https://ec.europa.eu/consumers/odr
-                  </a>
-                </p>
-                <p class="text-catppuccin-subtext1 mt-2">
-                  Unsere E-Mail-Adresse finden Sie oben im Impressum.
-                </p>
-                <p class="text-catppuccin-subtext1 mt-2">
-                  Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.
-                </p>
-              </div>
-              
-              <div>
-                <h3 class="text-lg font-medium text-catppuccin-text mb-2">Haftung für Inhalte und Links:</h3>
-                <p class="text-catppuccin-subtext1">
-                  Ich bin für die eigenen Inhalte dieser Website verantwortlich. Für verlinkte externe Websites übernehme ich keine Haftung - diese liegt beim jeweiligen Betreiber.
-                </p>
-              </div>
-              
-              <div>
-                <h3 class="text-lg font-medium text-catppuccin-text mb-2">Urheberrecht:</h3>
-                <p class="text-catppuccin-subtext1">
-                  Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers.
-                </p>
-              </div>
-            </div>
-          </div>
-          
-          <div class="mt-8 text-center">
-            <a href="/" class="text-catppuccin-blue hover:text-catppuccin-sapphire transition-colors">
-              ← Zurück zur Startseite
+    <section class="py-24 md:py-32 bg-nordic-base min-h-screen relative overflow-hidden grain-overlay">
+      <div class="container mx-auto px-6 relative z-10">
+        <div class="max-w-3xl mx-auto">
+          <!-- Header -->
+          <div class="mb-12">
+            <a href="/" class="inline-flex items-center gap-2 text-nordic-muted hover:text-nordic-amber transition-colors mb-8 group">
+              <svg class="w-4 h-4 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"></path>
+              </svg>
+              <span class="text-sm">Zurück</span>
             </a>
+            <h1 class="text-4xl md:text-5xl font-serif italic text-nordic-text">Impressum</h1>
+          </div>
+
+          <!-- Content card -->
+          <div class="bg-nordic-card border border-nordic-border/50 rounded-xl p-8 md:p-10">
+            <p class="text-sm text-nordic-muted uppercase tracking-widest mb-6">Angaben gemäß § 5 TMG</p>
+
+            <div class="space-y-1 text-nordic-text-secondary leading-relaxed">
+              <p>Sönke Nommensen</p>
+              <p>Herderplatz 5a</p>
+              <p>23564 Lübeck</p>
+              <p class="pt-4">
+                <a href="mailto:hi@soenke.me" class="text-nordic-sky hover:text-nordic-amber transition-colors link-underline">hi@soenke.me</a>
+              </p>
+            </div>
           </div>
         </div>
       </div>

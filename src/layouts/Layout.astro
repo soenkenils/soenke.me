@@ -14,17 +14,34 @@ const { title, description = "Sönke Nommensen - Engineering Team Lead & Softwar
     <meta name="description" content={description} />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- Fonts: Instrument Serif (headlines), Plus Jakarta Sans (body), JetBrains Mono (code) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
-    <style>
+
+    <style is:global>
+      /* Base styles */
+      html {
+        font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      /* Selection color */
+      ::selection {
+        background: rgba(212, 168, 83, 0.3);
+        color: #e8e6e3;
+      }
+
       /* Scroll-triggered animation setup */
       .fade-in-section {
         opacity: 0;
         transform: translateY(30px);
-        transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
       }
 
       .fade-in-section.is-visible {
@@ -36,7 +53,7 @@ const { title, description = "Sönke Nommensen - Engineering Team Lead & Softwar
       .stagger-item {
         opacity: 0;
         transform: translateY(20px);
-        transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
       }
 
       .stagger-item.is-visible {
@@ -50,9 +67,96 @@ const { title, description = "Sönke Nommensen - Engineering Team Lead & Softwar
       .stagger-item:nth-child(4) { transition-delay: 0.4s; }
       .stagger-item:nth-child(5) { transition-delay: 0.5s; }
       .stagger-item:nth-child(6) { transition-delay: 0.6s; }
+
+      /* Grain texture overlay - applied to sections */
+      .grain-overlay::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        right: -50%;
+        bottom: -50%;
+        width: 200%;
+        height: 200%;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        opacity: 0.03;
+        pointer-events: none;
+        animation: grain 8s steps(10) infinite;
+        z-index: 1;
+      }
+
+      @keyframes grain {
+        0%, 100% { transform: translate(0, 0); }
+        10% { transform: translate(-5%, -10%); }
+        20% { transform: translate(-15%, 5%); }
+        30% { transform: translate(7%, -25%); }
+        40% { transform: translate(-5%, 25%); }
+        50% { transform: translate(-15%, 10%); }
+        60% { transform: translate(15%, 0%); }
+        70% { transform: translate(0%, 15%); }
+        80% { transform: translate(3%, 35%); }
+        90% { transform: translate(-10%, 10%); }
+      }
+
+      /* Ensure content is above grain */
+      .grain-overlay > * {
+        position: relative;
+        z-index: 2;
+      }
+
+      /* Typography utilities */
+      .font-editorial {
+        font-family: 'Instrument Serif', Georgia, serif;
+      }
+
+      .text-balance {
+        text-wrap: balance;
+      }
+
+      /* Smooth focus states */
+      *:focus-visible {
+        outline: 2px solid #d4a853;
+        outline-offset: 2px;
+      }
+
+      /* Link underline animation */
+      .link-underline {
+        position: relative;
+        text-decoration: none;
+      }
+
+      .link-underline::after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 1px;
+        bottom: -2px;
+        left: 0;
+        background-color: currentColor;
+        transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .link-underline:hover::after {
+        width: 100%;
+      }
+
+      /* Decorative line */
+      .decorative-line {
+        height: 1px;
+        background: linear-gradient(90deg, transparent, #d4a853 50%, transparent);
+      }
+
+      /* Card glow effect on hover */
+      .card-glow {
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .card-glow:hover {
+        box-shadow: 0 0 40px rgba(212, 168, 83, 0.08), 0 0 80px rgba(212, 168, 83, 0.04);
+      }
     </style>
   </head>
-  <body class="bg-catppuccin-rosewater text-catppuccin-crust antialiased">
+  <body class="bg-nordic-base text-nordic-text antialiased overflow-x-hidden">
     <slot />
 
     <script>

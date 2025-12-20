@@ -1,102 +1,110 @@
 ---
 ---
 
-<section id="projects" class="py-20 bg-catppuccin-mantle fade-in-section">
-  <div class="container mx-auto px-6">
-    <h2 class="text-4xl font-bold text-center text-catppuccin-text mb-16">
-      <span class="gradient-heading">What I Do</span>
-    </h2>
+<section id="projects" class="py-24 md:py-32 bg-nordic-surface relative overflow-hidden grain-overlay">
+  <!-- Top border -->
+  <div class="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-nordic-border to-transparent"></div>
 
-    <div class="max-w-6xl mx-auto">
-      <div class="text-center mb-12 fade-in-section">
-        <p class="text-catppuccin-subtext1 text-lg">
-          Explore my work and contributions on
-          <a
-            href="https://github.com/soenkenils"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="text-catppuccin-blue hover:text-catppuccin-sapphire font-semibold underline transition-colors"
-          >
-            GitHub
-          </a>
-        </p>
+  <div class="container mx-auto px-6 relative z-10">
+    <!-- Section header -->
+    <div class="max-w-5xl mx-auto mb-16 fade-in-section">
+      <div class="flex items-center gap-4 mb-6">
+        <span class="text-nordic-amber font-mono text-sm tracking-wider">03</span>
+        <span class="w-12 h-px bg-nordic-border"></span>
       </div>
+      <h2 class="text-4xl md:text-5xl font-serif italic text-nordic-text mb-4">
+        What I Do
+      </h2>
+    </div>
 
-      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-        <div class="stagger-item bg-catppuccin-surface0/80 backdrop-blur-sm p-6 rounded-lg border border-catppuccin-surface1/50 hover:bg-catppuccin-surface0 hover:border-catppuccin-mauve/40 transition-all duration-300 hover:shadow-2xl hover:shadow-catppuccin-mauve/20 hover:scale-105 hover:-translate-y-2 group">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-xl font-semibold text-catppuccin-text">FinTech Solutions</h3>
-            <svg class="w-6 h-6 text-catppuccin-subtext0 group-hover:text-catppuccin-mauve transition-colors duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-            </svg>
-          </div>
-          <p class="text-catppuccin-subtext1 mb-4 leading-relaxed">
-            Building mobile banking at Tomorrow. I focus on making financial tools that are both powerful and actually pleasant to use.
-          </p>
-          <div class="flex flex-wrap gap-2">
-            <span class="bg-catppuccin-mauve/20 text-catppuccin-mauve px-2 py-1 rounded text-sm hover:bg-catppuccin-mauve/30 transition-colors">FinTech</span>
-            <span class="bg-catppuccin-blue/20 text-catppuccin-blue px-2 py-1 rounded text-sm hover:bg-catppuccin-blue/30 transition-colors">Development</span>
+    <div class="max-w-5xl mx-auto">
+      <!-- Asymmetric card grid -->
+      <div class="grid md:grid-cols-2 gap-6">
+        <!-- Large card -->
+        <div class="md:row-span-2 stagger-item">
+          <div class="group h-full bg-nordic-card border border-nordic-border/50 rounded-xl p-8 transition-all duration-500 hover:border-nordic-amber/30 card-glow relative overflow-hidden">
+            <!-- Accent corner -->
+            <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-nordic-amber/5 to-transparent rounded-bl-[100px]"></div>
+
+            <div class="relative">
+              <!-- Icon -->
+              <div class="w-12 h-12 rounded-lg bg-nordic-amber/10 flex items-center justify-center mb-6 group-hover:bg-nordic-amber/20 transition-colors duration-300">
+                <svg class="w-6 h-6 text-nordic-amber" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+              </div>
+
+              <h3 class="text-2xl font-medium text-nordic-text mb-4">FinTech Solutions</h3>
+
+              <p class="text-nordic-muted leading-relaxed mb-6">
+                Building mobile banking at Tomorrow. I focus on making financial tools that are both powerful and actually pleasant to use. It's about finding the balance between security, compliance, and user experience.
+              </p>
+
+              <div class="flex flex-wrap gap-2">
+                <span class="text-xs font-mono text-nordic-amber bg-nordic-amber/10 px-3 py-1 rounded-md">
+                  FinTech
+                </span>
+                <span class="text-xs font-mono text-nordic-text-secondary bg-nordic-surface/50 px-3 py-1 rounded-md border border-nordic-border/30">
+                  Banking
+                </span>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div class="stagger-item bg-catppuccin-surface0/80 backdrop-blur-sm p-6 rounded-lg border border-catppuccin-surface1/50 hover:bg-catppuccin-surface0 hover:border-catppuccin-red/40 transition-all duration-300 hover:shadow-2xl hover:shadow-catppuccin-red/20 hover:scale-105 hover:-translate-y-2 group">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-xl font-semibold text-catppuccin-text">Team Leadership</h3>
-            <svg class="w-6 h-6 text-catppuccin-subtext0 group-hover:text-catppuccin-red transition-colors duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-              <circle cx="9" cy="7" r="4"></circle>
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-            </svg>
-          </div>
-          <p class="text-catppuccin-subtext1 mb-4 leading-relaxed">
-            Leading and growing engineering teams. I believe in code reviews, honest feedback, and letting people make (recoverable) mistakes.
-          </p>
-          <div class="flex flex-wrap gap-2">
-            <span class="bg-catppuccin-red/20 text-catppuccin-red px-2 py-1 rounded text-sm hover:bg-catppuccin-red/30 transition-colors">Leadership</span>
-            <span class="bg-catppuccin-yellow/20 text-catppuccin-yellow px-2 py-1 rounded text-sm hover:bg-catppuccin-yellow/30 transition-colors">Mentoring</span>
+        <!-- Team Leadership card -->
+        <div class="stagger-item">
+          <div class="group h-full bg-nordic-card border border-nordic-border/50 rounded-xl p-6 transition-all duration-500 hover:border-nordic-rose/30 card-glow">
+            <div class="w-10 h-10 rounded-lg bg-nordic-rose/10 flex items-center justify-center mb-4 group-hover:bg-nordic-rose/20 transition-colors duration-300">
+              <svg class="w-5 h-5 text-nordic-rose" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"></path>
+              </svg>
+            </div>
+
+            <h3 class="text-xl font-medium text-nordic-text mb-3">Team Leadership</h3>
+
+            <p class="text-nordic-muted leading-relaxed mb-4 text-sm">
+              Leading and growing engineering teams. I believe in code reviews, honest feedback, and letting people make (recoverable) mistakes.
+            </p>
+
+            <div class="flex flex-wrap gap-2">
+              <span class="text-xs font-mono text-nordic-rose bg-nordic-rose/10 px-2 py-1 rounded-md">
+                Leadership
+              </span>
+              <span class="text-xs font-mono text-nordic-muted bg-nordic-surface/30 px-2 py-1 rounded-md">
+                Mentoring
+              </span>
+            </div>
           </div>
         </div>
 
-        <div class="stagger-item bg-catppuccin-surface0/80 backdrop-blur-sm p-6 rounded-lg border border-catppuccin-surface1/50 hover:bg-catppuccin-surface0 hover:border-catppuccin-green/40 transition-all duration-300 hover:shadow-2xl hover:shadow-catppuccin-green/20 hover:scale-105 hover:-translate-y-2 group">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-xl font-semibold text-catppuccin-text">Software Craft</h3>
-            <svg class="w-6 h-6 text-catppuccin-subtext0 group-hover:text-catppuccin-green transition-colors duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-          </div>
-          <p class="text-catppuccin-subtext1 mb-4 leading-relaxed">
-            I'm a pragmatic believer in TDD and clean code. Not dogmatic about it, but tests have saved me from myself more times than I can count.
-          </p>
-          <div class="flex flex-wrap gap-2">
-            <span class="bg-catppuccin-green/20 text-catppuccin-green px-2 py-1 rounded text-sm hover:bg-catppuccin-green/30 transition-colors">TDD</span>
-            <span class="bg-catppuccin-lavender/20 text-catppuccin-lavender px-2 py-1 rounded text-sm hover:bg-catppuccin-lavender/30 transition-colors">Quality</span>
+        <!-- Software Craft card -->
+        <div class="stagger-item">
+          <div class="group h-full bg-nordic-card border border-nordic-border/50 rounded-xl p-6 transition-all duration-500 hover:border-nordic-sage/30 card-glow">
+            <div class="w-10 h-10 rounded-lg bg-nordic-sage/10 flex items-center justify-center mb-4 group-hover:bg-nordic-sage/20 transition-colors duration-300">
+              <svg class="w-5 h-5 text-nordic-sage" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z"></path>
+              </svg>
+            </div>
+
+            <h3 class="text-xl font-medium text-nordic-text mb-3">Software Craft</h3>
+
+            <p class="text-nordic-muted leading-relaxed mb-4 text-sm">
+              I'm a pragmatic believer in TDD and clean code. Not dogmatic about it, but tests have saved me from myself more times than I can count.
+            </p>
+
+            <div class="flex flex-wrap gap-2">
+              <span class="text-xs font-mono text-nordic-sage bg-nordic-sage/10 px-2 py-1 rounded-md">
+                TDD
+              </span>
+              <span class="text-xs font-mono text-nordic-muted bg-nordic-surface/30 px-2 py-1 rounded-md">
+                Quality
+              </span>
+            </div>
           </div>
         </div>
       </div>
 
-      <div class="text-center mt-12 fade-in-section">
-        <a
-          href="https://github.com/soenkenils"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="inline-flex items-center bg-catppuccin-crust text-catppuccin-text px-8 py-3 rounded-lg hover:bg-catppuccin-base transition-all duration-300 font-semibold shadow-lg hover:shadow-xl hover:shadow-catppuccin-blue/20 active:scale-95 hover:-translate-y-1"
-        >
-          <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M10 0C4.477 0 0 4.484 0 10.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0110 4.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.203 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.942.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0020 10.017C20 4.484 15.522 0 10 0z" clip-rule="evenodd"></path>
-          </svg>
-          View All Projects on GitHub
-        </a>
-      </div>
     </div>
   </div>
 </section>
-
-<style>
-  .gradient-heading {
-    background: linear-gradient(135deg, #89b4fa 0%, #74c7ec 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-</style>

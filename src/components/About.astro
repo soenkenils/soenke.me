@@ -1,44 +1,82 @@
 ---
 ---
 
-<section id="about" class="py-20 bg-catppuccin-mantle fade-in-section">
-  <div class="container mx-auto px-6">
-    <h2 class="text-4xl font-bold text-center text-catppuccin-text mb-16">
-      <span class="gradient-heading">About Me</span>
-    </h2>
+<section id="about" class="py-24 md:py-32 bg-nordic-surface relative overflow-hidden grain-overlay">
+  <!-- Decorative elements -->
+  <div class="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-nordic-border to-transparent"></div>
 
-    <div class="max-w-4xl mx-auto">
-      <div class="grid md:grid-cols-2 gap-12 items-center">
-        <div class="fade-in-section">
-          <h3 class="text-2xl font-semibold text-catppuccin-text mb-6">Engineering Leader</h3>
-          <p class="text-catppuccin-subtext1 mb-6 leading-relaxed">
-            I'm an Engineering Team Lead at Tomorrow, where I help build financial products that people actually use.
-            I split my time between writing code, unblocking my team, and trying to make banking less painful.
-          </p>
-          <p class="text-catppuccin-subtext1 mb-6 leading-relaxed">
-            I've been writing software and leading teams for a while now. These days I spend most of my time on
-            architecture decisions, code reviews, and helping developers grow.
-          </p>
-          <div class="flex flex-wrap gap-3">
-            <span class="bg-catppuccin-blue/20 text-catppuccin-blue px-3 py-1 rounded-full text-sm font-medium hover:bg-catppuccin-blue/30 transition-all duration-300 cursor-default hover:scale-105">Team Leadership</span>
-            <span class="bg-catppuccin-green/20 text-catppuccin-green px-3 py-1 rounded-full text-sm font-medium hover:bg-catppuccin-green/30 transition-all duration-300 cursor-default hover:scale-105">Software Engineering</span>
-            <span class="bg-catppuccin-mauve/20 text-catppuccin-mauve px-3 py-1 rounded-full text-sm font-medium hover:bg-catppuccin-mauve/30 transition-all duration-300 cursor-default hover:scale-105">FinTech</span>
-            <span class="bg-catppuccin-peach/20 text-catppuccin-peach px-3 py-1 rounded-full text-sm font-medium hover:bg-catppuccin-peach/30 transition-all duration-300 cursor-default hover:scale-105">Development</span>
+  <div class="container mx-auto px-6 relative z-10">
+    <!-- Section header -->
+    <div class="max-w-5xl mx-auto mb-16 fade-in-section">
+      <div class="flex items-center gap-4 mb-6">
+        <span class="text-nordic-amber font-mono text-sm tracking-wider">01</span>
+        <span class="w-12 h-px bg-nordic-border"></span>
+      </div>
+      <h2 class="text-4xl md:text-5xl font-serif italic text-nordic-text mb-4">
+        About Me
+      </h2>
+    </div>
+
+    <div class="max-w-5xl mx-auto">
+      <div class="grid lg:grid-cols-5 gap-12 lg:gap-16">
+        <!-- Main content - 3 columns -->
+        <div class="lg:col-span-3 fade-in-section">
+          <div class="prose prose-lg">
+            <p class="text-xl md:text-2xl text-nordic-text-secondary leading-relaxed mb-8 font-light">
+              I'm an Engineering Team Lead at <a href="https://www.tomorrow.one" target="_blank" rel="noopener noreferrer" class="text-nordic-sky hover:text-nordic-amber transition-colors link-underline">Tomorrow</a>, where I help build financial products that people actually use.
+            </p>
+
+            <p class="text-nordic-muted leading-relaxed mb-6">
+              I split my time between writing code, unblocking my team, and trying to make banking less painful. I've been writing software and leading teams for a while now. These days I spend most of my time on architecture decisions, code reviews, and helping developers grow.
+            </p>
+          </div>
+
+          <!-- Skills as underlined text, not pills -->
+          <div class="mt-10 pt-10 border-t border-nordic-border/50">
+            <p class="text-sm text-nordic-muted uppercase tracking-widest mb-6">Areas of Focus</p>
+            <div class="flex flex-wrap gap-x-8 gap-y-3">
+              <span class="skill-item text-nordic-text-secondary hover:text-nordic-amber transition-colors cursor-default">
+                Team Leadership
+              </span>
+              <span class="skill-item text-nordic-text-secondary hover:text-nordic-sage transition-colors cursor-default">
+                Software Engineering
+              </span>
+              <span class="skill-item text-nordic-text-secondary hover:text-nordic-lavender transition-colors cursor-default">
+                FinTech
+              </span>
+              <span class="skill-item text-nordic-text-secondary hover:text-nordic-sky transition-colors cursor-default">
+                System Design
+              </span>
+            </div>
           </div>
         </div>
 
-        <div class="space-y-6">
-          <div class="stagger-item bg-catppuccin-surface0/80 backdrop-blur-sm p-6 rounded-lg border border-catppuccin-surface1/50 hover:bg-catppuccin-surface0 hover:border-catppuccin-blue/30 transition-all duration-300 hover:shadow-lg hover:shadow-catppuccin-blue/10 hover:-translate-y-1">
-            <h4 class="font-semibold text-catppuccin-text mb-2">Current Role</h4>
-            <p class="text-catppuccin-subtext1">Engineering Team Lead at <a href="https://www.tomorrow.one" class="text-catppuccin-blue hover:text-catppuccin-sapphire transition-colors">Tomorrow</a></p>
+        <!-- Info cards - 2 columns -->
+        <div class="lg:col-span-2 space-y-4">
+          <div class="stagger-item group">
+            <div class="bg-nordic-card border border-nordic-border/50 p-6 rounded-xl transition-all duration-300 hover:border-nordic-amber/30 card-glow">
+              <p class="text-xs text-nordic-muted uppercase tracking-widest mb-2">Current Role</p>
+              <p class="text-nordic-text font-medium">Engineering Team Lead</p>
+              <a href="https://www.tomorrow.one" target="_blank" rel="noopener noreferrer" class="text-nordic-sky text-sm hover:text-nordic-amber transition-colors link-underline">
+                at Tomorrow
+              </a>
+            </div>
           </div>
-          <div class="stagger-item bg-catppuccin-surface0/80 backdrop-blur-sm p-6 rounded-lg border border-catppuccin-surface1/50 hover:bg-catppuccin-surface0 hover:border-catppuccin-blue/30 transition-all duration-300 hover:shadow-lg hover:shadow-catppuccin-blue/10 hover:-translate-y-1">
-            <h4 class="font-semibold text-catppuccin-text mb-2">Location</h4>
-            <p class="text-catppuccin-subtext1">Lübeck, Germany</p>
+
+          <div class="stagger-item group">
+            <div class="bg-nordic-card border border-nordic-border/50 p-6 rounded-xl transition-all duration-300 hover:border-nordic-amber/30 card-glow">
+              <p class="text-xs text-nordic-muted uppercase tracking-widest mb-2">Location</p>
+              <p class="text-nordic-text font-medium">Lübeck, Germany</p>
+              <p class="text-nordic-muted text-sm">Open to remote</p>
+            </div>
           </div>
-          <div class="stagger-item bg-catppuccin-surface0/80 backdrop-blur-sm p-6 rounded-lg border border-catppuccin-surface1/50 hover:bg-catppuccin-surface0 hover:border-catppuccin-blue/30 transition-all duration-300 hover:shadow-lg hover:shadow-catppuccin-blue/10 hover:-translate-y-1">
-            <h4 class="font-semibold text-catppuccin-text mb-2">Education</h4>
-            <p class="text-catppuccin-subtext1">Master of Science in Computer Science at University of Lübeck</p>
+
+          <div class="stagger-item group">
+            <div class="bg-nordic-card border border-nordic-border/50 p-6 rounded-xl transition-all duration-300 hover:border-nordic-amber/30 card-glow">
+              <p class="text-xs text-nordic-muted uppercase tracking-widest mb-2">Education</p>
+              <p class="text-nordic-text font-medium">M.Sc. Computer Science</p>
+              <p class="text-nordic-muted text-sm">University of Lübeck</p>
+            </div>
           </div>
         </div>
       </div>
@@ -47,10 +85,23 @@
 </section>
 
 <style>
-  .gradient-heading {
-    background: linear-gradient(135deg, #89b4fa 0%, #74c7ec 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+  .skill-item {
+    position: relative;
+  }
+
+  .skill-item::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: currentColor;
+    opacity: 0.3;
+    transition: opacity 0.3s ease;
+  }
+
+  .skill-item:hover::after {
+    opacity: 0.6;
   }
 </style>
