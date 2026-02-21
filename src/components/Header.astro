@@ -192,36 +192,67 @@
   if (menuButton && mobileMenu) {
     let isOpen = false;
 
-    menuButton.addEventListener('click', () => {
-      isOpen = !isOpen;
+    function closeMenu() {
+      isOpen = false;
+      mobileMenu.style.maxHeight = '0';
+      mobileMenu.style.opacity = '0';
+      menuButton.classList.remove('hamburger-open');
+      menuButton.setAttribute('aria-expanded', 'false');
+    }
 
-      if (isOpen) {
-        mobileMenu.style.maxHeight = mobileMenu.scrollHeight + 'px';
-        mobileMenu.style.opacity = '1';
-        menuButton.classList.add('hamburger-open');
-        menuButton.setAttribute('aria-expanded', 'true');
-      } else {
-        mobileMenu.style.maxHeight = '0';
-        mobileMenu.style.opacity = '0';
-        menuButton.classList.remove('hamburger-open');
-        menuButton.setAttribute('aria-expanded', 'false');
-      }
+    function openMenu() {
+      isOpen = true;
+      mobileMenu.style.maxHeight = mobileMenu.scrollHeight + 'px';
+      mobileMenu.style.opacity = '1';
+      menuButton.classList.add('hamburger-open');
+      menuButton.setAttribute('aria-expanded', 'true');
+      // Focus first menu link
+      const firstLink = mobileMenu.querySelector('.mobile-menu-link') as HTMLElement;
+      if (firstLink) firstLink.focus();
+    }
+
+    menuButton.addEventListener('click', () => {
+      if (isOpen) closeMenu();
+      else openMenu();
     });
 
     // Close menu when a link is clicked
     menuLinks.forEach(link => {
-      link.addEventListener('click', () => {
-        isOpen = false;
-        mobileMenu.style.maxHeight = '0';
-        mobileMenu.style.opacity = '0';
-        menuButton.classList.remove('hamburger-open');
-        menuButton.setAttribute('aria-expanded', 'false');
-      });
+      link.addEventListener('click', () => closeMenu());
+    });
+
+    // Close menu on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && isOpen) {
+        closeMenu();
+        menuButton.focus();
+      }
+    });
+
+    // Focus trapping within mobile menu when open
+    const focusableSelectors = '.mobile-menu-link, #mobile-menu-button, #theme-toggle';
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== 'Tab' || !isOpen) return;
+
+      const focusableElements = Array.from(
+        document.querySelectorAll(focusableSelectors)
+      ) as HTMLElement[];
+      const firstEl = focusableElements[0];
+      const lastEl = focusableElements[focusableElements.length - 1];
+
+      if (e.shiftKey && document.activeElement === firstEl) {
+        e.preventDefault();
+        lastEl.focus();
+      } else if (!e.shiftKey && document.activeElement === lastEl) {
+        e.preventDefault();
+        firstEl.focus();
+      }
     });
   }
 
-  // Active section highlighting on scroll
+  // Active section highlighting on scroll (throttled with rAF)
   const sections = document.querySelectorAll('section[id]');
+  let scrollTicking = false;
 
   function highlightActiveSection() {
     const scrollY = window.pageYOffset;
@@ -240,9 +271,16 @@
         });
       }
     });
+
+    scrollTicking = false;
   }
 
-  window.addEventListener('scroll', highlightActiveSection);
+  window.addEventListener('scroll', () => {
+    if (!scrollTicking) {
+      requestAnimationFrame(highlightActiveSection);
+      scrollTicking = true;
+    }
+  });
   window.addEventListener('load', highlightActiveSection);
 
   // Theme toggle

@@ -226,9 +226,88 @@ const { title, description = "Sönke Nommensen - Engineering Team Lead & Softwar
       .card-glow:hover {
         box-shadow: 0 0 40px rgb(var(--nordic-amber) / 0.08), 0 0 80px rgb(var(--nordic-amber) / 0.04);
       }
+
+      /* Skip to content link */
+      .skip-to-content {
+        position: absolute;
+        top: -100%;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 100;
+        background: rgb(var(--nordic-amber));
+        color: rgb(var(--nordic-void));
+        padding: 0.75rem 1.5rem;
+        border-radius: 0 0 0.5rem 0.5rem;
+        font-weight: 600;
+        font-size: 0.875rem;
+        text-decoration: none;
+        transition: top 0.2s ease;
+      }
+
+      .skip-to-content:focus {
+        top: 0;
+      }
+
+      /* Reduced motion: disable all animations and transitions */
+      @media (prefers-reduced-motion: reduce) {
+        .fade-in-section {
+          opacity: 1;
+          transform: none;
+          transition: none;
+        }
+
+        .stagger-item {
+          opacity: 1;
+          transform: none;
+          transition: none;
+        }
+
+        .grain-overlay::before {
+          animation: none;
+        }
+
+        .scroll-indicator {
+          animation: none;
+          opacity: 1;
+        }
+
+        .hero-image,
+        .hero-title,
+        .hero-role,
+        .hero-subtitle,
+        .hero-tagline,
+        .hero-cta,
+        .hero-line,
+        .hero-dot {
+          opacity: 1;
+          transform: none;
+          animation: none;
+        }
+
+        .animate-glow-pulse {
+          animation: none;
+        }
+
+        .animate-ping {
+          animation: none;
+        }
+
+        .animate-pulse {
+          animation: none;
+        }
+
+        *,
+        *::before,
+        *::after {
+          transition-duration: 0.01ms !important;
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+        }
+      }
     </style>
   </head>
   <body class="bg-nordic-base text-nordic-text antialiased overflow-x-hidden">
+    <a href="#about" class="skip-to-content">Skip to content</a>
     <slot />
 
     <script>

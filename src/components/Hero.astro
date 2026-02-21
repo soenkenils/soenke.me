@@ -5,7 +5,7 @@ import profileImage from '../assets/profile.jpg';
 
 <section id="hero" class="min-h-screen flex items-center justify-center bg-nordic-base relative overflow-hidden grain-overlay">
   <!-- Atmospheric background -->
-  <div class="absolute inset-0 overflow-hidden">
+  <div class="absolute inset-0 overflow-hidden" aria-hidden="true">
     <!-- Gradient orbs -->
     <div class="absolute top-1/4 -left-32 w-96 h-96 bg-nordic-amber/5 rounded-full blur-[120px] animate-glow-pulse"></div>
     <div class="absolute bottom-1/4 -right-32 w-[500px] h-[500px] bg-nordic-sky/5 rounded-full blur-[150px] animate-glow-pulse" style="animation-delay: 1.5s;"></div>
@@ -24,7 +24,7 @@ import profileImage from '../assets/profile.jpg';
       <!-- Profile image with artistic treatment -->
       <div class="mb-12 hero-image">
         <div class="relative w-28 h-28 md:w-36 md:h-36 mx-auto">
-          <div class="absolute inset-0 rounded-2xl bg-gradient-to-br from-nordic-amber/20 to-nordic-sky/10 rotate-6 scale-105"></div>
+          <div class="absolute inset-0 rounded-2xl bg-gradient-to-br from-nordic-amber/20 to-nordic-sky/10 rotate-6 scale-105" aria-hidden="true"></div>
           <Image
             src={profileImage}
             alt="Sönke Nommensen"
@@ -46,11 +46,11 @@ import profileImage from '../assets/profile.jpg';
 
         <!-- Role with accent -->
         <div class="hero-role mb-8 flex items-center justify-center gap-4">
-          <span class="w-12 h-px bg-nordic-border hidden sm:block"></span>
+          <span class="w-12 h-px bg-nordic-border hidden sm:block" aria-hidden="true"></span>
           <p class="text-lg md:text-xl text-nordic-amber font-medium tracking-wide uppercase">
             Engineering Team Lead
           </p>
-          <span class="w-12 h-px bg-nordic-border hidden sm:block"></span>
+          <span class="w-12 h-px bg-nordic-border hidden sm:block" aria-hidden="true"></span>
         </div>
 
         <!-- Subtitle -->
@@ -187,22 +187,56 @@ import profileImage from '../assets/profile.jpg';
 </style>
 
 <script>
-  // Parallax effect for background elements
   const hero = document.getElementById('hero');
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   if (hero) {
-    window.addEventListener('scroll', () => {
-      const scrolled = window.pageYOffset;
-      const heroHeight = hero.offsetHeight;
+    const scrollIndicator = hero.querySelector('.scroll-indicator') as HTMLElement;
+    let parallaxTicking = false;
 
-      if (scrolled < heroHeight) {
-        const parallaxElements = hero.querySelectorAll('.animate-glow-pulse');
-        parallaxElements.forEach((el, i) => {
-          const element = el as HTMLElement;
-          const speed = 0.3 + (i * 0.1);
-          element.style.transform = `translateY(${scrolled * speed}px)`;
+    if (!prefersReducedMotion) {
+      const parallaxElements = hero.querySelectorAll('.animate-glow-pulse');
+
+      window.addEventListener('scroll', () => {
+        if (parallaxTicking) return;
+        parallaxTicking = true;
+
+        requestAnimationFrame(() => {
+          const scrolled = window.pageYOffset;
+          const heroHeight = hero.offsetHeight;
+
+          // Parallax effect
+          if (scrolled < heroHeight) {
+            parallaxElements.forEach((el, i) => {
+              const element = el as HTMLElement;
+              const speed = 0.3 + (i * 0.1);
+              element.style.transform = `translateY(${scrolled * speed}px)`;
+            });
+          }
+
+          // Fade out scroll indicator
+          if (scrollIndicator) {
+            const opacity = Math.max(0, 1 - scrolled / (heroHeight * 0.3));
+            scrollIndicator.style.opacity = String(opacity);
+          }
+
+          parallaxTicking = false;
         });
-      }
-    });
+      });
+    } else {
+      // Still hide scroll indicator on scroll even with reduced motion
+      window.addEventListener('scroll', () => {
+        if (parallaxTicking) return;
+        parallaxTicking = true;
+
+        requestAnimationFrame(() => {
+          if (scrollIndicator) {
+            const opacity = window.pageYOffset > 100 ? 0 : 1;
+            scrollIndicator.style.opacity = String(opacity);
+          }
+          parallaxTicking = false;
+        });
+      });
+    }
   }
 </script>
