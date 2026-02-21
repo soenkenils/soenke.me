@@ -9,38 +9,39 @@ export default {
         mono: ['JetBrains Mono', 'Consolas', 'monospace'],
       },
       colors: {
-        // Nordic Editorial color system
+        // Nordic Editorial color system — values come from CSS custom properties
+        // defined in Layout.astro so they respond to theme changes.
         nordic: {
-          // Base tones (warm blacks/charcoals)
-          void: '#0a0a0c',
-          base: '#0f0f12',
-          surface: '#18181c',
-          elevated: '#222228',
-          card: '#1c1c21',
+          // Base tones
+          void: 'rgb(var(--nordic-void) / <alpha-value>)',
+          base: 'rgb(var(--nordic-base) / <alpha-value>)',
+          surface: 'rgb(var(--nordic-surface) / <alpha-value>)',
+          elevated: 'rgb(var(--nordic-elevated) / <alpha-value>)',
+          card: 'rgb(var(--nordic-card) / <alpha-value>)',
 
           // Borders and lines
-          border: '#2a2a32',
-          'border-subtle': '#1f1f26',
+          border: 'rgb(var(--nordic-border) / <alpha-value>)',
+          'border-subtle': 'rgb(var(--nordic-border-subtle) / <alpha-value>)',
 
           // Text hierarchy
-          text: '#e8e6e3',
-          'text-secondary': '#b8b6b3',
-          muted: '#7a7a7f',
+          text: 'rgb(var(--nordic-text) / <alpha-value>)',
+          'text-secondary': 'rgb(var(--nordic-text-secondary) / <alpha-value>)',
+          muted: 'rgb(var(--nordic-muted) / <alpha-value>)',
 
           // Accent colors
-          amber: '#d4a853',
-          'amber-dim': '#b8923d',
-          'amber-glow': 'rgba(212, 168, 83, 0.15)',
+          amber: 'rgb(var(--nordic-amber) / <alpha-value>)',
+          'amber-dim': 'rgb(var(--nordic-amber-dim) / <alpha-value>)',
+          'amber-glow': 'var(--nordic-amber-glow)',
 
           // Highlight/link colors
-          sky: '#7eb5d6',
-          'sky-dim': '#5a9bc4',
+          sky: 'rgb(var(--nordic-sky) / <alpha-value>)',
+          'sky-dim': 'rgb(var(--nordic-sky-dim) / <alpha-value>)',
 
           // Semantic accents
-          sage: '#8fae8b',
-          rose: '#c48b8b',
-          lavender: '#a89cc4',
-          slate: '#8a9aad',
+          sage: 'rgb(var(--nordic-sage) / <alpha-value>)',
+          rose: 'rgb(var(--nordic-rose) / <alpha-value>)',
+          lavender: 'rgb(var(--nordic-lavender) / <alpha-value>)',
+          slate: 'rgb(var(--nordic-slate) / <alpha-value>)',
         },
         // Keep catppuccin for backwards compatibility during transition
         catppuccin: {

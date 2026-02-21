@@ -8,7 +8,7 @@ const { title, description = "Sönke Nommensen - Engineering Team Lead & Softwar
 ---
 
 <!doctype html>
-<html lang="en" class="scroll-smooth">
+<html lang="en" class="scroll-smooth" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="description" content={description} />
@@ -23,7 +23,79 @@ const { title, description = "Sönke Nommensen - Engineering Team Lead & Softwar
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
 
+    <!-- Blocking script: detect theme before first paint to prevent FOUC -->
+    <script is:inline>
+      (function() {
+        function getTheme() {
+          var saved = localStorage.getItem('theme');
+          if (saved === 'light' || saved === 'dark') return saved;
+          if (window.matchMedia('(prefers-color-scheme: light)').matches) return 'light';
+          if (window.matchMedia('(prefers-color-scheme: dark)').matches) return 'dark';
+          var h = new Date().getHours();
+          return (h >= 7 && h < 19) ? 'light' : 'dark';
+        }
+        var theme = getTheme();
+        document.documentElement.dataset.theme = theme;
+        window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', function(e) {
+          if (!localStorage.getItem('theme')) {
+            document.documentElement.dataset.theme = e.matches ? 'light' : 'dark';
+          }
+        });
+      })();
+    </script>
+
     <style is:global>
+      /* ── Theme tokens (dark = default) ── */
+      :root,
+      [data-theme="dark"] {
+        --nordic-void: 10 10 12;
+        --nordic-base: 15 15 18;
+        --nordic-surface: 24 24 28;
+        --nordic-elevated: 34 34 40;
+        --nordic-card: 28 28 33;
+        --nordic-border: 42 42 50;
+        --nordic-border-subtle: 31 31 38;
+        --nordic-text: 232 230 227;
+        --nordic-text-secondary: 184 182 179;
+        --nordic-muted: 122 122 127;
+        --nordic-amber: 212 168 83;
+        --nordic-amber-dim: 184 146 61;
+        --nordic-amber-glow: rgba(212, 168, 83, 0.15);
+        --nordic-sky: 126 181 214;
+        --nordic-sky-dim: 90 155 196;
+        --nordic-sage: 143 174 139;
+        --nordic-rose: 196 139 139;
+        --nordic-lavender: 168 156 196;
+        --nordic-slate: 138 154 173;
+      }
+
+      [data-theme="light"] {
+        --nordic-void: 245 242 237;
+        --nordic-base: 250 248 245;
+        --nordic-surface: 240 237 232;
+        --nordic-elevated: 232 228 222;
+        --nordic-card: 245 242 237;
+        --nordic-border: 216 212 204;
+        --nordic-border-subtle: 232 228 222;
+        --nordic-text: 42 38 34;
+        --nordic-text-secondary: 90 86 80;
+        --nordic-muted: 154 150 144;
+        --nordic-amber: 184 146 61;
+        --nordic-amber-dim: 160 125 46;
+        --nordic-amber-glow: rgba(184, 146, 61, 0.12);
+        --nordic-sky: 74 143 184;
+        --nordic-sky-dim: 58 125 166;
+        --nordic-sage: 90 138 86;
+        --nordic-rose: 160 96 96;
+        --nordic-lavender: 122 109 160;
+        --nordic-slate: 90 106 125;
+      }
+
+      /* Smooth theme transition */
+      html {
+        transition: background-color 0.3s ease, color 0.3s ease;
+      }
+
       /* Base styles */
       html {
         font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
@@ -33,8 +105,8 @@ const { title, description = "Sönke Nommensen - Engineering Team Lead & Softwar
 
       /* Selection color */
       ::selection {
-        background: rgba(212, 168, 83, 0.3);
-        color: #e8e6e3;
+        background: rgb(var(--nordic-amber) / 0.3);
+        color: rgb(var(--nordic-text));
       }
 
       /* Scroll-triggered animation setup */
@@ -115,7 +187,7 @@ const { title, description = "Sönke Nommensen - Engineering Team Lead & Softwar
 
       /* Smooth focus states */
       *:focus-visible {
-        outline: 2px solid #d4a853;
+        outline: 2px solid rgb(var(--nordic-amber));
         outline-offset: 2px;
       }
 
@@ -143,7 +215,7 @@ const { title, description = "Sönke Nommensen - Engineering Team Lead & Softwar
       /* Decorative line */
       .decorative-line {
         height: 1px;
-        background: linear-gradient(90deg, transparent, #d4a853 50%, transparent);
+        background: linear-gradient(90deg, transparent, rgb(var(--nordic-amber)) 50%, transparent);
       }
 
       /* Card glow effect on hover */
@@ -152,7 +224,7 @@ const { title, description = "Sönke Nommensen - Engineering Team Lead & Softwar
       }
 
       .card-glow:hover {
-        box-shadow: 0 0 40px rgba(212, 168, 83, 0.08), 0 0 80px rgba(212, 168, 83, 0.04);
+        box-shadow: 0 0 40px rgb(var(--nordic-amber) / 0.08), 0 0 80px rgb(var(--nordic-amber) / 0.04);
       }
     </style>
   </head>
