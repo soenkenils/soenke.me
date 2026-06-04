@@ -2,7 +2,7 @@
 
 > Comprehensive documentation for AI assistants working on soenke.me
 
-Last Updated: 2026-01-23
+Last Updated: 2026-06-04
 
 ## Table of Contents
 
@@ -21,7 +21,7 @@ Last Updated: 2026-01-23
 
 ## Project Overview
 
-**soenke.me** is a personal portfolio website showcasing Sönke Nommensen's professional profile, experience, and projects. The site is built with modern web technologies and deployed to GitHub Pages.
+**soenke.me** is a personal portfolio website showcasing Sönke Nommensen's professional profile, experience, and personal interests. The site uses an **OUTRUN / synthwave** aesthetic — neon glow, an animated perspective grid, an 80s sunset, and arcade typography.
 
 - **Purpose**: Personal portfolio/resume website
 - **Owner**: Sönke Nommensen (Engineering Team Lead at Tomorrow)
@@ -29,24 +29,24 @@ Last Updated: 2026-01-23
 - **Repository**: Personal GitHub repository
 - **Deployment**: GitHub Pages via GitHub Actions
 
+The design originated from a Claude Design handoff bundle (Synthwave/Outrun direction, "Outrun Sunset"). The HTML/CSS/JS prototype was ported into the Astro component structure: shared CSS and interaction JS live in `Layout.astro`; each page section is its own `.astro` component.
+
 ---
 
 ## Technology Stack
 
 ### Core Framework
-- **Astro 5.16.6**: Static Site Generator (SSG) with component-based architecture
-- **TypeScript 5.9.3**: Type-safe JavaScript with strict configuration
+- **Astro 5.x**: Static Site Generator (SSG) with component-based architecture
+- **TypeScript 5.9.x**: Type-safe JavaScript with strict configuration
 - **Node.js 18+**: Runtime environment (specified in CI)
 
 ### Styling & UI
-- **TailwindCSS 3.4.19**: Utility-first CSS framework
-- **@astrojs/tailwind 6.0.2**: Astro integration for Tailwind
-- **Custom Design System**: "Nordic Editorial" aesthetic (see Design System section)
+- **Plain CSS**: A single global stylesheet inside `Layout.astro` (`<style is:global>`), driven by CSS custom properties. **No CSS framework** — Tailwind was removed.
+- **Custom Design System**: "OUTRUN" synthwave aesthetic (see [Design System](#design-system))
 
-### Fonts
-- **Instrument Serif**: Headlines and editorial text
-- **Plus Jakarta Sans**: Body text and UI elements
-- **JetBrains Mono**: Code and monospace content
+### Fonts (Google Fonts)
+- **Press Start 2P**: Arcade headers — site name, section headings (`.h2`), kickers, buttons, timeline dates, footer name
+- **Chakra Petch**: Body text and UI (default `font-family`)
 
 ### Build Tools
 - **npm**: Package manager (package-lock.json present)
@@ -67,37 +67,45 @@ soenke.me/
 │   └── favicon.svg             # Site favicon
 ├── src/
 │   ├── assets/
-│   │   └── profile.jpg         # Profile image
+│   │   └── profile.jpg         # (currently unused — design is all-neon, no photos)
 │   ├── components/
-│   │   ├── About.astro         # About section component
-│   │   ├── Contact.astro       # Contact section component
-│   │   ├── Experience.astro    # Experience section component
-│   │   ├── Footer.astro        # Footer component
-│   │   ├── Header.astro        # Navigation header component
-│   │   ├── Hero.astro          # Hero/landing section
-│   │   └── Projects.astro      # Projects/work section
+│   │   ├── About.astro         # 01 · About section
+│   │   ├── Contact.astro       # 05 · Contact section
+│   │   ├── Experience.astro    # 03 · Experience timeline
+│   │   ├── Footer.astro        # Footer
+│   │   ├── Header.astro        # Fixed neon nav + mobile menu
+│   │   ├── Hero.astro          # Outrun sunset hero
+│   │   ├── OffTheClock.astro   # 04 · Off the clock (coffee / cycling / photography)
+│   │   └── Projects.astro      # 02 · What I do (id="work")
 │   ├── layouts/
-│   │   └── Layout.astro        # Base layout template
+│   │   └── Layout.astro        # Base layout: global CSS, fonts, fx overlays, interaction JS
 │   ├── pages/
 │   │   ├── index.astro         # Homepage (main entry point)
 │   │   └── impressum.astro     # Legal notice page (German requirement)
 │   └── env.d.ts                # TypeScript environment definitions
 ├── astro.config.mjs            # Astro configuration
-├── tailwind.config.mjs         # TailwindCSS configuration
 ├── tsconfig.json               # TypeScript configuration
 ├── package.json                # Project dependencies and scripts
 ├── .gitignore                  # Git ignore rules
 └── README.md                   # Project documentation
 ```
 
-### Directory Purposes
+### Section → Component map
 
-- **`.github/workflows/`**: CI/CD automation (deployment to GitHub Pages)
-- **`public/`**: Static assets served as-is (no processing)
-- **`src/assets/`**: Optimized images processed by Astro
-- **`src/components/`**: Reusable Astro components (sections of the homepage)
-- **`src/layouts/`**: Page layout templates with shared structure
-- **`src/pages/`**: File-based routing (each file = route)
+The homepage renders in this order (see `src/pages/index.astro`):
+
+| Order | Section label   | Component          | Anchor id     |
+|-------|-----------------|--------------------|---------------|
+| —     | Nav             | `Header.astro`     | (links below) |
+| Hero  | —               | `Hero.astro`       | `#hero`       |
+| 01    | About           | `About.astro`      | `#about`      |
+| 02    | What I do       | `Projects.astro`   | `#work`       |
+| 03    | Experience      | `Experience.astro` | `#experience` |
+| 04    | Off the clock   | `OffTheClock.astro`| `#play`       |
+| 05    | Contact         | `Contact.astro`    | `#contact`    |
+| —     | Footer          | `Footer.astro`     | —             |
+
+`<main>` carries `id="top"` (the logo links to `#top`). Nav links: About, Work, Experience, Off the clock, **Say hi** (the `.nav-cta`, → `#contact`).
 
 ---
 
@@ -107,9 +115,7 @@ soenke.me/
 
 ```bash
 # Start development server (hot reload on http://localhost:4321)
-npm run dev
-# or
-npm start
+npm run dev      # or: npm start
 
 # Build for production (outputs to dist/)
 npm run build
@@ -124,20 +130,21 @@ npm run astro
 ### Development Server
 
 - **URL**: http://localhost:4321
-- **Hot Module Replacement**: Enabled (instant updates on save)
+- **Hot Module Replacement**: Enabled
 - **Port**: 4321 (default Astro port)
 
 ### Git Workflow
 
-1. **Main Branch**: `main` - production-ready code
-2. **Feature Branches**: Use `claude/` prefix for AI-assisted work (e.g., `claude/add-claude-documentation-VeWzs`)
-3. **Commit Messages**: Clear, descriptive, include Claude Code session URL
+1. **Main Branch**: `main` — production-ready code
+2. **Feature Branches**: Use `claude/` prefix for AI-assisted work
+3. **Commit Messages**: Clear, descriptive
 4. **Push Strategy**: Push to feature branch, then create PR to `main`
+5. Always confirm the current branch (`git branch --show-current`) before committing
 
 ### Code Quality
 
-- **TypeScript**: Strict mode enabled (`astro/tsconfigs/strict`)
-- **Type Checking**: Automatic via IDE and build process
+- **TypeScript**: Strict mode (`astro/tsconfigs/strict`)
+- **Type Checking**: `npx astro check`
 - **Path Aliases**: `@/*` maps to `src/*` (configured in tsconfig.json)
 
 ---
@@ -147,31 +154,20 @@ npm run astro
 ### Build Process
 
 ```bash
-npm run build
+npm run build      # → dist/ (static HTML, CSS, JS, assets)
 ```
-
-**Output**: `dist/` directory with static HTML, CSS, JS, and assets
 
 ### Deployment Pipeline
 
 **Trigger**: Push to `main` branch or manual workflow dispatch
 
-**GitHub Actions Workflow** (`.github/workflows/deploy.yml`):
-
-1. **Checkout**: Clone repository
-2. **Setup Node**: Install Node.js 18 with npm cache
-3. **Setup Pages**: Configure GitHub Pages
-4. **Install**: `npm ci` (clean install from lock file)
-5. **Build**: `npm run build` (generates static site)
-6. **Upload**: Upload `dist/` as artifact
-7. **Deploy**: Deploy to GitHub Pages
+**GitHub Actions** (`.github/workflows/deploy.yml`): checkout → setup Node 18 (npm cache) → setup Pages → `npm ci` → `npm run build` → upload `dist/` → deploy to GitHub Pages.
 
 **Environment**:
 - **Runner**: `ubuntu-latest`
 - **Node Version**: 18
-- **Package Manager**: npm
 - **Permissions**: `contents: read`, `pages: write`, `id-token: write`
-- **Concurrency**: One deployment at a time (cancel previous if new push)
+- **Concurrency**: One deployment at a time (cancel previous on new push)
 
 **Result**: Site available at https://soenke.me (via CNAME in `public/`)
 
@@ -179,133 +175,97 @@ npm run build
 
 ## Design System
 
-### Theme: "Nordic Editorial"
+### Theme: "OUTRUN" (synthwave / retrowave)
 
-A sophisticated design system inspired by Scandinavian minimalism and editorial design, featuring warm dark tones, subtle animations, and typographic hierarchy.
+A maximal 80s aesthetic: warm-to-deep-purple background, neon pink/cyan glow, an animated perspective grid floor, a banded sunset, a seeded twinkling starfield, and global scanline + vignette overlays. Arcade font on headers only; readable sans for body.
 
-### Color Palette
+### Design Tokens
 
-#### Base Tones (Warm Blacks/Charcoals)
+All tokens are **CSS custom properties** declared once in `Layout.astro` `:root`. Change them there to retune the whole site. Per-element accents are set inline via `style="--accent: var(--cyan);"`.
+
+#### Palette
 ```css
-nordic-void:      #0a0a0c  /* Deepest black */
-nordic-base:      #0f0f12  /* Main background */
-nordic-surface:   #18181c  /* Surface elements */
-nordic-elevated:  #222228  /* Elevated surfaces */
-nordic-card:      #1c1c21  /* Card backgrounds */
+--bg:        #0a0118;   /* page background */
+--bg-2:      #0c0220;
+--bg-3:      #16092f;
+--panel:     #150830;   /* card top gradient */
+--panel-2:   #1b0b3d;
+--line:      rgba(125, 90, 200, 0.28);  /* borders / dividers */
+--ink:       #f3ecff;   /* primary text */
+--ink-soft:  #c9b9ec;   /* secondary text */
+--ink-mut:   #8f7fb8;   /* muted text */
+
+--pink:      #ff2e97;   /* primary neon */
+--cyan:      #00eaff;   /* primary neon */
+--cyan-soft: #8af3ff;
+--purple:    #b14aed;
+--yellow:    #ffd319;
+--orange:    #ff7a3d;
+
+/* sunset gradient stops */
+--sun-1: #fff35b;  --sun-2: #ffab2e;  --sun-3: #ff5fa2;  --sun-4: #ff2e97;
+--grid:  0, 234, 255;   /* rgb triplet for grid lines (used as rgba(var(--grid), …)) */
 ```
 
-#### Borders & Lines
+#### Effect controls
 ```css
-nordic-border:        #2a2a32  /* Primary borders */
-nordic-border-subtle: #1f1f26  /* Subtle dividers */
+--glow: 1;      /* neon glow multiplier (used as calc(Npx*var(--glow))) */
+--fx:   1;      /* general effect intensity (stars, vignette) */
+--scan: 0.22;   /* scanline strength */
 ```
 
-#### Text Hierarchy
+#### Layout
 ```css
-nordic-text:           #e8e6e3  /* Primary text */
-nordic-text-secondary: #b8b6b3  /* Secondary text */
-nordic-muted:          #7a7a7f  /* Muted/disabled text */
+--maxw: 1180px;                          /* .wrap max width */
+--ease: cubic-bezier(0.16, 1, 0.3, 1);   /* shared easing */
 ```
-
-#### Accent Colors
-```css
-nordic-amber:      #d4a853  /* Primary accent (gold) */
-nordic-amber-dim:  #b8923d  /* Dimmed accent */
-nordic-amber-glow: rgba(212, 168, 83, 0.15)  /* Glow effect */
-
-nordic-sky:        #7eb5d6  /* Highlight/links (blue) */
-nordic-sky-dim:    #5a9bc4  /* Dimmed blue */
-```
-
-#### Semantic Accents
-```css
-nordic-sage:     #8fae8b  /* Success/green */
-nordic-rose:     #c48b8b  /* Error/red */
-nordic-lavender: #a89cc4  /* Info/purple */
-nordic-slate:    #8a9aad  /* Neutral/gray */
-```
-
-**Note**: The design previously used Catppuccin color scheme. For backwards compatibility, Catppuccin colors remain in `tailwind.config.mjs` but should not be used in new code.
 
 ### Typography
+- **Headers / arcade**: `'Press Start 2P', monospace` — applied by `.arcade`, `.h2`, `.kicker .num`, `.nav-cta`, `.btn-pink`, `.tl-when`, `.logo`'s siblings, `.footer .name`.
+- **Body / UI**: `'Chakra Petch', system-ui, sans-serif` — the default on `body`.
 
-#### Font Families
-- **Serif (Editorial)**: `Instrument Serif, Georgia, serif` - Headlines, display text
-- **Sans (Body)**: `Plus Jakarta Sans, system-ui, sans-serif` - Body text, UI
-- **Mono (Code)**: `JetBrains Mono, Consolas, monospace` - Code snippets
-
-#### Usage Guidelines
-- Use `.font-serif` or `.font-editorial` for headlines and emphasized text
-- Use default (`.font-sans`) for body text and UI elements
-- Use `.font-mono` for code, technical content, or monospace needs
-- Apply `.italic` to serif fonts for editorial flair
-
-### Animations
-
-#### Available Animations
-```css
-animate-fade-in:        /* Fade in (0.8s) */
-animate-fade-in-up:     /* Fade in + slide up (0.8s) */
-animate-fade-in-scale:  /* Fade in + scale (1s) */
-animate-grain:          /* Grain texture movement (8s loop) */
-animate-glow-pulse:     /* Glow pulsing effect (3s loop) */
-animate-text-reveal:    /* Text reveal animation (1s) */
-animate-line-grow:      /* Line grow from center (1.5s) */
+### Neon helpers (text glow)
+```html
+<span class="g-pink">…</span>   <!-- pink glow -->
+<span class="g-cyan">…</span>   <!-- cyan glow -->
+<span class="g-yellow">…</span> <!-- yellow/orange glow -->
+<span class="g-purple">…</span> <!-- purple glow -->
 ```
-
-#### Scroll-Triggered Animations
-- **`.fade-in-section`**: Elements fade in when scrolled into view
-- **`.stagger-item`**: Sequential fade-in for lists (auto-stagger delays)
-- **Threshold**: 10% visibility triggers animation
-- **Root Margin**: `-50px` bottom offset
+Decorative animations: `.flicker` (CRT flicker on the name), `.blink` (cursor blink). Both disabled under `prefers-reduced-motion`.
 
 ### Visual Effects
+- **Grid floor** (`.grid-floor`): perspective-tilted, infinitely scrolling neon grid in the hero.
+- **Sun** (`.sun` + `.bands`): gradient disc with horizontal scanline bands.
+- **Starfield** (`#stars`): 60 seeded twinkling stars injected by JS (seed `1337` → stable across reflows).
+- **Scanlines** (`.fx-scan`) + **vignette** (`.fx-vig`): fixed, full-viewport overlays rendered in `Layout.astro` (z-index 70 / 69), `pointer-events: none`.
 
-#### Grain Texture Overlay
-```html
-<section class="grain-overlay">
-  <!-- Content -->
-</section>
-```
-- Adds subtle film grain texture to sections
-- Animated movement for organic feel
-- Opacity: 3% (non-intrusive)
+### Scroll Reveal
+- Add `.reveal` to any element that should fade/slide in on scroll. Stagger with `.d1` / `.d2` / `.d3` (transition delays).
+- JS (in `Layout.astro`) adds `.in` when the element crosses 90% of the viewport. A 1s per-element fallback adds `.shown` so content can never stay hidden.
+- Under `prefers-reduced-motion`, all `.reveal` elements are shown immediately.
 
-#### Card Glow Effect
-```html
-<div class="card-glow">
-  <!-- Card content -->
-</div>
-```
-- Hover effect: amber glow shadow
-- Smooth cubic-bezier transition
-
-#### Link Underline Animation
-```html
-<a href="#" class="link-underline">Link text</a>
-```
-- Animated underline on hover
-- Grows from left to right
-
-### Layout Patterns
-
-#### Section Structure
+### Section scaffolding
 ```astro
-<section id="section-name" class="min-h-screen bg-nordic-surface grain-overlay">
-  <div class="container mx-auto px-6 py-20">
-    <div class="max-w-4xl mx-auto">
-      <!-- Content -->
-    </div>
+<section class="section" id="section-name">
+  <div class="wrap">
+    <div class="kicker reveal"><span class="num">0X</span><span class="lbl">Label</span><span class="rule"></span></div>
+    <h2 class="h2 reveal">Heading with <span class="g-cyan">neon accent</span></h2>
+    <!-- content -->
   </div>
 </section>
 ```
+`.section + .section` draws a top border between consecutive sections. `.wrap` centers content at `--maxw` with 28px gutters.
 
-#### Responsive Breakpoints
-- **Mobile**: < 768px
-- **Tablet**: 768px - 1023px
-- **Desktop**: 1024px+
+### Reusable building blocks
+- `.cards` / `.card` — 3-up neon card grid (What I do, Off the clock). Set `--accent` per card. SVG icons use `.emblem` (stroke = accent, neon drop-shadow).
+- `.icard` — left-accent-bar info card (About sidebar).
+- `.timeline` / `.tl-item` / `.tl-card` — neon experience timeline. `.tl-item.muted` uses purple dot. `.now-pill` is the "Current" badge.
+- `.contact-cards` / `.ccard` — icon + label contact cards.
+- `.btn-pink` — primary arcade CTA. `.nav-cta` — cyan nav button.
 
-Use Tailwind responsive prefixes: `md:`, `lg:`, `xl:`
+### Responsive Breakpoints
+- `max-width: 900px`: nav collapses to the burger/mobile menu; grids go single-column.
+- `max-width: 560px`: smaller body/heading/timeline-date type.
 
 ---
 
@@ -313,222 +273,88 @@ Use Tailwind responsive prefixes: `md:`, `lg:`, `xl:`
 
 ### Astro Components
 
-1. **File Extension**: `.astro` for all components
-2. **Component Structure**:
+1. **File Extension**: `.astro`; **Naming**: PascalCase (`Hero.astro`).
+2. **Section IDs**: kebab-case (`id="work"`).
+3. Most components are pure markup with empty frontmatter — all styling is global (see below).
+4. Structure:
    ```astro
    ---
-   // TypeScript/JavaScript frontmatter
-   import statements
-
-   // Props interface (if applicable)
-   export interface Props {
-     title: string;
-   }
-
-   const { title } = Astro.props;
+   // frontmatter (often empty)
    ---
-
-   <!-- HTML template -->
-   <div>
-     <h1>{title}</h1>
-   </div>
-
-   <style>
-     /* Scoped CSS (optional) */
-   </style>
-
-   <script>
-     // Client-side JavaScript (optional)
-   </script>
+   <section class="section" id="…">
+     <div class="wrap"> … </div>
+   </section>
    ```
 
-3. **Naming**: PascalCase for component files (e.g., `Hero.astro`, `Header.astro`)
-4. **Section IDs**: Use kebab-case for section IDs (e.g., `id="hero"`, `id="about"`)
+### CSS
 
-### TypeScript
-
-1. **Configuration**: Extends `astro/tsconfigs/strict`
-2. **Path Aliases**: Use `@/` for imports from `src/` (e.g., `import Layout from '@/layouts/Layout.astro'`)
-3. **Type Safety**: All props should have explicit types via `interface Props`
-4. **No `any`**: Avoid `any` types; use specific types or `unknown`
-
-### CSS/Tailwind
-
-1. **Utility-First**: Use Tailwind utilities over custom CSS when possible
-2. **Custom Styles**: Add component-specific styles in `<style>` blocks (scoped)
-3. **Global Styles**: Add to `Layout.astro` within `<style is:global>` tag
-4. **Class Order**: Responsive classes last (e.g., `text-base md:text-lg`)
-5. **Color Usage**: Always use design system colors (e.g., `text-nordic-text` not `text-gray-200`)
+1. **Single source of truth**: the global stylesheet in `Layout.astro` (`<style is:global>`). Add or change styles there, not in component-scoped `<style>` blocks, so class names resolve across all components.
+2. **Use design tokens**: reference the CSS custom properties (`var(--pink)`, `var(--line)`, `calc(Npx*var(--glow))`); never hard-code hex values that duplicate a token.
+3. **Per-element accent**: set `style="--accent: var(--cyan);"` on a card/element; the component CSS reads `var(--accent)`.
+4. **No utility-class framework**: there is no Tailwind. Write semantic class names and real CSS.
+5. **Respect reduced motion**: gate animations behind `@media (prefers-reduced-motion: reduce)` as the existing rules do.
 
 ### JavaScript
 
-1. **Client Scripts**: Use `<script>` tags in `.astro` files for client-side JS
-2. **DOM Selection**: Wait for `DOMContentLoaded` or use inline scripts at end of body
-3. **TypeScript in Scripts**: Use type assertions for DOM elements (e.g., `as HTMLElement`)
-4. **Event Listeners**: Clean up listeners if component unmounts (though rare in static sites)
+1. Shared interactions (starfield, scroll reveal, active-nav, mobile menu, footer year) live in **one IIFE** in `Layout.astro`. Keep new global behavior there.
+2. The reveal/active-nav throttle is **timer-based** (`setTimeout`), intentionally — it fires even when the tab isn't painting, unlike `requestAnimationFrame`. Don't "optimize" it back to rAF.
+3. Use type assertions for DOM elements when adding TypeScript (`as HTMLElement`).
 
-### Import Order
+### TypeScript
 
-1. Astro utilities (e.g., `import { Image } from 'astro:assets'`)
-2. External packages
-3. Layout/component imports
-4. Asset imports (images, etc.)
+1. Extends `astro/tsconfigs/strict`; avoid `any`.
+2. Path alias `@/` → `src/`.
 
 ### Comments
 
-- **Astro Frontmatter**: Use `//` for single-line, `/* */` for multi-line
-- **HTML**: Use `<!-- -->` for template comments
-- **CSS**: Use `/* */` for CSS comments
-- **JavaScript**: Use `//` for single-line, `/* */` for multi-line
+- Frontmatter/JS: `//` or `/* */`; HTML: `<!-- -->`; CSS: `/* */`.
 
 ---
 
 ## Key Components
 
 ### Layout.astro
-**Path**: `src/layouts/Layout.astro`
+**Path**: `src/layouts/Layout.astro` · **Props**: `{ title: string; description?: string }`
 
-**Purpose**: Base HTML structure, global styles, meta tags, font loading
-
-**Props**:
-```typescript
-interface Props {
-  title: string;
-  description?: string;  // Default: "Sönke Nommensen - Engineering Team Lead & Software Developer"
-}
-```
-
-**Key Features**:
-- Loads Google Fonts (Instrument Serif, Plus Jakarta Sans, JetBrains Mono)
-- Global animations setup (fade-in-section, stagger-item)
-- Grain texture overlay styles
-- Scroll-triggered animation observer
-- Selection color customization
-- Smooth scrolling enabled
+The backbone. Contains:
+- `<head>`: meta, favicon, Google Fonts (Press Start 2P + Chakra Petch), `<title>`.
+- `<style is:global>`: the **entire** design system (tokens, nav, sections, hero, cards, timeline, contact, footer, fx overlays, responsive rules).
+- `<body>`: skip-link, `<slot />`, the `.fx-vig` / `.fx-scan` overlays, and the interaction `<script>`.
 
 ### Header.astro
-**Path**: `src/components/Header.astro`
-
-**Purpose**: Fixed navigation header with desktop/mobile menu
-
-**Features**:
-- Fixed position with backdrop blur
-- Active section highlighting on scroll
-- Smooth scroll to sections
-- Responsive hamburger menu
-- Logo with accent dot
-
-**Sections**: About, Experience, Work, Contact
+Fixed neon nav (`.nav`) with logo, desktop `.nav-links`, the `.nav-cta` "Say hi" button, and the `#burger` toggle. The separate `#mobileMenu` panel follows the header. No theme toggle (the site is dark-only). Behavior is wired in `Layout.astro`.
 
 ### Hero.astro
-**Path**: `src/components/Hero.astro`
+Outrun sunset hero (`#hero`): sky/stars/sun/mountains, animated `.grid-floor`, role badge, glowing arcade name (`SÖNKE` / `NOMMENSEN`), intro copy, `SAY HELLO` CTA + scroll hint, and the bottom ticker.
 
-**Purpose**: Landing section with profile, headline, and CTA
-
-**Key Elements**:
-- Profile image with artistic treatment
-- Animated headline with staggered reveals
-- Role badge with decorative lines
-- Subtitle with company link
-- "Get In Touch" CTA button
-- Scroll indicator
-- Atmospheric background (gradient orbs, geometric decorations)
-- Parallax effect on scroll
-
-### About.astro
-**Path**: `src/components/About.astro`
-
-**Purpose**: Personal introduction and bio
-
-### Experience.astro
-**Path**: `src/components/Experience.astro`
-
-**Purpose**: Professional experience timeline
-
-### Projects.astro
-**Path**: `src/components/Projects.astro`
-
-**Purpose**: Portfolio of work and projects
-
-### Contact.astro
-**Path**: `src/components/Contact.astro`
-
-**Purpose**: Contact information and social links
+### About.astro · Projects.astro · Experience.astro · OffTheClock.astro · Contact.astro
+The five numbered sections (01–05). `Projects.astro` is the "What I do" section with `id="work"`. `OffTheClock.astro` (`id="play"`) holds the coffee / cycling / photography cards.
 
 ### Footer.astro
-**Path**: `src/components/Footer.astro`
-
-**Purpose**: Site footer with copyright and links
+Neon footer: name, tagline, social icons, `#year` (filled by JS), and the Impressum link (`/impressum`).
 
 ---
 
 ## Configuration Files
 
 ### astro.config.mjs
-
 ```javascript
 import { defineConfig } from 'astro/config';
-import tailwind from '@astrojs/tailwind';
 
 export default defineConfig({
-  integrations: [tailwind()],
   output: 'static',
   site: 'https://soenke.me'
 });
 ```
-
-- **Output Mode**: `static` (SSG, no server required)
-- **Site URL**: Used for canonical URLs and sitemaps
-- **Integrations**: TailwindCSS via official integration
+No integrations (Tailwind removed). `output: 'static'` (SSG); `site` is used for canonical URLs.
 
 ### tsconfig.json
-
-```json
-{
-  "extends": "astro/tsconfigs/strict",
-  "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["src/*"]
-    }
-  }
-}
-```
-
-- **Extends**: Astro's strict TypeScript config
-- **Path Mapping**: `@/` alias for `src/` directory
-- **Strict Mode**: Full type safety enabled
-
-### tailwind.config.mjs
-
-See [Design System](#design-system) section for complete color palette.
-
-**Content**: `./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}`
-
-**Key Extensions**:
-- Custom color system (Nordic Editorial + Catppuccin legacy)
-- Custom font families
-- Custom animations and keyframes
-- Gradient utilities
+Extends `astro/tsconfigs/strict`; `@/*` → `src/*`.
 
 ### package.json
-
-**Scripts**:
-- `dev` / `start`: Development server
-- `build`: Production build
-- `preview`: Preview production build
-- `astro`: Run Astro CLI
-
-**Dependencies**:
-- `astro`: 5.16.6
-- `baseline-browser-mapping`: 2.9.11
-- `caniuse-lite`: 1.0.30001761
-
-**Dev Dependencies**:
-- `@astrojs/tailwind`: 6.0.2
-- `tailwindcss`: 3.4.19
-- `@types/node`: 25.0.3
-- `typescript`: 5.9.3
+- **Scripts**: `dev` / `start`, `build`, `preview`, `astro`.
+- **Dependencies**: `astro`, `baseline-browser-mapping`, `caniuse-lite`.
+- **Dev Dependencies**: `@types/node`, `typescript`. (No `@astrojs/tailwind` / `tailwindcss`.)
 
 ---
 
@@ -536,141 +362,101 @@ See [Design System](#design-system) section for complete color palette.
 
 ### When Working on This Project
 
-1. **Read Before Editing**: Always read existing files before making changes
-2. **Use Path Aliases**: Import from `@/` instead of relative paths when possible
-3. **Follow Design System**: Only use colors/fonts from the Nordic Editorial palette
-4. **Maintain TypeScript Strictness**: Always type props and avoid `any`
-5. **Test Responsiveness**: Consider mobile, tablet, and desktop layouts
-6. **Animation Consistency**: Use existing animation classes before creating new ones
-7. **Semantic HTML**: Use appropriate HTML5 semantic elements
-8. **Accessibility**: Include ARIA labels, alt text, and focus states
+1. **Read before editing** existing files.
+2. **Edit the global stylesheet in `Layout.astro`** for styling changes; use the **design tokens**, don't hard-code colors.
+3. **Stay on-aesthetic**: neon glow, arcade headers, dark purple base. Keep arcade type on headers only — body stays in Chakra Petch for readability.
+4. **Maintain TypeScript strictness**; avoid `any`.
+5. **Test responsiveness** at the 900px and 560px breakpoints.
+6. **Respect `prefers-reduced-motion`** for any new animation.
+7. **Semantic HTML** + accessibility (ARIA labels, alt text, focus states, the skip-link).
+8. Decorative layers (stars, sun, grid, overlays) are `aria-hidden`.
 
 ### Common Tasks
 
 #### Adding a New Section
-1. Create component in `src/components/NewSection.astro`
-2. Import and add to `src/pages/index.astro`
-3. Add navigation link to `Header.astro`
-4. Use section structure pattern with `grain-overlay` and fade-in animations
-5. Assign unique `id` attribute for navigation anchors
+1. Create `src/components/NewSection.astro` using the `.section` / `.wrap` / `.kicker` / `.h2` scaffold.
+2. Import it into `src/pages/index.astro` in the right order.
+3. Add a nav link in `Header.astro` (desktop `.nav-links` **and** `#mobileMenu`).
+4. Give the section a unique kebab-case `id`; the active-nav JS picks it up automatically from the nav `href`.
+5. Add `.reveal` (+ `.d1/.d2/.d3`) to elements that should animate in.
 
-#### Modifying Colors
-1. Edit `tailwind.config.mjs` to add/modify colors in `theme.extend.colors`
-2. Prefer adding to `nordic` namespace
-3. Update this documentation if adding new semantic colors
+#### Retuning Colors / Glow / Effects
+1. Edit the CSS custom properties in `Layout.astro` `:root` (palette, `--glow`, `--fx`, `--scan`).
+2. For a one-off accent, set `style="--accent: var(--…);"` on the element.
 
 #### Adding New Fonts
-1. Add Google Fonts link to `Layout.astro` `<head>`
-2. Update `tailwind.config.mjs` to add font family in `theme.extend.fontFamily`
-3. Document usage in this file
+1. Add the Google Fonts `<link>` in `Layout.astro` `<head>`.
+2. Reference the family directly in the global CSS (there is no font-family config file).
 
 #### Updating Content
-- **Profile Image**: Replace `src/assets/profile.jpg`
-- **Favicon**: Replace `public/favicon.svg`
-- **Domain**: Update `public/CNAME` and `astro.config.mjs`
-- **Meta Tags**: Edit `Layout.astro` props
+- **Favicon**: `public/favicon.svg` · **Domain**: `public/CNAME` + `astro.config.mjs` · **Meta**: `Layout.astro` props (passed from each page).
 
 ### Testing Checklist
-
-Before committing changes:
-
-- [ ] Run `npm run build` successfully
-- [ ] Preview with `npm run preview`
-- [ ] Test responsive layouts (mobile, tablet, desktop)
-- [ ] Verify animations work on scroll
-- [ ] Check navigation links scroll to correct sections
-- [ ] Validate TypeScript types (no errors)
-- [ ] Ensure accessibility (keyboard navigation, screen reader support)
-- [ ] Verify color contrast meets WCAG standards
-- [ ] Test mobile menu functionality
-- [ ] Check all external links open in new tab
+- [ ] `npm run build` succeeds
+- [ ] `npm run preview` looks right
+- [ ] Responsive at mobile / tablet / desktop (esp. 900px, 560px)
+- [ ] Scroll-reveal fires; nothing stays hidden
+- [ ] Nav links scroll to the right sections; active state tracks
+- [ ] Mobile menu opens/closes (burger, link click, Escape)
+- [ ] `prefers-reduced-motion` disables animations
+- [ ] Color contrast is acceptable; external links use `target="_blank"` + `rel="noopener"`
 
 ### Don't Do
-
-- ❌ Don't use Catppuccin colors in new code (legacy only)
-- ❌ Don't add dependencies without discussion
-- ❌ Don't create components without TypeScript types
-- ❌ Don't use inline styles (use Tailwind or `<style>` blocks)
-- ❌ Don't commit `dist/` or `node_modules/` (in `.gitignore`)
-- ❌ Don't use absolute colors (e.g., `#fff`) - use design system tokens
-- ❌ Don't create new pages without updating navigation
-- ❌ Don't remove grain overlay or animations without reason
+- ❌ Reintroduce Tailwind or any CSS framework without discussion
+- ❌ Hard-code colors (`#fff`, raw hex) — use the design tokens
+- ❌ Put shared styling in component-scoped `<style>` blocks (use the global sheet)
+- ❌ Add a light/day theme — the site is intentionally dark-only OUTRUN
+- ❌ Swap the timer-based scroll throttle back to `requestAnimationFrame`
+- ❌ Add dependencies without discussion
+- ❌ Commit `dist/` or `node_modules/`
 
 ### Do
-
-- ✅ Use semantic HTML5 elements
-- ✅ Follow Astro best practices (minimal client JS)
-- ✅ Keep components small and focused
-- ✅ Use TypeScript for type safety
-- ✅ Write descriptive commit messages
-- ✅ Test on multiple screen sizes
-- ✅ Maintain design system consistency
+- ✅ Use the design tokens and the `.section` scaffold
+- ✅ Keep arcade type on headers, readable type on body
+- ✅ Keep components small and mostly markup-only
+- ✅ Gate animations behind `prefers-reduced-motion`
+- ✅ Keep accessibility (ARIA, focus, skip-link) intact
 - ✅ Document significant changes in this file
-- ✅ Optimize images (use Astro's Image component)
-- ✅ Keep accessibility in mind
 
 ---
 
 ## Troubleshooting
 
 ### Build Failures
+1. Delete `node_modules/` + `package-lock.json`, run `npm install`
+2. `npx astro check` for TypeScript errors
+3. Verify imports exist and `.astro` syntax is valid
 
-**Issue**: `npm run build` fails
-
-**Solutions**:
-1. Delete `node_modules/` and `package-lock.json`, run `npm install`
-2. Check for TypeScript errors: `npx astro check`
-3. Ensure all imports exist and are correct
-4. Verify no syntax errors in `.astro` files
-
-### Development Server Issues
-
-**Issue**: Hot reload not working
-
-**Solutions**:
-1. Restart dev server: `npm run dev`
-2. Clear Astro cache: `rm -rf .astro`
-3. Hard refresh browser (Cmd/Ctrl + Shift + R)
-
-### Deployment Issues
-
-**Issue**: GitHub Pages deployment fails
-
-**Solutions**:
-1. Check GitHub Actions logs in repository
-2. Verify `CNAME` file has correct domain
-3. Ensure `site` in `astro.config.mjs` matches domain
-4. Check GitHub Pages settings in repository settings
+### Dev Server Issues
+1. Restart `npm run dev`
+2. Clear cache: `rm -rf .astro`
+3. Hard refresh (Cmd/Ctrl + Shift + R)
 
 ### Style Issues
+1. Confirm the class exists in the global stylesheet in `Layout.astro`
+2. Check the token name (e.g. `--ink`, not `--text`)
+3. Remember styles are global — a component-scoped `<style>` won't reach other components
 
-**Issue**: Tailwind classes not applying
-
-**Solutions**:
-1. Verify class names are correct (check `tailwind.config.mjs`)
-2. Ensure file is in Tailwind content paths
-3. Rebuild: `npm run build`
-4. Check for typos in color names (e.g., `nordic-text` not `nordic-txt`)
-
----
-
-## Additional Resources
-
-- **Astro Documentation**: https://docs.astro.build
-- **TailwindCSS Documentation**: https://tailwindcss.com/docs
-- **TypeScript Handbook**: https://www.typescriptlang.org/docs/
-- **GitHub Pages Documentation**: https://docs.github.com/en/pages
+### Deployment Issues
+1. Check GitHub Actions logs
+2. Verify `CNAME` and `site` in `astro.config.mjs` match the domain
+3. Check GitHub Pages settings
 
 ---
 
 ## Changelog
 
+### 2026-06-04
+- Full redesign: replaced the "Nordic Editorial" theme with the **OUTRUN / synthwave** design (Claude Design handoff, "Outrun Sunset" direction).
+- Ported the HTML/CSS/JS prototype into Astro: global stylesheet + interaction JS in `Layout.astro`, one component per section.
+- Added `OffTheClock.astro` ("Off the clock" — coffee / cycling / photography).
+- Fonts switched to Press Start 2P + Chakra Petch.
+- Removed the day/night theme toggle (dark-only).
+- **Removed Tailwind** (`@astrojs/tailwind`, `tailwindcss`, `tailwind.config.mjs`) — styling is now plain CSS with custom properties.
+- The "Tweaks" live-editing panel from the prototype (React/Babel) was intentionally not ported.
+
 ### 2026-01-23
-- Initial CLAUDE.md creation
-- Documented Nordic Editorial design system
-- Added comprehensive component documentation
-- Established AI assistant guidelines
-- Documented build and deployment pipeline
+- Initial CLAUDE.md (documented the prior Nordic Editorial design).
 
 ---
 

@@ -3,46 +3,22 @@ import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Hero from '../components/Hero.astro';
 import About from '../components/About.astro';
-import Experience from '../components/Experience.astro';
 import Projects from '../components/Projects.astro';
+import Experience from '../components/Experience.astro';
+import OffTheClock from '../components/OffTheClock.astro';
 import Contact from '../components/Contact.astro';
 import Footer from '../components/Footer.astro';
 ---
 
-<Layout title="Sönke Nommensen - Engineering Team Lead & Software Developer">
+<Layout title="Sönke Nommensen — Engineering Team Lead">
   <Header />
-  <main>
+  <main id="top">
     <Hero />
     <About />
-    <Experience />
     <Projects />
+    <Experience />
+    <OffTheClock />
     <Contact />
   </main>
   <Footer />
 </Layout>
-
-<script>
-  // Smooth scrolling for navigation links
-  document.addEventListener('DOMContentLoaded', function() {
-    const links = document.querySelectorAll('a[href^="#"]');
-    
-    links.forEach(link => {
-      link.addEventListener('click', function(e) {
-        e.preventDefault();
-        
-        const targetId = this.getAttribute('href').substring(1);
-        const targetElement = document.getElementById(targetId);
-        
-        if (targetElement) {
-          const headerHeight = 80;
-          const targetPosition = targetElement.offsetTop - headerHeight;
-          
-          window.scrollTo({
-            top: targetPosition,
-            behavior: 'smooth'
-          });
-        }
-      });
-    });
-  });
-</script>
