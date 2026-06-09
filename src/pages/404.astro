@@ -1,0 +1,41 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<Layout title="404 · Game over — Sönke Nommensen" description="Page not found." noindex>
+  <Header />
+  <main id="top">
+    <section class="hero">
+      <div class="hero-sky" aria-hidden="true">
+        <div class="stars" id="stars"></div>
+        <div class="sun"><div class="bands"></div></div>
+        <div class="mtn"></div>
+      </div>
+      <div class="grid-floor" aria-hidden="true"></div>
+
+      <div class="hero-content">
+        <div class="role-badge"><b></b>Error 404</div>
+        <h1>
+          <span class="g-pink flicker">GAME</span>
+          <span class="l2 g-cyan">OVER</span>
+        </h1>
+        <p class="hero-sub">
+          This page doesn't exist — moved, deleted, or it never made it past the title screen.
+        </p>
+        <div class="hero-actions">
+          <a href="/" class="btn-pink">INSERT COIN ▸</a>
+          <a href="/#contact" class="scroll-hint">report a glitch</a>
+        </div>
+      </div>
+
+      <div class="hero-ticker" aria-hidden="true">
+        <span>404</span><span class="sep">◆</span>
+        <span>Page not found</span><span class="sep">◆</span>
+        <span>Continue<span class="blink">?</span></span>
+      </div>
+    </section>
+  </main>
+  <Footer />
+</Layout>

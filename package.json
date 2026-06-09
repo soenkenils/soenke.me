@@ -7,14 +7,19 @@
     "start": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
+    "check": "astro check",
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/sitemap": "^3.7.3",
+    "@fontsource/chakra-petch": "^5.2.7",
+    "@fontsource/press-start-2p": "^5.2.7",
     "astro": "^5.16.15",
     "baseline-browser-mapping": "^2.9.17",
     "caniuse-lite": "^1.0.30001766"
   },
   "devDependencies": {
+    "@astrojs/check": "^0.9.9",
     "@types/node": "^25.0.10",
     "typescript": "^5.9.3"
   }

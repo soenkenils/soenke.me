@@ -1,25 +1,26 @@
 ---
+// nav links use "/#id" (not "#id") so they also work from /impressum and /404
 ---
 
 <header class="nav">
   <nav class="wrap nav-inner">
-    <a href="#top" class="logo"><span class="dot"></span><span class="word"><b>soenke</b><span class="me">.me</span></span></a>
+    <a href="/#top" class="logo"><span class="dot"></span><span class="word"><b>soenke</b><span class="me">.me</span></span></a>
     <div class="nav-links">
-      <a href="#about">About</a>
-      <a href="#work">Work</a>
-      <a href="#experience">Experience</a>
-      <a href="#play">Off the clock</a>
-      <a href="#contact" class="nav-cta">Say hi</a>
+      <a href="/#about">About</a>
+      <a href="/#work">Work</a>
+      <a href="/#experience">Experience</a>
+      <a href="/#play">Off the clock</a>
+      <a href="/#contact" class="nav-cta">Say hi</a>
     </div>
-    <button class="burger" id="burger" aria-label="Open menu" aria-expanded="false">
+    <button class="burger" id="burger" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
       <span></span><span></span><span></span>
     </button>
   </nav>
 </header>
 <div class="mobile-menu" id="mobileMenu">
-  <a href="#about">About</a>
-  <a href="#work">Work</a>
-  <a href="#experience">Experience</a>
-  <a href="#play">Off the clock</a>
-  <a href="#contact">Say hi</a>
+  <a href="/#about">About</a>
+  <a href="/#work">Work</a>
+  <a href="/#experience">Experience</a>
+  <a href="/#play">Off the clock</a>
+  <a href="/#contact">Say hi</a>
 </div>

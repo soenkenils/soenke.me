@@ -2,7 +2,7 @@
 
 > Comprehensive documentation for AI assistants working on soenke.me
 
-Last Updated: 2026-06-04
+Last Updated: 2026-06-09
 
 ## Table of Contents
 
@@ -38,15 +38,16 @@ The design originated from a Claude Design handoff bundle (Synthwave/Outrun dire
 ### Core Framework
 - **Astro 5.x**: Static Site Generator (SSG) with component-based architecture
 - **TypeScript 5.9.x**: Type-safe JavaScript with strict configuration
-- **Node.js 18+**: Runtime environment (specified in CI)
+- **Node.js 22**: Runtime environment (specified in CI)
 
 ### Styling & UI
 - **Plain CSS**: A single global stylesheet inside `Layout.astro` (`<style is:global>`), driven by CSS custom properties. **No CSS framework** — Tailwind was removed.
 - **Custom Design System**: "OUTRUN" synthwave aesthetic (see [Design System](#design-system))
 
-### Fonts (Google Fonts)
-- **Press Start 2P**: Arcade headers — site name, section headings (`.h2`), kickers, buttons, timeline dates, footer name
-- **Chakra Petch**: Body text and UI (default `font-family`)
+### Fonts (self-hosted via Fontsource — no requests to Google servers, GDPR)
+- **Press Start 2P** (`@fontsource/press-start-2p`): Arcade headers — site name, section headings (`.h2`), kickers, buttons, timeline dates, footer name
+- **Chakra Petch** (`@fontsource/chakra-petch`, weights 400/600/700 only, no italics): Body text and UI (default `font-family`)
+- Imported in `Layout.astro` frontmatter; do **not** add `<link>`s to fonts.googleapis.com
 
 ### Build Tools
 - **npm**: Package manager (package-lock.json present)
@@ -61,10 +62,15 @@ The design originated from a Claude Design handoff bundle (Synthwave/Outrun dire
 soenke.me/
 ├── .github/
 │   └── workflows/
+│       ├── ci.yml              # PR checks: astro check + build
 │       └── deploy.yml          # GitHub Actions deployment workflow
 ├── public/
 │   ├── CNAME                   # Custom domain configuration
-│   └── favicon.svg             # Site favicon
+│   ├── favicon.svg             # Site favicon
+│   ├── og.png                  # Social preview image (regenerate: node scripts/generate-og.mjs)
+│   └── robots.txt              # Allows all; points to sitemap-index.xml
+├── scripts/
+│   └── generate-og.mjs         # Dependency-free og.png generator (pixel font + manual PNG encode)
 ├── src/
 │   ├── assets/
 │   │   └── profile.jpg         # (currently unused — design is all-neon, no photos)
@@ -81,7 +87,8 @@ soenke.me/
 │   │   └── Layout.astro        # Base layout: global CSS, fonts, fx overlays, interaction JS
 │   ├── pages/
 │   │   ├── index.astro         # Homepage (main entry point)
-│   │   └── impressum.astro     # Legal notice page (German requirement)
+│   │   ├── impressum.astro     # Legal notice page (German requirement; lang="de", noindex)
+│   │   └── 404.astro           # "GAME OVER" not-found page (reuses the hero scaffold)
 │   └── env.d.ts                # TypeScript environment definitions
 ├── astro.config.mjs            # Astro configuration
 ├── tsconfig.json               # TypeScript configuration
@@ -105,7 +112,7 @@ The homepage renders in this order (see `src/pages/index.astro`):
 | 05    | Contact         | `Contact.astro`    | `#contact`    |
 | —     | Footer          | `Footer.astro`     | —             |
 
-`<main>` carries `id="top"` (the logo links to `#top`). Nav links: About, Work, Experience, Off the clock, **Say hi** (the `.nav-cta`, → `#contact`).
+`<main>` carries `id="top"` (the logo links to `/#top`; the skip-link targets `#top`). Nav links: About, Work, Experience, Off the clock, **Say hi** (the `.nav-cta`, → `/#contact`). All nav hrefs use the `/#id` form so they also work from `/impressum` and `/404`.
 
 ---
 
@@ -144,7 +151,7 @@ npm run astro
 ### Code Quality
 
 - **TypeScript**: Strict mode (`astro/tsconfigs/strict`)
-- **Type Checking**: `npx astro check`
+- **Type Checking**: `npm run check` (`astro check`, runs in PR CI via `.github/workflows/ci.yml`)
 - **Path Aliases**: `@/*` maps to `src/*` (configured in tsconfig.json)
 
 ---
@@ -161,11 +168,13 @@ npm run build      # → dist/ (static HTML, CSS, JS, assets)
 
 **Trigger**: Push to `main` branch or manual workflow dispatch
 
-**GitHub Actions** (`.github/workflows/deploy.yml`): checkout → setup Node 18 (npm cache) → setup Pages → `npm ci` → `npm run build` → upload `dist/` → deploy to GitHub Pages.
+**GitHub Actions** (`.github/workflows/deploy.yml`): checkout → setup Node 22 (npm cache) → setup Pages → `npm ci` → `npm run build` → upload `dist/` → deploy to GitHub Pages.
+
+Pull requests run `.github/workflows/ci.yml` instead: `npm ci` → `npm run check` → `npm run build`.
 
 **Environment**:
 - **Runner**: `ubuntu-latest`
-- **Node Version**: 18
+- **Node Version**: 22
 - **Permissions**: `contents: read`, `pages: write`, `id-token: write`
 - **Concurrency**: One deployment at a time (cancel previous on new push)
 
@@ -314,10 +323,11 @@ Decorative animations: `.flicker` (CRT flicker on the name), `.blink` (cursor bl
 ## Key Components
 
 ### Layout.astro
-**Path**: `src/layouts/Layout.astro` · **Props**: `{ title: string; description?: string }`
+**Path**: `src/layouts/Layout.astro` · **Props**: `{ title: string; description?: string; lang?: string; noindex?: boolean }`
 
 The backbone. Contains:
-- `<head>`: meta, favicon, Google Fonts (Press Start 2P + Chakra Petch), `<title>`.
+- Frontmatter: Fontsource font imports (self-hosted Press Start 2P + Chakra Petch).
+- `<head>`: meta, favicon, canonical URL, Open Graph / Twitter Card tags (`/og.png`), optional `noindex`, `<title>`.
 - `<style is:global>`: the **entire** design system (tokens, nav, sections, hero, cards, timeline, contact, footer, fx overlays, responsive rules).
 - `<body>`: skip-link, `<slot />`, the `.fx-vig` / `.fx-scan` overlays, and the interaction `<script>`.
 
@@ -331,7 +341,7 @@ Outrun sunset hero (`#hero`): sky/stars/sun/mountains, animated `.grid-floor`, r
 The five numbered sections (01–05). `Projects.astro` is the "What I do" section with `id="work"`. `OffTheClock.astro` (`id="play"`) holds the coffee / cycling / photography cards.
 
 ### Footer.astro
-Neon footer: name, tagline, social icons, `#year` (filled by JS), and the Impressum link (`/impressum`).
+Neon footer: name, tagline, social icons, `#year` (build-time year, kept fresh by JS), and the Impressum link (`/impressum`).
 
 ---
 
@@ -340,21 +350,23 @@ Neon footer: name, tagline, social icons, `#year` (filled by JS), and the Impres
 ### astro.config.mjs
 ```javascript
 import { defineConfig } from 'astro/config';
+import sitemap from '@astrojs/sitemap';
 
 export default defineConfig({
   output: 'static',
-  site: 'https://soenke.me'
+  site: 'https://soenke.me',
+  integrations: [sitemap({ filter: (page) => !page.includes('/impressum') })],
 });
 ```
-No integrations (Tailwind removed). `output: 'static'` (SSG); `site` is used for canonical URLs.
+Only integration: `@astrojs/sitemap` (Impressum excluded — it's `noindex`). `output: 'static'` (SSG); `site` drives canonical/OG URLs and the sitemap.
 
 ### tsconfig.json
 Extends `astro/tsconfigs/strict`; `@/*` → `src/*`.
 
 ### package.json
-- **Scripts**: `dev` / `start`, `build`, `preview`, `astro`.
-- **Dependencies**: `astro`, `baseline-browser-mapping`, `caniuse-lite`.
-- **Dev Dependencies**: `@types/node`, `typescript`. (No `@astrojs/tailwind` / `tailwindcss`.)
+- **Scripts**: `dev` / `start`, `build`, `preview`, `check`, `astro`.
+- **Dependencies**: `astro`, `@astrojs/sitemap`, `@fontsource/press-start-2p`, `@fontsource/chakra-petch`, `baseline-browser-mapping`, `caniuse-lite`.
+- **Dev Dependencies**: `@astrojs/check`, `@types/node`, `typescript`. (No `@astrojs/tailwind` / `tailwindcss`.)
 
 ---
 
@@ -445,6 +457,16 @@ Extends `astro/tsconfigs/strict`; `@/*` → `src/*`.
 ---
 
 ## Changelog
+
+### 2026-06-09
+- **Self-hosted fonts** via Fontsource (GDPR — no more requests to Google Fonts); only the used weights (PS2P 400; Chakra Petch 400/600/700, no italics).
+- **SEO/social metadata** in `Layout.astro`: canonical URL, Open Graph + Twitter Card tags, generated `public/og.png` (regenerate with `node scripts/generate-og.mjs`).
+- Added `@astrojs/sitemap` + `public/robots.txt`; Impressum is `lang="de"`, `noindex`, excluded from the sitemap.
+- Added `404.astro` ("GAME OVER" page reusing the hero scaffold).
+- Nav/logo hrefs changed to `/#id` so the header works from `/impressum` and `/404`; active-nav JS parses the hash accordingly.
+- A11y: skip-link now targets `#top` (was a dead `#about` on subpages); closed mobile menu is `visibility: hidden` (out of tab order); burger has `aria-controls` and a state-aware `aria-label`.
+- Footer year rendered at build time (JS still keeps it current).
+- CI: new `ci.yml` runs `astro check` + build on PRs (`@astrojs/check` added); Node 18 → 22 in workflows; removed the stray `bun.lock`.
 
 ### 2026-06-04
 - Full redesign: replaced the "Nordic Editorial" theme with the **OUTRUN / synthwave** design (Claude Design handoff, "Outrun Sunset" direction).
