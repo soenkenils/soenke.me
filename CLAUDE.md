@@ -48,6 +48,7 @@ The design originated from a Claude Design handoff bundle (Synthwave/Outrun dire
 - **Press Start 2P** (`@fontsource/press-start-2p`): Arcade headers — site name, section headings (`.h2`), kickers, buttons, timeline dates, footer name
 - **Chakra Petch** (`@fontsource/chakra-petch`, weights 400/600/700 only, no italics): Body text and UI (default `font-family`)
 - Imported in `Layout.astro` frontmatter; do **not** add `<link>`s to fonts.googleapis.com
+- The two above-the-fold latin 400 woff2 files are preloaded in `<head>` (via Vite `?url` imports, so the hashed asset URLs match the Fontsource CSS)
 
 ### Build Tools
 - **npm**: Package manager (package-lock.json present)
@@ -91,6 +92,7 @@ soenke.me/
 │   ├── pages/
 │   │   ├── index.astro         # Homepage (main entry point)
 │   │   ├── impressum.astro     # Legal notice page (German requirement; lang="de", noindex)
+│   │   ├── datenschutz.astro   # Privacy policy (DSGVO; lang="de", noindex, uses .legal-prose)
 │   │   └── 404.astro           # "GAME OVER" not-found page (reuses the hero scaffold)
 │   └── env.d.ts                # TypeScript environment definitions
 ├── astro.config.mjs            # Astro configuration
@@ -361,7 +363,7 @@ export default defineConfig({
   integrations: [sitemap({ filter: (page) => !page.includes('/impressum') })],
 });
 ```
-Only integration: `@astrojs/sitemap` (Impressum excluded — it's `noindex`). `output: 'static'` (SSG); `site` drives canonical/OG URLs and the sitemap.
+Only integration: `@astrojs/sitemap` (Impressum and Datenschutz excluded — they're `noindex`). `output: 'static'` (SSG); `site` drives canonical/OG URLs and the sitemap.
 
 ### tsconfig.json
 Extends `astro/tsconfigs/strict`; `@/*` → `src/*`.
@@ -461,6 +463,11 @@ Extends `astro/tsconfigs/strict`; `@/*` → `src/*`.
 ---
 
 ## Changelog
+
+### 2026-06-10 (later)
+- New `/datenschutz` page (DSGVO privacy policy: static site, no cookies/tracking, GitHub Pages hosting, contact, data-subject rights). `lang="de"`, `noindex`, excluded from sitemap; linked next to Impressum in the footer (`.legal-links`).
+- `.legal-prose` styles for long-form legal text in the global stylesheet.
+- Font preloading: the latin 400 woff2 of both families is preloaded in `<head>` via Vite `?url` imports.
 
 ### 2026-06-10
 - New `Icon.astro` (shared email/GitHub/LinkedIn SVGs, used by `Contact` and `Footer`); `Header.astro` nav links defined once in frontmatter.
