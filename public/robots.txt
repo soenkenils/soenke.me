@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://soenke.me/sitemap-index.xml

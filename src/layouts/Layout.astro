@@ -1,30 +1,53 @@
 ---
+// Fonts are self-hosted (GDPR: no requests to Google servers).
+// Press Start 2P = arcade headers · Chakra Petch = body/UI (weights actually used: 400/600/700, no italics)
+import '@fontsource/press-start-2p';
+import '@fontsource/chakra-petch/400.css';
+import '@fontsource/chakra-petch/600.css';
+import '@fontsource/chakra-petch/700.css';
+
 export interface Props {
   title: string;
   description?: string;
+  lang?: string;
+  noindex?: boolean;
 }
 
 const {
   title,
   description = "Sönke Nommensen — Engineering Team Lead at Tomorrow. Software, coffee, steel bikes and Fujifilm frames, from Lübeck, Germany.",
+  lang = 'en',
+  noindex = false,
 } = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImage = new URL('/og.png', Astro.site);
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={lang}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex" />}
 
-    <!-- Fonts: Press Start 2P (arcade headers) + Chakra Petch (body/UI) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Chakra+Petch:ital,wght@0,400;0,500;0,600;0,700;1,500;1,600;1,700&display=swap"
-      rel="stylesheet"
-    />
+    <!-- social previews -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="soenke.me" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="SÖNKE NOMMENSEN — Engineering Team Lead, in neon arcade letters over a synthwave sunset" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
 
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
@@ -165,9 +188,10 @@ const {
         background: rgba(10,1,24,0.97); backdrop-filter: blur(12px);
         border-bottom: 1px solid var(--line);
         display: grid; gap: 2px; padding: 14px 28px 22px;
-        transform: translateY(-12px); opacity: 0; pointer-events: none; transition: 0.3s var(--ease);
+        /* visibility keeps the closed menu out of the tab order (opacity alone doesn't) */
+        visibility: hidden; transform: translateY(-12px); opacity: 0; pointer-events: none; transition: 0.3s var(--ease);
       }
-      .mobile-menu.open { transform: translateY(0); opacity: 1; pointer-events: auto; }
+      .mobile-menu.open { visibility: visible; transform: translateY(0); opacity: 1; pointer-events: auto; }
       .mobile-menu a { padding: 14px 4px; font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase;
         color: var(--ink-soft); border-bottom: 1px solid var(--line); }
 
@@ -415,7 +439,7 @@ const {
     </style>
   </head>
   <body>
-    <a href="#about" class="skip-to-content">Skip to content</a>
+    <a href="#top" class="skip-to-content">Skip to content</a>
     <slot />
 
     <!-- global retro overlays -->
@@ -453,15 +477,18 @@ const {
         var burger = document.getElementById('burger');
         var menu = document.getElementById('mobileMenu');
         if (burger && menu) {
-          var setMenu = function (open) {
-            menu.classList.toggle('open', open);
-            burger.classList.toggle('open', open);
-            burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+          var burgerEl = burger;
+          var menuEl = menu;
+          var setMenu = function (open: boolean) {
+            menuEl.classList.toggle('open', open);
+            burgerEl.classList.toggle('open', open);
+            burgerEl.setAttribute('aria-expanded', open ? 'true' : 'false');
+            burgerEl.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
           };
-          burger.addEventListener('click', function () {
-            setMenu(!menu.classList.contains('open'));
+          burgerEl.addEventListener('click', function () {
+            setMenu(!menuEl.classList.contains('open'));
           });
-          menu.querySelectorAll('a').forEach(function (a) {
+          menuEl.querySelectorAll('a').forEach(function (a) {
             a.addEventListener('click', function () { setMenu(false); });
           });
           document.addEventListener('keydown', function (e) {
@@ -477,11 +504,14 @@ const {
           reveals.forEach(function (el) { el.classList.add('in'); });
         }
 
-        var navLinks = Array.prototype.slice.call(document.querySelectorAll('.nav-links a[href^="#"]'))
+        /* nav hrefs are "/#id" so they also work from /impressum and /404;
+           on those pages the targets don't exist and active-nav is a no-op */
+        var hashOf = function (a: Element) { return (a.getAttribute('href') || '').split('#')[1] || ''; };
+        var navLinks = Array.prototype.slice.call(document.querySelectorAll('.nav-links a[href*="#"]'))
           .filter(function (a) { return !a.classList.contains('nav-cta'); });
         var sections = navLinks
-          .map(function (a) { return document.querySelector(a.getAttribute('href')); })
-          .filter(Boolean);
+          .map(function (a) { return document.getElementById(hashOf(a)); })
+          .filter(function (el): el is HTMLElement { return el !== null; });
 
         function onScroll() {
           var vh = window.innerHeight;
@@ -511,7 +541,7 @@ const {
             }
             var id = current ? current.getAttribute('id') : '';
             navLinks.forEach(function (a) {
-              a.classList.toggle('active', a.getAttribute('href') === '#' + id);
+              a.classList.toggle('active', hashOf(a) === id);
             });
           }
         }
