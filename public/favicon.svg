@@ -1,4 +1,23 @@
 <svg width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
-  <rect width="128" height="128" rx="20" fill="#2563eb"/>
-  <text x="64" y="80" font-family="Arial, sans-serif" font-size="60" font-weight="bold" text-anchor="middle" fill="white">S</text>
+  <!-- soenke.me — OUTRUN favicon: neon pixel S over a grid horizon -->
+  <defs>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="5"/>
+    </filter>
+    <path id="s" d="M46 10h48v12H46zM34 22h12v12H34zM34 34h12v12H34zM46 46h36v12H46zM82 58h12v12H82zM82 70h12v12H82zM34 82h48v12H34z"/>
+  </defs>
+  <rect width="128" height="128" rx="24" fill="#0a0118"/>
+  <!-- horizon line -->
+  <rect x="10" y="104" width="108" height="3" fill="#00eaff" filter="url(#glow)" opacity="0.9"/>
+  <rect x="10" y="104" width="108" height="3" fill="#00eaff" opacity="0.85"/>
+  <!-- grid hint -->
+  <g stroke="#00eaff" stroke-width="2" opacity="0.5">
+    <line x1="64" y1="107" x2="64" y2="122"/>
+    <line x1="44" y1="107" x2="24" y2="122"/>
+    <line x1="84" y1="107" x2="104" y2="122"/>
+  </g>
+  <!-- pixel S: pink glow + white core -->
+  <use href="#s" fill="#ff2e97" filter="url(#glow)"/>
+  <use href="#s" fill="#ff2e97" filter="url(#glow)" opacity="0.8"/>
+  <use href="#s" fill="#ffffff"/>
 </svg>
