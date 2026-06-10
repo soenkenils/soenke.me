@@ -30,7 +30,9 @@ const ogImage = new URL('/og.png', Astro.site);
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
+    <meta name="theme-color" content="#0a0118" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="canonical" href={canonical} />
     {noindex && <meta name="robots" content="noindex" />}
 
@@ -51,6 +53,7 @@ const ogImage = new URL('/og.png', Astro.site);
 
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
+    <slot name="head" />
 
     <style is:global>
       /* =================================================================
@@ -411,6 +414,20 @@ const ogImage = new URL('/og.png', Astro.site);
       .footer-bot { display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: center;
         margin-top: 34px; padding-top: 24px; border-top: 1px solid var(--line); font-size: 13px; color: var(--ink-mut); }
       .footer-bot a:hover { color: var(--cyan-soft); }
+
+      /* =================================================================
+         IMPRESSUM / legal page
+         ================================================================= */
+      .legal { padding-top: clamp(120px, 18vh, 200px); min-height: 100svh; }
+      .legal .back { margin: 0 0 28px; }
+      .legal-card { max-width: 560px; background: linear-gradient(180deg, var(--panel), var(--bg-2));
+        border: 1px solid var(--line); border-radius: 6px; padding: 24px 26px; }
+      .legal-card .k { font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase;
+        color: var(--ink-mut); margin-bottom: 16px; }
+      .legal-card p { margin: 0 0 4px; color: var(--ink-soft); }
+      .legal-card .mail { display: inline-block; margin-top: 14px; color: var(--yellow);
+        border-bottom: 1px solid transparent; transition: border-color 0.25s; }
+      .legal-card .mail:hover { border-color: var(--yellow); }
 
       /* =================================================================
          global scanline + vignette overlays (over everything but UI)

@@ -61,16 +61,18 @@ The design originated from a Claude Design handoff bundle (Synthwave/Outrun dire
 ```
 soenke.me/
 ├── .github/
+│   ├── dependabot.yml          # Weekly npm (grouped) + GitHub Actions updates
 │   └── workflows/
 │       ├── ci.yml              # PR checks: astro check + build
 │       └── deploy.yml          # GitHub Actions deployment workflow
 ├── public/
+│   ├── apple-touch-icon.png    # iOS home-screen icon (generated, see scripts/)
 │   ├── CNAME                   # Custom domain configuration
-│   ├── favicon.svg             # Site favicon
-│   ├── og.png                  # Social preview image (regenerate: node scripts/generate-og.mjs)
+│   ├── favicon.svg             # Neon pixel-S favicon (OUTRUN style)
+│   ├── og.png                  # Social preview image (generated, see scripts/)
 │   └── robots.txt              # Allows all; points to sitemap-index.xml
 ├── scripts/
-│   └── generate-og.mjs         # Dependency-free og.png generator (pixel font + manual PNG encode)
+│   └── generate-og.mjs         # Dependency-free generator for og.png + apple-touch-icon.png
 ├── src/
 │   ├── assets/
 │   │   └── profile.jpg         # (currently unused — design is all-neon, no photos)
@@ -79,8 +81,9 @@ soenke.me/
 │   │   ├── Contact.astro       # 05 · Contact section
 │   │   ├── Experience.astro    # 03 · Experience timeline
 │   │   ├── Footer.astro        # Footer
-│   │   ├── Header.astro        # Fixed neon nav + mobile menu
+│   │   ├── Header.astro        # Fixed neon nav + mobile menu (links defined once in frontmatter)
 │   │   ├── Hero.astro          # Outrun sunset hero
+│   │   ├── Icon.astro          # Shared social icons (email/github/linkedin)
 │   │   ├── OffTheClock.astro   # 04 · Off the clock (coffee / cycling / photography)
 │   │   └── Projects.astro      # 02 · What I do (id="work")
 │   ├── layouts/
@@ -365,8 +368,9 @@ Extends `astro/tsconfigs/strict`; `@/*` → `src/*`.
 
 ### package.json
 - **Scripts**: `dev` / `start`, `build`, `preview`, `check`, `astro`.
-- **Dependencies**: `astro`, `@astrojs/sitemap`, `@fontsource/press-start-2p`, `@fontsource/chakra-petch`, `baseline-browser-mapping`, `caniuse-lite`.
+- **Dependencies**: `astro`, `@astrojs/sitemap`, `@fontsource/press-start-2p`, `@fontsource/chakra-petch`.
 - **Dev Dependencies**: `@astrojs/check`, `@types/node`, `typescript`. (No `@astrojs/tailwind` / `tailwindcss`.)
+- If browserslist ever warns about stale data, run `npx update-browserslist-db` — don't add `caniuse-lite` as a direct dependency.
 
 ---
 
@@ -457,6 +461,14 @@ Extends `astro/tsconfigs/strict`; `@/*` → `src/*`.
 ---
 
 ## Changelog
+
+### 2026-06-10
+- New `Icon.astro` (shared email/GitHub/LinkedIn SVGs, used by `Contact` and `Footer`); `Header.astro` nav links defined once in frontmatter.
+- Impressum styled via `.legal` / `.legal-card` in the global stylesheet (inline styles removed).
+- JSON-LD `Person` schema on the homepage (via the new `<slot name="head" />` in `Layout.astro`).
+- `theme-color` meta + `apple-touch-icon.png`; `favicon.svg` redesigned in OUTRUN style (was the old blue "Nordic" leftover).
+- `scripts/generate-og.mjs` now also renders the touch icon and uses adaptive PNG row filtering (og.png: 594 → 296 kB).
+- Removed `baseline-browser-mapping` / `caniuse-lite` direct deps; added `.github/dependabot.yml` (weekly, npm updates grouped).
 
 ### 2026-06-09
 - **Self-hosted fonts** via Fontsource (GDPR — no more requests to Google Fonts); only the used weights (PS2P 400; Chakra Petch 400/600/700, no italics).

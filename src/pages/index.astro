@@ -8,9 +8,26 @@ import Experience from '../components/Experience.astro';
 import OffTheClock from '../components/OffTheClock.astro';
 import Contact from '../components/Contact.astro';
 import Footer from '../components/Footer.astro';
+
+const personSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: 'Sönke Nommensen',
+  url: 'https://soenke.me/',
+  jobTitle: 'Engineering Team Lead',
+  worksFor: { '@type': 'Organization', name: 'Tomorrow', url: 'https://www.tomorrow.one' },
+  alumniOf: { '@type': 'CollegeOrUniversity', name: 'University of Lübeck' },
+  address: { '@type': 'PostalAddress', addressLocality: 'Lübeck', addressCountry: 'DE' },
+  email: 'mailto:hi@soenke.me',
+  sameAs: [
+    'https://github.com/soenkenils',
+    'https://www.linkedin.com/in/s%C3%B6nke-nommensen-a1217525/',
+  ],
+};
 ---
 
 <Layout title="Sönke Nommensen — Engineering Team Lead">
+  <script type="application/ld+json" slot="head" is:inline set:html={JSON.stringify(personSchema)} />
   <Header />
   <main id="top">
     <Hero />
