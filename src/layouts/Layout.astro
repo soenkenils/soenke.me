@@ -6,6 +6,11 @@ import '@fontsource/chakra-petch/400.css';
 import '@fontsource/chakra-petch/600.css';
 import '@fontsource/chakra-petch/700.css';
 
+// preload the two above-the-fold latin faces to avoid the flash of fallback type
+// (?url resolves to the same hashed asset the Fontsource CSS references)
+import ps2pLatin from '@fontsource/press-start-2p/files/press-start-2p-latin-400-normal.woff2?url';
+import chakraLatin from '@fontsource/chakra-petch/files/chakra-petch-latin-400-normal.woff2?url';
+
 export interface Props {
   title: string;
   description?: string;
@@ -31,6 +36,8 @@ const ogImage = new URL('/og.png', Astro.site);
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
     <meta name="theme-color" content="#0a0118" />
+    <link rel="preload" as="font" type="font/woff2" href={ps2pLatin} crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href={chakraLatin} crossorigin />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="canonical" href={canonical} />
@@ -413,6 +420,7 @@ const ogImage = new URL('/og.png', Astro.site);
       .socials a:hover { color: var(--cyan); border-color: rgba(0,234,255,0.4); box-shadow: 0 0 calc(14px*var(--glow)) rgba(0,234,255,0.25); }
       .footer-bot { display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: center;
         margin-top: 34px; padding-top: 24px; border-top: 1px solid var(--line); font-size: 13px; color: var(--ink-mut); }
+      .footer-bot .legal-links { display: flex; gap: 18px; }
       .footer-bot a:hover { color: var(--cyan-soft); }
 
       /* =================================================================
@@ -428,6 +436,12 @@ const ogImage = new URL('/og.png', Astro.site);
       .legal-card .mail { display: inline-block; margin-top: 14px; color: var(--yellow);
         border-bottom: 1px solid transparent; transition: border-color 0.25s; }
       .legal-card .mail:hover { border-color: var(--yellow); }
+      .legal-prose { max-width: 720px; color: var(--ink-soft); }
+      .legal-prose h3 { font-size: 17px; font-weight: 700; color: var(--ink); margin: 30px 0 10px; }
+      .legal-prose p { margin: 0 0 14px; }
+      .legal-prose a { color: var(--cyan-soft); border-bottom: 1px solid transparent; transition: border-color 0.25s; }
+      .legal-prose a:hover { border-color: var(--cyan); }
+      .legal-prose .stand { margin-top: 26px; font-size: 13.5px; color: var(--ink-mut); }
 
       /* =================================================================
          global scanline + vignette overlays (over everything but UI)

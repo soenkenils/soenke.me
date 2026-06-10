@@ -6,8 +6,8 @@ export default defineConfig({
   site: 'https://soenke.me',
   integrations: [
     sitemap({
-      // legal page is noindex — keep it out of the sitemap too
-      filter: (page) => !page.includes('/impressum'),
+      // legal pages are noindex — keep them out of the sitemap too
+      filter: (page) => !page.includes('/impressum') && !page.includes('/datenschutz'),
     }),
   ],
 });
