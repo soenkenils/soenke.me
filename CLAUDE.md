@@ -464,6 +464,10 @@ Extends `astro/tsconfigs/strict`; `@/*` → `src/*`.
 
 ## Changelog
 
+### 2026-06-11
+- Toned the site down ("bescheidener"): hero name clamp(26/6.4vw/56) → clamp(20/4.5vw/38) (560px: max 28px), section `.h2` max 34 → 26px, `.btn-pink` smaller with softer glow.
+- Hero `role-badge` no longer shouts the job title ("Engineering Team Lead" → "Moin from Lübeck"); the role still appears in the hero copy, About, Experience, footer, `<title>` and JSON-LD.
+
 ### 2026-06-10 (later)
 - New `/datenschutz` page (DSGVO privacy policy: static site, no cookies/tracking, GitHub Pages hosting, contact, data-subject rights). `lang="de"`, `noindex`, excluded from sitemap; linked next to Impressum in the footer (`.legal-links`).
 - `.legal-prose` styles for long-form legal text in the global stylesheet.
