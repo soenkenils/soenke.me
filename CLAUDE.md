@@ -2,7 +2,7 @@
 
 > Comprehensive documentation for AI assistants working on soenke.me
 
-Last Updated: 2026-06-09
+Last Updated: 2026-06-13
 
 ## Table of Contents
 
@@ -360,7 +360,7 @@ import sitemap from '@astrojs/sitemap';
 export default defineConfig({
   output: 'static',
   site: 'https://soenke.me',
-  integrations: [sitemap({ filter: (page) => !page.includes('/impressum') })],
+  integrations: [sitemap({ filter: (page) => !page.includes('/impressum') && !page.includes('/datenschutz') })],
 });
 ```
 Only integration: `@astrojs/sitemap` (Impressum and Datenschutz excluded — they're `noindex`). `output: 'static'` (SSG); `site` drives canonical/OG URLs and the sitemap.
@@ -403,8 +403,9 @@ Extends `astro/tsconfigs/strict`; `@/*` → `src/*`.
 2. For a one-off accent, set `style="--accent: var(--…);"` on the element.
 
 #### Adding New Fonts
-1. Add the Google Fonts `<link>` in `Layout.astro` `<head>`.
-2. Reference the family directly in the global CSS (there is no font-family config file).
+1. Install the family: `npm install @fontsource/<family>` (keep fonts self-hosted — do **not** add Google Fonts `<link>`s).
+2. Import the needed weights in `Layout.astro` frontmatter (e.g. `import '@fontsource/<family>/600.css';`).
+3. Reference the family directly in the global CSS (there is no font-family config file).
 
 #### Updating Content
 - **Favicon**: `public/favicon.svg` · **Domain**: `public/CNAME` + `astro.config.mjs` · **Meta**: `Layout.astro` props (passed from each page).
