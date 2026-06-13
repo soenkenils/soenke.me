@@ -14,11 +14,11 @@
     "@astrojs/sitemap": "^3.7.3",
     "@fontsource/chakra-petch": "^5.2.7",
     "@fontsource/press-start-2p": "^5.2.7",
-    "astro": "^5.16.15"
+    "astro": "^6.4.6"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.9",
-    "@types/node": "^25.0.10",
-    "typescript": "^5.9.3"
+    "@types/node": "^25.9.3",
+    "typescript": "^6.0.3"
   }
 }
