@@ -3,8 +3,6 @@ import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Hero from '../components/Hero.astro';
 import About from '../components/About.astro';
-import Projects from '../components/Projects.astro';
-import Experience from '../components/Experience.astro';
 import OffTheClock from '../components/OffTheClock.astro';
 import Contact from '../components/Contact.astro';
 import Footer from '../components/Footer.astro';
@@ -14,9 +12,7 @@ const personSchema = {
   '@type': 'Person',
   name: 'Sönke Nommensen',
   url: 'https://soenke.me/',
-  jobTitle: 'Engineering Team Lead',
-  worksFor: { '@type': 'Organization', name: 'Tomorrow', url: 'https://www.tomorrow.one' },
-  alumniOf: { '@type': 'CollegeOrUniversity', name: 'University of Lübeck' },
+  jobTitle: 'Software Developer',
   address: { '@type': 'PostalAddress', addressLocality: 'Lübeck', addressCountry: 'DE' },
   email: 'mailto:hi@soenke.me',
   sameAs: [
@@ -26,14 +22,12 @@ const personSchema = {
 };
 ---
 
-<Layout title="Sönke Nommensen — Engineering Team Lead">
+<Layout title="Sönke Nommensen — Software Developer">
   <script type="application/ld+json" slot="head" is:inline set:html={JSON.stringify(personSchema)} />
   <Header />
   <main id="top">
     <Hero />
     <About />
-    <Projects />
-    <Experience />
     <OffTheClock />
     <Contact />
   </main>

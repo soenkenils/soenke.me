@@ -20,7 +20,7 @@ export interface Props {
 
 const {
   title,
-  description = "Sönke Nommensen — Engineering Team Lead at Tomorrow. Software, coffee, steel bikes and Fujifilm frames, from Lübeck, Germany.",
+  description = "Sönke Nommensen — software developer from Lübeck. Coffee, steel bikes and Fujifilm frames.",
   lang = 'en',
   noindex = false,
 } = Astro.props;
@@ -52,7 +52,7 @@ const ogImage = new URL('/og.png', Astro.site);
     <meta property="og:image" content={ogImage} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="SÖNKE NOMMENSEN — Engineering Team Lead, in neon arcade letters over a synthwave sunset" />
+    <meta property="og:image:alt" content="SÖNKE NOMMENSEN in neon arcade letters over a synthwave sunset" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
@@ -424,18 +424,10 @@ const ogImage = new URL('/og.png', Astro.site);
       .footer-bot a:hover { color: var(--cyan-soft); }
 
       /* =================================================================
-         IMPRESSUM / legal page
+         legal page (Datenschutz)
          ================================================================= */
       .legal { padding-top: clamp(120px, 18vh, 200px); min-height: 100svh; }
       .legal .back { margin: 0 0 28px; }
-      .legal-card { max-width: 560px; background: linear-gradient(180deg, var(--panel), var(--bg-2));
-        border: 1px solid var(--line); border-radius: 6px; padding: 24px 26px; }
-      .legal-card .k { font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase;
-        color: var(--ink-mut); margin-bottom: 16px; }
-      .legal-card p { margin: 0 0 4px; color: var(--ink-soft); }
-      .legal-card .mail { display: inline-block; margin-top: 14px; color: var(--yellow);
-        border-bottom: 1px solid transparent; transition: border-color 0.25s; }
-      .legal-card .mail:hover { border-color: var(--yellow); }
       .legal-prose { max-width: 720px; color: var(--ink-soft); }
       .legal-prose h3 { font-size: 17px; font-weight: 700; color: var(--ink); margin: 30px 0 10px; }
       .legal-prose p { margin: 0 0 14px; }
@@ -535,7 +527,7 @@ const ogImage = new URL('/og.png', Astro.site);
           reveals.forEach(function (el) { el.classList.add('in'); });
         }
 
-        /* nav hrefs are "/#id" so they also work from /impressum and /404;
+        /* nav hrefs are "/#id" so they also work from /datenschutz and /404;
            on those pages the targets don't exist and active-nav is a no-op */
         var hashOf = function (a: Element) { return (a.getAttribute('href') || '').split('#')[1] || ''; };
         var navLinks = Array.prototype.slice.call(document.querySelectorAll('.nav-links a[href*="#"]'))
