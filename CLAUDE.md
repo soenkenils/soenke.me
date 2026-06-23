@@ -79,19 +79,16 @@ soenke.me/
 │   │   └── profile.jpg         # (currently unused — design is all-neon, no photos)
 │   ├── components/
 │   │   ├── About.astro         # 01 · About section
-│   │   ├── Contact.astro       # 05 · Contact section
-│   │   ├── Experience.astro    # 03 · Experience timeline
+│   │   ├── Contact.astro       # 03 · Contact section
 │   │   ├── Footer.astro        # Footer
 │   │   ├── Header.astro        # Fixed neon nav + mobile menu (links defined once in frontmatter)
 │   │   ├── Hero.astro          # Outrun sunset hero
 │   │   ├── Icon.astro          # Shared social icons (email/github/linkedin)
-│   │   ├── OffTheClock.astro   # 04 · Off the clock (coffee / cycling / photography)
-│   │   └── Projects.astro      # 02 · What I do (id="work")
+│   │   └── OffTheClock.astro   # 02 · Off the clock (coffee / cycling / photography)
 │   ├── layouts/
 │   │   └── Layout.astro        # Base layout: global CSS, fonts, fx overlays, interaction JS
 │   ├── pages/
 │   │   ├── index.astro         # Homepage (main entry point)
-│   │   ├── impressum.astro     # Legal notice page (German requirement; lang="de", noindex)
 │   │   ├── datenschutz.astro   # Privacy policy (DSGVO; lang="de", noindex, uses .legal-prose)
 │   │   └── 404.astro           # "GAME OVER" not-found page (reuses the hero scaffold)
 │   └── env.d.ts                # TypeScript environment definitions
@@ -111,13 +108,11 @@ The homepage renders in this order (see `src/pages/index.astro`):
 | —     | Nav             | `Header.astro`     | (links below) |
 | Hero  | —               | `Hero.astro`       | `#hero`       |
 | 01    | About           | `About.astro`      | `#about`      |
-| 02    | What I do       | `Projects.astro`   | `#work`       |
-| 03    | Experience      | `Experience.astro` | `#experience` |
-| 04    | Off the clock   | `OffTheClock.astro`| `#play`       |
-| 05    | Contact         | `Contact.astro`    | `#contact`    |
+| 02    | Off the clock   | `OffTheClock.astro`| `#play`       |
+| 03    | Contact         | `Contact.astro`    | `#contact`    |
 | —     | Footer          | `Footer.astro`     | —             |
 
-`<main>` carries `id="top"` (the logo links to `/#top`; the skip-link targets `#top`). Nav links: About, Work, Experience, Off the clock, **Say hi** (the `.nav-cta`, → `/#contact`). All nav hrefs use the `/#id` form so they also work from `/impressum` and `/404`.
+`<main>` carries `id="top"` (the logo links to `/#top`; the skip-link targets `#top`). Nav links: About, Off the clock, **Say hi** (the `.nav-cta`, → `/#contact`). All nav hrefs use the `/#id` form so they also work from `/datenschutz` and `/404`.
 
 ---
 
@@ -342,11 +337,11 @@ Fixed neon nav (`.nav`) with logo, desktop `.nav-links`, the `.nav-cta` "Say hi"
 ### Hero.astro
 Outrun sunset hero (`#hero`): sky/stars/sun/mountains, animated `.grid-floor`, role badge, glowing arcade name (`SÖNKE` / `NOMMENSEN`), intro copy, `SAY HELLO` CTA + scroll hint, and the bottom ticker.
 
-### About.astro · Projects.astro · Experience.astro · OffTheClock.astro · Contact.astro
-The five numbered sections (01–05). `Projects.astro` is the "What I do" section with `id="work"`. `OffTheClock.astro` (`id="play"`) holds the coffee / cycling / photography cards.
+### About.astro · OffTheClock.astro · Contact.astro
+The three numbered sections (01–03). `OffTheClock.astro` (`id="play"`) holds the coffee / cycling / photography cards.
 
 ### Footer.astro
-Neon footer: name, tagline, social icons, `#year` (build-time year, kept fresh by JS), and the Impressum link (`/impressum`).
+Neon footer: name, tagline, social icons, `#year` (build-time year, kept fresh by JS), and the Datenschutz link (`/datenschutz`).
 
 ---
 
@@ -360,10 +355,10 @@ import sitemap from '@astrojs/sitemap';
 export default defineConfig({
   output: 'static',
   site: 'https://soenke.me',
-  integrations: [sitemap({ filter: (page) => !page.includes('/impressum') && !page.includes('/datenschutz') })],
+  integrations: [sitemap({ filter: (page) => !page.includes('/datenschutz') })],
 });
 ```
-Only integration: `@astrojs/sitemap` (Impressum and Datenschutz excluded — they're `noindex`). `output: 'static'` (SSG); `site` drives canonical/OG URLs and the sitemap.
+Only integration: `@astrojs/sitemap` (Datenschutz excluded — it's `noindex`). `output: 'static'` (SSG); `site` drives canonical/OG URLs and the sitemap.
 
 ### tsconfig.json
 Extends `astro/tsconfigs/strict`; `@/*` → `src/*`.
@@ -464,6 +459,12 @@ Extends `astro/tsconfigs/strict`; `@/*` → `src/*`.
 ---
 
 ## Changelog
+
+### 2026-06-23
+- **Removed all work/employer references — the site is now purely personal.** Deleted the "What I do" (`Projects.astro`, `#work`) and "Experience" (`Experience.astro`, `#experience`) sections; renumbered About→01, Off the clock→02, Contact→03. Nav reduced to About · Off the clock · Say hi.
+- Personalized Hero / About / Contact / Footer copy (coffee, steel bikes, photography, family, Lübeck). JSON-LD `Person` trimmed to name / address / email / sameAs (dropped `jobTitle`, `worksFor`, `alumniOf`). Updated `<title>`, meta `description`, and `og:image:alt`.
+- Removed the Impressum page (`/impressum`) and its footer link (purely private, non-commercial site). **Datenschutz kept** — the DSGVO privacy-info obligation is independent of business status. Dropped the now-unused `.legal-card` CSS and the `/impressum` sitemap filter.
+- Regenerated `og.png` / `apple-touch-icon.png` without the "ENGINEERING TEAM LEAD" line (`scripts/generate-og.mjs`).
 
 ### 2026-06-11
 - Toned the site down ("bescheidener"): hero name clamp(26/6.4vw/56) → clamp(20/4.5vw/38) (560px: max 28px), section `.h2` max 34 → 26px, `.btn-pink` smaller with softer glow.

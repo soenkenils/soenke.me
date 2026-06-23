@@ -281,7 +281,6 @@ function write(name, c) {
 
   gridFloor(c, HORIZON, 600, 80, [0, 234, 255], 0.5);
 
-  neonText(c, 'ENGINEERING TEAM LEAD', 600, 112, 3, [0, 234, 255], [138, 243, 255], 0.7);
   neonText(c, 'SÖNKE', 600, 175, 15, [255, 46, 151], [255, 255, 255], 1);
   neonText(c, 'NOMMENSEN', 600, 315, 11, [0, 234, 255], [234, 253, 255], 1);
   neonText(c, 'SOENKE.ME', 600, 560, 3, [255, 211, 25], [255, 247, 214], 0.7);
