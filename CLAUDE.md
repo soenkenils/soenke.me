@@ -463,7 +463,7 @@ Extends `astro/tsconfigs/strict`; `@/*` → `src/*`.
 ## Changelog
 
 ### 2026-07-02
-- New **Projects** section (`Projects.astro`, `id="projects"`, 02) — four cards in a 2×2 grid (`.cards.cols-2`): `mailbox-mcp-server` and `soverin-mcp` (both made public on GitHub after a secrets audit), `playlists-tidal-mcp` (repo still private — a committed `.mcp.json` with real Tidal credentials must be rotated/purged before publishing; card has no GitHub link yet), and `walkie-talkie` (ESP32/M5Stick, intentionally private — mention only, never link/publish).
+- New **Projects** section (`Projects.astro`, `id="projects"`, 02) — four cards in a 2×2 grid (`.cards.cols-2`): `mailbox-mcp-server` and `soverin-mcp` (both made public on GitHub after a secrets audit, linked), plus `playlists-tidal-mcp` and `walkie-talkie` (both intentionally private — mention only, no GitHub link, don't publish).
 - Renumbered: Off the clock 02→03, Contact 03→04. Added "Projects" to desktop nav + mobile menu.
 - `.link-ext` (formerly dead timeline CSS) reused as the card GitHub link.
 
