@@ -2,7 +2,7 @@
 
 > Comprehensive documentation for AI assistants working on soenke.me
 
-Last Updated: 2026-06-13
+Last Updated: 2026-07-02
 
 ## Table of Contents
 
@@ -84,7 +84,8 @@ soenke.me/
 │   │   ├── Header.astro        # Fixed neon nav + mobile menu (links defined once in frontmatter)
 │   │   ├── Hero.astro          # Outrun sunset hero
 │   │   ├── Icon.astro          # Shared social icons (email/github/linkedin)
-│   │   └── OffTheClock.astro   # 02 · Off the clock (coffee / cycling / photography)
+│   │   ├── OffTheClock.astro   # 03 · Off the clock (coffee / cycling / photography)
+│   │   └── Projects.astro      # 02 · Projects (MCP servers + walkie-talkie)
 │   ├── layouts/
 │   │   └── Layout.astro        # Base layout: global CSS, fonts, fx overlays, interaction JS
 │   ├── pages/
@@ -108,11 +109,12 @@ The homepage renders in this order (see `src/pages/index.astro`):
 | —     | Nav             | `Header.astro`     | (links below) |
 | Hero  | —               | `Hero.astro`       | `#hero`       |
 | 01    | About           | `About.astro`      | `#about`      |
-| 02    | Off the clock   | `OffTheClock.astro`| `#play`       |
-| 03    | Contact         | `Contact.astro`    | `#contact`    |
+| 02    | Projects        | `Projects.astro`   | `#projects`   |
+| 03    | Off the clock   | `OffTheClock.astro`| `#play`       |
+| 04    | Contact         | `Contact.astro`    | `#contact`    |
 | —     | Footer          | `Footer.astro`     | —             |
 
-`<main>` carries `id="top"` (the logo links to `/#top`; the skip-link targets `#top`). Nav links: About, Off the clock, **Say hi** (the `.nav-cta`, → `/#contact`). All nav hrefs use the `/#id` form so they also work from `/datenschutz` and `/404`.
+`<main>` carries `id="top"` (the logo links to `/#top`; the skip-link targets `#top`). Nav links: About, Projects, Off the clock, **Say hi** (the `.nav-cta`, → `/#contact`). All nav hrefs use the `/#id` form so they also work from `/datenschutz` and `/404`.
 
 ---
 
@@ -266,7 +268,7 @@ Decorative animations: `.flicker` (CRT flicker on the name), `.blink` (cursor bl
 `.section + .section` draws a top border between consecutive sections. `.wrap` centers content at `--maxw` with 28px gutters.
 
 ### Reusable building blocks
-- `.cards` / `.card` — 3-up neon card grid (What I do, Off the clock). Set `--accent` per card. SVG icons use `.emblem` (stroke = accent, neon drop-shadow).
+- `.cards` / `.card` — 3-up neon card grid (Off the clock). Add `.cols-2` for a 2-up variant (Projects). Set `--accent` per card. SVG icons use `.emblem` (stroke = accent, neon drop-shadow). `.link-ext` is the "View on GitHub ↗" style link inside a card.
 - `.icard` — left-accent-bar info card (About sidebar).
 - `.timeline` / `.tl-item` / `.tl-card` — neon experience timeline. `.tl-item.muted` uses purple dot. `.now-pill` is the "Current" badge.
 - `.contact-cards` / `.ccard` — icon + label contact cards.
@@ -459,6 +461,11 @@ Extends `astro/tsconfigs/strict`; `@/*` → `src/*`.
 ---
 
 ## Changelog
+
+### 2026-07-02
+- New **Projects** section (`Projects.astro`, `id="projects"`, 02) — four cards in a 2×2 grid (`.cards.cols-2`): `mailbox-mcp-server` and `soverin-mcp` (both made public on GitHub after a secrets audit, linked), plus `playlists-tidal-mcp` and `walkie-talkie` (both intentionally private — mention only, no GitHub link, don't publish).
+- Renumbered: Off the clock 02→03, Contact 03→04. Added "Projects" to desktop nav + mobile menu.
+- `.link-ext` (formerly dead timeline CSS) reused as the card GitHub link.
 
 ### 2026-06-23
 - **Removed all work/employer references — the site is now purely personal.** Deleted the "What I do" (`Projects.astro`, `#work`) and "Experience" (`Experience.astro`, `#experience`) sections; renumbered About→01, Off the clock→02, Contact→03. Nav reduced to About · Off the clock · Say hi.
