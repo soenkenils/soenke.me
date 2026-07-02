@@ -392,6 +392,21 @@ const ogImage = new URL('/og.png', Astro.site);
       .link-ext:hover { border-color: var(--cyan); }
 
       /* =================================================================
+         FRAMES photo gallery
+         ================================================================= */
+      .photo-group { margin-top: 36px; }
+      .photo-group .ph-t { font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase;
+        color: var(--ink-mut); margin-bottom: 14px; }
+      .photo-group .ph-t::before { content: '◆ '; color: var(--accent); }
+      .photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+      .photo-grid .ph { margin: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden;
+        background: var(--bg-2); transition: transform 0.35s var(--ease), border-color 0.35s, box-shadow 0.35s; }
+      .photo-grid img { display: block; width: 100%; height: 100%; aspect-ratio: 3 / 2; object-fit: cover; }
+      .photo-grid .ph:hover { transform: translateY(-4px);
+        border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+        box-shadow: 0 0 calc(22px*var(--glow)) color-mix(in srgb, var(--accent) 28%, transparent); }
+
+      /* =================================================================
          CONTACT
          ================================================================= */
       .contact-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 10px; }
@@ -453,10 +468,12 @@ const ogImage = new URL('/og.png', Astro.site);
         .burger { display: block; }
         .about-grid { grid-template-columns: 1fr; gap: 36px; }
         .cards, .cards.cols-2 { grid-template-columns: 1fr; }
+        .photo-grid { grid-template-columns: repeat(2, 1fr); }
         .contact-cards { grid-template-columns: 1fr; }
       }
       @media (max-width: 560px) {
         body { font-size: 16px; }
+        .photo-grid { grid-template-columns: 1fr; }
         .tl-when { font-size: 9px; }
         .hero h1 { font-size: clamp(17px, 6.5vw, 28px); }
       }
