@@ -76,7 +76,11 @@ soenke.me/
 │   └── generate-og.mjs         # Dependency-free generator for og.png + apple-touch-icon.png
 ├── src/
 │   ├── assets/
-│   │   └── profile.jpg         # (currently unused — design is all-neon, no photos)
+│   │   ├── img/                # RAW photo exports (gitignored — originals stay local)
+│   │   └── photos/             # Web masters for the Frames gallery (1600px, EXIF-stripped)
+│   │       ├── luebeck/        #   Home — Lübeck & the Baltic
+│   │       ├── away/           #   Farther out (Dolomites, Venice, …)
+│   │       └── glass/          #   Through glass & frost (abstracts)
 │   ├── components/
 │   │   ├── About.astro         # 01 · About section
 │   │   ├── Contact.astro       # 03 · Contact section
@@ -84,6 +88,7 @@ soenke.me/
 │   │   ├── Header.astro        # Fixed neon nav + mobile menu (links defined once in frontmatter)
 │   │   ├── Hero.astro          # Outrun sunset hero
 │   │   ├── Icon.astro          # Shared social icons (email/github/linkedin)
+│   │   ├── Frames.astro        # 04 · Frames (photo gallery, astro:assets)
 │   │   ├── OffTheClock.astro   # 03 · Off the clock (coffee / cycling / photography)
 │   │   └── Projects.astro      # 02 · Projects (MCP servers + walkie-talkie)
 │   ├── layouts/
@@ -111,10 +116,11 @@ The homepage renders in this order (see `src/pages/index.astro`):
 | 01    | About           | `About.astro`      | `#about`      |
 | 02    | Projects        | `Projects.astro`   | `#projects`   |
 | 03    | Off the clock   | `OffTheClock.astro`| `#play`       |
-| 04    | Contact         | `Contact.astro`    | `#contact`    |
+| 04    | Frames          | `Frames.astro`     | `#frames`     |
+| 05    | Contact         | `Contact.astro`    | `#contact`    |
 | —     | Footer          | `Footer.astro`     | —             |
 
-`<main>` carries `id="top"` (the logo links to `/#top`; the skip-link targets `#top`). Nav links: About, Projects, Off the clock, **Say hi** (the `.nav-cta`, → `/#contact`). All nav hrefs use the `/#id` form so they also work from `/datenschutz` and `/404`.
+`<main>` carries `id="top"` (the logo links to `/#top`; the skip-link targets `#top`). Nav links: About, Projects, Off the clock, Frames, **Say hi** (the `.nav-cta`, → `/#contact`). All nav hrefs use the `/#id` form so they also work from `/datenschutz` and `/404`.
 
 ---
 
@@ -404,6 +410,12 @@ Extends `astro/tsconfigs/strict`; `@/*` → `src/*`.
 2. Import the needed weights in `Layout.astro` frontmatter (e.g. `import '@fontsource/<family>/600.css';`).
 3. Reference the family directly in the global CSS (there is no font-family config file).
 
+#### Adding Photos to the Frames Gallery
+1. Export from the photo library into `src/assets/img/` (gitignored scratch space).
+2. Create a web master: `magick <src> -auto-orient -strip -resize '1600x1600>' -quality 80 src/assets/photos/<group>/<descriptive-name>.jpg` (**always `-strip`** — removes EXIF incl. any location data).
+3. Add an entry (file + alt text) to the matching group in `Frames.astro`. The `import.meta.glob` picks the file up automatically; Astro generates responsive webp variants at build time (`widths` 420/800/1200, lazy-loaded).
+4. Only commit the prepared masters in `src/assets/photos/` — never the camera originals.
+
 #### Updating Content
 - **Favicon**: `public/favicon.svg` · **Domain**: `public/CNAME` + `astro.config.mjs` · **Meta**: `Layout.astro` props (passed from each page).
 
@@ -461,6 +473,12 @@ Extends `astro/tsconfigs/strict`; `@/*` → `src/*`.
 ---
 
 ## Changelog
+
+### 2026-07-02 (later)
+- New **04 · Frames** photo gallery (`Frames.astro`, `id="frames"`); Contact renumbered 04→05, "Frames" added to nav. Three curated groups of 6: *Home — Lübeck & the Baltic* / *Farther out* / *Through glass & frost*.
+- Image pipeline: camera originals live in `src/assets/img/` (**gitignored**, 200MB+); committed web masters in `src/assets/photos/<group>/` (1600px long edge, q80, `-strip`ped EXIF, ~5MB total). `astro:assets` `<Image>` emits 420/800/1200 webp srcset, `loading="lazy"`, `decoding="async"`.
+- New CSS: `.photo-group` / `.ph-t` / `.photo-grid` / `.ph` (3-col grid, 3:2 crop, accent hover glow; 2-col at 900px, 1-col at 560px).
+- `src/assets/profile.jpg` removed (was unused).
 
 ### 2026-07-02
 - New **Projects** section (`Projects.astro`, `id="projects"`, 02) — four cards in a 2×2 grid (`.cards.cols-2`): `mailbox-mcp-server` and `soverin-mcp` (both made public on GitHub after a secrets audit, linked), plus `playlists-tidal-mcp` and `walkie-talkie` (both intentionally private — mention only, no GitHub link, don't publish).

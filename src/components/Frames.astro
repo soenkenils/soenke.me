@@ -1,0 +1,94 @@
+---
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+// Masters live in src/assets/photos/<group>/<name>.jpg (1600px, EXIF-stripped).
+// Astro generates responsive webp variants at build time.
+const sources = import.meta.glob<{ default: ImageMetadata }>('../assets/photos/*/*.jpg', {
+  eager: true,
+});
+
+interface Photo {
+  file: string;
+  alt: string;
+}
+interface Group {
+  title: string;
+  accent: string;
+  photos: Photo[];
+}
+
+const groups: Group[] = [
+  {
+    title: 'Home — Lübeck & the Baltic',
+    accent: 'var(--pink)',
+    photos: [
+      { file: 'luebeck/salzspeicher', alt: 'The brick gables of Lübeck’s Salzspeicher and a church spire under a deep blue sky' },
+      { file: 'luebeck/dom-reflection', alt: 'Lübeck cathedral upside down in a rippled water reflection' },
+      { file: 'luebeck/rooftops-dusk', alt: 'Lübeck rooftops at dusk with a red glow on the horizon' },
+      { file: 'luebeck/harbour-barges', alt: 'Red work barges mirrored in still harbour water' },
+      { file: 'luebeck/baltic-beach-sunset', alt: 'Low sun over wet sand and tide pools on a Baltic beach' },
+      { file: 'luebeck/dike-cyclists', alt: 'Two cyclists in silhouette riding along a dike in hazy golden light' },
+    ],
+  },
+  {
+    title: 'Farther out',
+    accent: 'var(--cyan)',
+    photos: [
+      { file: 'away/dolomites-alpenglow', alt: 'Alpenglow on a Dolomites rock face under heavy clouds' },
+      { file: 'away/mountain-light-rays', alt: 'Sun rays breaking through clouds over dark mountain ridges' },
+      { file: 'away/dolomites-rainbow', alt: 'A rainbow over green alpine meadows below jagged peaks' },
+      { file: 'away/venice-gondola', alt: 'A gondola bobbing in front of San Giorgio Maggiore in Venice' },
+      { file: 'away/mountain-lake', alt: 'A forest lake below a cloud-capped mountain range' },
+      { file: 'away/sunflower-wall', alt: 'A single sunflower against a sunlit plaster wall' },
+    ],
+  },
+  {
+    title: 'Through glass & frost',
+    accent: 'var(--purple)',
+    photos: [
+      { file: 'glass/frost-window-gold', alt: 'Frost crystals on a window pane backlit in gold' },
+      { file: 'glass/frost-texture', alt: 'Silvery frost crystals spread across dark glass' },
+      { file: 'glass/market-condensation', alt: 'A market food stall seen through a fogged tarpaulin' },
+      { file: 'glass/rain-window-blue', alt: 'Figures behind rain-covered glass in deep blue' },
+      { file: 'glass/car-window-reflection', alt: 'Old town houses reflected in a rain-specked car window' },
+      { file: 'glass/water-ripples', alt: 'Sunlight drawing bright ripple patterns on shallow water' },
+    ],
+  },
+];
+
+const imageOf = (file: string): ImageMetadata => {
+  const mod = sources[`../assets/photos/${file}.jpg`];
+  if (!mod) throw new Error(`Missing photo master: src/assets/photos/${file}.jpg`);
+  return mod.default;
+};
+---
+
+<section class="section" id="frames">
+  <div class="wrap">
+    <div class="kicker reveal"><span class="num">04</span><span class="lbl">Frames</span><span class="rule"></span></div>
+    <h2 class="h2 reveal">Through the <span class="g-purple">viewfinder</span></h2>
+    <p class="lead reveal d1">A few frames I keep coming back to — home, farther out, and the world through wet glass.</p>
+    {groups.map((group) => (
+      <div class="photo-group" style={`--accent: ${group.accent};`}>
+        <div class="ph-t reveal">{group.title}</div>
+        <div class="photo-grid">
+          {group.photos.map((photo, i) => (
+            <figure class={`ph reveal d${(i % 3) + 1}`}>
+              <Image
+                src={imageOf(photo.file)}
+                alt={photo.alt}
+                widths={[420, 800, 1200]}
+                sizes="(max-width: 560px) calc(100vw - 56px), (max-width: 900px) 50vw, 375px"
+                format="webp"
+                quality={75}
+                loading="lazy"
+                decoding="async"
+              />
+            </figure>
+          ))}
+        </div>
+      </div>
+    ))}
+  </div>
+</section>
