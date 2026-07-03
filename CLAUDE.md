@@ -176,7 +176,7 @@ npm run build      # → dist/ (static HTML, CSS, JS, assets)
 
 **Trigger**: Push to `main` branch or manual workflow dispatch
 
-**GitHub Actions** (`.github/workflows/deploy.yml`): checkout → setup Node 22 (npm cache) → setup Pages → `npm ci` → `npm run build` → upload `dist/` → deploy to GitHub Pages.
+**GitHub Actions** (`.github/workflows/deploy.yml`): checkout → setup Node 22 (npm cache) → setup Pages → `npm ci` → `npm run build` → upload `dist/` → deploy to GitHub Pages. The deploy step retries once (after 30s) when the Pages backend returns its transient "Deployment failed, try again later." error.
 
 Pull requests run `.github/workflows/ci.yml` instead: `npm ci` → `npm run check` → `npm run build`.
 
@@ -184,7 +184,7 @@ Pull requests run `.github/workflows/ci.yml` instead: `npm ci` → `npm run chec
 - **Runner**: `ubuntu-latest`
 - **Node Version**: 22
 - **Permissions**: `contents: read`, `pages: write`, `id-token: write`
-- **Concurrency**: One deployment at a time (cancel previous on new push)
+- **Concurrency**: One deployment at a time (`cancel-in-progress: false` — in-flight deploys finish; only the newest queued run is kept)
 
 **Result**: Site available at https://soenke.me (via CNAME in `public/`)
 
