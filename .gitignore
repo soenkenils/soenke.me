@@ -23,3 +23,7 @@ pnpm-debug.log*
 # jetbrains setting folder
 .idea/
 src/assets/img/
+
+# Claude Code skill installs
+.agents/
+skills-lock.json
