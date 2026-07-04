@@ -533,7 +533,11 @@ const ogImage = new URL('/og.png', Astro.site);
             a.addEventListener('click', function () { setMenu(false); });
           });
           document.addEventListener('keydown', function (e) {
-            if (e.key === 'Escape') setMenu(false);
+            /* return focus to the burger so keyboard users aren't stranded in the hidden menu */
+            if (e.key === 'Escape' && menuEl.classList.contains('open')) {
+              setMenu(false);
+              burgerEl.focus();
+            }
           });
         }
 
