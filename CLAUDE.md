@@ -2,7 +2,7 @@
 
 > Comprehensive documentation for AI assistants working on soenke.me
 
-Last Updated: 2026-07-02
+Last Updated: 2026-07-05
 
 ## Table of Contents
 
@@ -176,9 +176,9 @@ npm run build      # → dist/ (static HTML, CSS, JS, assets)
 
 **Trigger**: Push to `main` branch or manual workflow dispatch
 
-**GitHub Actions** (`.github/workflows/deploy.yml`): checkout → setup Node 22 (npm cache) → setup Pages → `npm ci` → `npm run build` → upload `dist/` → deploy to GitHub Pages. The deploy step retries once (after 30s) when the Pages backend returns its transient "Deployment failed, try again later." error.
+**GitHub Actions** (`.github/workflows/deploy.yml`): checkout → setup Node 22 (npm cache) → setup Pages → `npm ci` → `npm run check` → `npm run build` → upload `dist/` → deploy to GitHub Pages. The deploy step retries up to twice (60s waits) on the Pages backend's transient "Deployment failed, try again later." error, then a smoke check curls https://soenke.me and asserts the page content.
 
-Pull requests run `.github/workflows/ci.yml` instead: `npm ci` → `npm run check` → `npm run build`.
+Pull requests run `.github/workflows/ci.yml` instead: `npm ci` → `npm run check` → `npm run build`. A new push to the same PR cancels the superseded in-flight run (`concurrency` with `cancel-in-progress`).
 
 **Environment**:
 - **Runner**: `ubuntu-latest`
@@ -473,6 +473,13 @@ Extends `astro/tsconfigs/strict`; `@/*` → `src/*`.
 ---
 
 ## Changelog
+
+### 2026-07-04
+- **Deploy hardening**: `deploy.yml` retries up to twice with 60s waits (single 30s retry lost to the Pages flake twice in a row on 2026-07-04) and finishes with a curl smoke check against https://soenke.me. Deploy also runs `npm run check` before build (direct pushes to main previously bypassed it).
+- **CI**: superseded runs on the same PR are cancelled (`concurrency` + `cancel-in-progress`).
+- **A11y**: Escape closes the mobile menu *and* returns focus to the burger (previously focus stayed in the hidden menu).
+- Deps: astro 7.0.4 → 7.0.6; `npm audit fix` for a dev-only yaml advisory (0 vulnerabilities after).
+- Repo hygiene: `.agents/` + `skills-lock.json` gitignored; merged local/remote feature branches cleaned up.
 
 ### 2026-07-02 (later)
 - New **04 · Frames** photo gallery (`Frames.astro`, `id="frames"`); Contact renumbered 04→05, "Frames" added to nav. Three curated groups of 6: *Home — Lübeck & the Baltic* / *Farther out* / *Through glass & frost*.
