@@ -2,7 +2,7 @@
 
 > Comprehensive documentation for AI assistants working on soenke.me
 
-Last Updated: 2026-07-05
+Last Updated: 2026-07-06
 
 ## Table of Contents
 
@@ -473,6 +473,9 @@ Extends `astro/tsconfigs/strict`; `@/*` → `src/*`.
 ---
 
 ## Changelog
+
+### 2026-07-06
+- **Frames lightbox**: thumbnails are now `<a>` links to a 1600px webp (`getImage`, widths 800/1600 — no-JS fallback opens the image directly); a native `<dialog>` viewer (`#lightbox` in `Frames.astro` + component script) adds ◂/▸ + arrow-key navigation across all 18 frames (wrapping), an arcade `08 / 18` counter, caption from the alt text, backdrop-click close, and body scroll-lock. The frame glow + counter inherit the *group's* `--accent` (JS sets it on the dialog). Escape/focus-restore are native `<dialog>` behavior. CSS: `.ph-link`, `.lightbox`, `.lb-*` in the global sheet; open animation gated behind `prefers-reduced-motion`; nav buttons move to the bottom corners at 560px.
 
 ### 2026-07-04
 - **Deploy hardening**: `deploy.yml` retries up to twice with 60s waits (single 30s retry lost to the Pages flake twice in a row on 2026-07-04) and finishes with a curl smoke check against https://soenke.me. Deploy also runs `npm run check` before build (direct pushes to main previously bypassed it).
