@@ -1,5 +1,5 @@
 ---
-import { Image } from 'astro:assets';
+import { Image, getImage } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
 
 // Masters live in src/assets/photos/<group>/<name>.jpg (1600px, EXIF-stripped).
@@ -62,6 +62,20 @@ const imageOf = (file: string): ImageMetadata => {
   if (!mod) throw new Error(`Missing photo master: src/assets/photos/${file}.jpg`);
   return mod.default;
 };
+
+// full-size lightbox targets (the thumbs link to these — works without JS too)
+const resolved = await Promise.all(
+  groups.map(async (group) => ({
+    ...group,
+    photos: await Promise.all(
+      group.photos.map(async (photo) => ({
+        ...photo,
+        src: imageOf(photo.file),
+        large: await getImage({ src: imageOf(photo.file), widths: [800, 1600], format: 'webp', quality: 80 }),
+      }))
+    ),
+  }))
+);
 ---
 
 <section class="section" id="frames">
@@ -69,26 +83,105 @@ const imageOf = (file: string): ImageMetadata => {
     <div class="kicker reveal"><span class="num">04</span><span class="lbl">Frames</span><span class="rule"></span></div>
     <h2 class="h2 reveal">Through the <span class="g-purple">viewfinder</span></h2>
     <p class="lead reveal d1">A few frames I keep coming back to — home, farther out, and the world through wet glass.</p>
-    {groups.map((group) => (
+    {resolved.map((group) => (
       <div class="photo-group" style={`--accent: ${group.accent};`}>
         <div class="ph-t reveal">{group.title}</div>
         <div class="photo-grid">
           {group.photos.map((photo, i) => (
             <figure class={`ph reveal d${(i % 3) + 1}`}>
-              <Image
-                src={imageOf(photo.file)}
-                alt={photo.alt}
-                widths={[420, 800, 1200]}
-                sizes="(max-width: 560px) calc(100vw - 56px), (max-width: 900px) 50vw, 375px"
-                format="webp"
-                quality={75}
-                loading="lazy"
-                decoding="async"
-              />
+              <a
+                class="ph-link"
+                href={photo.large.src}
+                data-srcset={photo.large.srcSet.attribute}
+                data-alt={photo.alt}
+                data-accent={group.accent}
+                aria-label={`View larger: ${photo.alt}`}
+              >
+                <Image
+                  src={photo.src}
+                  alt={photo.alt}
+                  widths={[420, 800, 1200]}
+                  sizes="(max-width: 560px) calc(100vw - 56px), (max-width: 900px) 50vw, 375px"
+                  format="webp"
+                  quality={75}
+                  loading="lazy"
+                  decoding="async"
+                />
+              </a>
             </figure>
           ))}
         </div>
       </div>
     ))}
   </div>
+
+  <dialog class="lightbox" id="lightbox" aria-label="Photo viewer">
+    <figure class="lb-fig">
+      <img class="lb-img" id="lbImg" alt="" />
+      <figcaption class="lb-bar">
+        <span class="lb-cap" id="lbCap"></span>
+        <span class="lb-count" id="lbCount"></span>
+      </figcaption>
+    </figure>
+    <button class="lb-btn lb-close" id="lbClose" aria-label="Close">✕</button>
+    <button class="lb-btn lb-prev" id="lbPrev" aria-label="Previous photo">◂</button>
+    <button class="lb-btn lb-next" id="lbNext" aria-label="Next photo">▸</button>
+  </dialog>
 </section>
+
+<script>
+  /* Frames lightbox — native <dialog>: Escape + focus restore come free */
+  (function () {
+    var dialog = document.getElementById('lightbox') as HTMLDialogElement | null;
+    if (!dialog || typeof dialog.showModal !== 'function') return;
+
+    var img = document.getElementById('lbImg') as HTMLImageElement;
+    var cap = document.getElementById('lbCap') as HTMLElement;
+    var count = document.getElementById('lbCount') as HTMLElement;
+    var links = Array.prototype.slice.call(
+      document.querySelectorAll('#frames .ph-link')
+    ) as HTMLAnchorElement[];
+    var idx = 0;
+
+    var pad = function (n: number) { return String(n).padStart(2, '0'); };
+
+    var show = function (i: number) {
+      idx = (i + links.length) % links.length;
+      var a = links[idx];
+      img.src = a.href;
+      img.srcset = a.dataset.srcset || '';
+      img.sizes = '92vw';
+      cap.textContent = a.dataset.alt || '';
+      count.textContent = pad(idx + 1) + ' / ' + pad(links.length);
+      dialog!.style.setProperty('--accent', a.dataset.accent || 'var(--pink)');
+    };
+
+    links.forEach(function (a, i) {
+      a.addEventListener('click', function (e) {
+        e.preventDefault();
+        show(i);
+        dialog!.showModal();
+      });
+    });
+
+    document.getElementById('lbClose')!.addEventListener('click', function () { dialog!.close(); });
+    document.getElementById('lbPrev')!.addEventListener('click', function () { show(idx - 1); });
+    document.getElementById('lbNext')!.addEventListener('click', function () { show(idx + 1); });
+
+    /* click on the backdrop (event target is the dialog itself) closes */
+    dialog.addEventListener('click', function (e) {
+      if (e.target === dialog) dialog!.close();
+    });
+
+    dialog.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowLeft') show(idx - 1);
+      if (e.key === 'ArrowRight') show(idx + 1);
+    });
+
+    /* drop the image so a reopen never flashes the previous photo */
+    dialog.addEventListener('close', function () {
+      img.removeAttribute('src');
+      img.removeAttribute('srcset');
+    });
+  })();
+</script>
