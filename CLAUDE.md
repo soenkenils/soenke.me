@@ -474,6 +474,10 @@ Extends `astro/tsconfigs/strict`; `@/*` → `src/*`.
 
 ## Changelog
 
+### 2026-07-13
+- **Playwright smoke tests** (`e2e/smoke.spec.ts`, `playwright.config.ts`, `npm run test:e2e`): mobile menu (open / Escape closes + focus returns to burger / link click closes), lightbox (open, arrow-key navigation + counter, Escape close, `src` dropped on close), scroll reveal (below-the-fold content gets `.in` + opacity 1; reduced-motion shows everything immediately). Runs against the production build via `astro preview` — locally `test:e2e` builds first; CI reuses the existing build. `ci.yml` installs chromium and runs the suite after build. Playwright artifacts gitignored.
+- `docs/findings.md`: verified site audit (replaces an inaccurate auto-generated one); Impressum question resolved as already-decided (see 2026-06-23).
+
 ### 2026-07-06
 - **Frames lightbox**: thumbnails are now `<a>` links to a 1600px webp (`getImage`, widths 800/1600 — no-JS fallback opens the image directly); a native `<dialog>` viewer (`#lightbox` in `Frames.astro` + component script) adds ◂/▸ + arrow-key navigation across all 18 frames (wrapping), an arcade `08 / 18` counter, caption from the alt text, backdrop-click close, and body scroll-lock. The frame glow + counter inherit the *group's* `--accent` (JS sets it on the dialog). Escape/focus-restore are native `<dialog>` behavior. CSS: `.ph-link`, `.lightbox`, `.lb-*` in the global sheet; open animation gated behind `prefers-reduced-motion`; nav buttons move to the bottom corners at 560px.
 

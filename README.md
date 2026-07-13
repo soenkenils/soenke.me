@@ -17,6 +17,7 @@ npm run dev       # dev server at http://localhost:4321
 npm run check     # astro check (type checking)
 npm run build     # production build → dist/
 npm run preview   # preview the production build
+npm run test:e2e  # Playwright smoke tests (builds + previews automatically)
 ```
 
 ## Deploy
