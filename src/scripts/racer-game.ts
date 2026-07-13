@@ -95,8 +95,8 @@ export function initRacer(dialog: HTMLDialogElement): { open(): void } {
   const GROUND_B = tok('--bg', '#0a0118');
   const SUN = [tok('--sun-1', '#fff35b'), tok('--sun-2', '#ffab2e'), tok('--sun-3', '#ff5fa2'), tok('--sun-4', '#ff2e97')];
   const GRID = `rgba(${tok('--grid', '0, 234, 255')}, 0.16)`;
-  const RUMBLE_DARK = '#3d1030'; // dark phase of the pink rumble strip
-  const HAZE = '#2a0a4d'; //       horizon haze (hero sky mid stop)
+  const INK = tok('--ink', '#f3ecff'); // light phase of the rumble strip (red/white in the original)
+  const HAZE = '#2a0a4d'; //             horizon haze (hero sky mid stop)
 
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const segments = buildTrack();
@@ -245,26 +245,21 @@ export function initRacer(dialog: HTMLDialogElement): { open(): void } {
   function drawCar() {
     const offroad = state === 'run' && Math.abs(playerX) > 1.02 && speed > 0;
     ctx.save();
-    ctx.translate(W / 2 + (offroad ? Math.sin(tick * 60) * 2 : 0), H - 40 + (offroad ? Math.sin(tick * 47) * 1.5 : 0));
+    ctx.translate(W / 2 + (offroad ? Math.sin(tick * 60) * 2 : 0), H - 48 + (offroad ? Math.sin(tick * 47) * 1.5 : 0));
     if (state === 'run') ctx.rotate(((keys.left ? -1 : 0) + (keys.right ? 1 : 0)) * 0.03);
+    ctx.scale(1.35, 1.35); // the original car fills a good chunk of the screen
 
-    ctx.fillStyle = '#08020e'; // wheels
-    ctx.fillRect(-42, 8, 15, 12);
-    ctx.fillRect(27, 8, 15, 12);
+    /* rear view modelled on the Lotus Esprit tail: boxy shell, wide louvered
+       rear window, two segmented tail-light clusters, bumper, shoulder mirrors */
+    const DARK = '#08020e';
 
-    ctx.beginPath(); // cabin — filled, so the road never shows through the glass
-    ctx.moveTo(-26, -12); ctx.lineTo(-18, -25); ctx.lineTo(18, -25); ctx.lineTo(26, -12);
-    ctx.closePath();
-    ctx.fillStyle = '#08020e';
-    ctx.fill();
-    ctx.strokeStyle = CYAN; ctx.lineWidth = 1.5;
-    ctx.shadowColor = CYAN; ctx.shadowBlur = 8;
-    ctx.stroke();
-    ctx.shadowBlur = 0;
+    ctx.fillStyle = DARK; // wheels peek out under the body
+    ctx.fillRect(-44, 10, 16, 12);
+    ctx.fillRect(28, 10, 16, 12);
 
-    ctx.beginPath(); // wide flat wedge body, rear view
-    ctx.moveTo(-44, 12); ctx.lineTo(-38, -6); ctx.lineTo(-28, -12); ctx.lineTo(28, -12);
-    ctx.lineTo(38, -6); ctx.lineTo(44, 12);
+    ctx.beginPath(); // body shell — near-rectangular tail, tapering to the roof
+    ctx.moveTo(-48, 16); ctx.lineTo(-46, -10); ctx.lineTo(-40, -14); ctx.lineTo(-28, -30);
+    ctx.lineTo(28, -30); ctx.lineTo(40, -14); ctx.lineTo(46, -10); ctx.lineTo(48, 16);
     ctx.closePath();
     ctx.fillStyle = ROAD_B;
     ctx.fill();
@@ -273,15 +268,51 @@ export function initRacer(dialog: HTMLDialogElement): { open(): void } {
     ctx.stroke();
     ctx.shadowBlur = 0;
 
-    ctx.fillStyle = PINK; // tail light bar
-    ctx.shadowColor = PINK; ctx.shadowBlur = 12;
-    ctx.fillRect(-32, 2, 64, 4);
+    ctx.beginPath(); // rear window
+    ctx.moveTo(-34, -12); ctx.lineTo(-25, -27); ctx.lineTo(25, -27); ctx.lineTo(34, -12);
+    ctx.closePath();
+    ctx.fillStyle = DARK;
+    ctx.fill();
+    ctx.strokeStyle = CYAN; ctx.lineWidth = 1.5;
+    ctx.shadowColor = CYAN; ctx.shadowBlur = 8;
+    ctx.stroke();
     ctx.shadowBlur = 0;
+    ctx.strokeStyle = 'rgba(0, 234, 255, 0.35)'; // glass louvers
+    ctx.lineWidth = 1;
+    for (const ly of [-16, -20, -24]) {
+      const t = (ly + 12) / -15; // 0 at window base, 1 at top
+      const hw = 34 + (25 - 34) * t - 2;
+      ctx.beginPath();
+      ctx.moveTo(-hw, ly); ctx.lineTo(hw, ly);
+      ctx.stroke();
+    }
+
+    ctx.fillStyle = PINK; // tail-light clusters
+    ctx.shadowColor = PINK; ctx.shadowBlur = 12;
+    ctx.fillRect(-42, -6, 26, 9);
+    ctx.fillRect(16, -6, 26, 9);
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = DARK; // cluster segment dividers + centre panel
+    ctx.fillRect(-34, -6, 2, 9);
+    ctx.fillRect(-26, -6, 2, 9);
+    ctx.fillRect(24, -6, 2, 9);
+    ctx.fillRect(32, -6, 2, 9);
+    ctx.fillRect(-16, -6, 32, 9);
+    ctx.fillStyle = YELLOW; // badge
+    ctx.fillRect(-3, -4, 6, 3);
+
+    ctx.fillStyle = DARK; // bumper strip
+    ctx.fillRect(-46, 8, 92, 6);
+
+    ctx.fillStyle = ROAD_B; // shoulder mirrors
+    ctx.strokeStyle = PINK; ctx.lineWidth = 1;
+    ctx.fillRect(-54, -18, 9, 6); ctx.strokeRect(-54, -18, 9, 6);
+    ctx.fillRect(45, -18, 9, 6); ctx.strokeRect(45, -18, 9, 6);
 
     if (state === 'run' && keys.up && Math.floor(tick * 20) % 2 === 0) {
       ctx.fillStyle = YELLOW; // exhaust flicker
-      ctx.fillRect(-8, 14, 6, 5);
-      ctx.fillRect(2, 14, 6, 5);
+      ctx.fillRect(-11, 17, 7, 5);
+      ctx.fillRect(4, 17, 7, 5);
     }
     ctx.restore();
   }
@@ -350,9 +381,9 @@ export function initRacer(dialog: HTMLDialogElement): { open(): void } {
       poly(row.x1 - row.w1, row.y1, row.x1 + row.w1, row.y1, row.x2 + row.w2, row.y2, row.x2 - row.w2, row.y2, light ? ROAD_A : ROAD_B);
       const r1 = Math.max(1, row.w1 * 0.14);
       const r2 = Math.max(1, row.w2 * 0.14);
-      poly(row.x1 - row.w1 - r1, row.y1, row.x1 - row.w1, row.y1, row.x2 - row.w2, row.y2, row.x2 - row.w2 - r2, row.y2, light ? PINK : RUMBLE_DARK);
-      poly(row.x1 + row.w1, row.y1, row.x1 + row.w1 + r1, row.y1, row.x2 + row.w2 + r2, row.y2, row.x2 + row.w2, row.y2, light ? PINK : RUMBLE_DARK);
-      if (light) { // two dashed dividers → three lanes, like the Lotus 2 motorway
+      poly(row.x1 - row.w1 - r1, row.y1, row.x1 - row.w1, row.y1, row.x2 - row.w2, row.y2, row.x2 - row.w2 - r2, row.y2, light ? PINK : INK);
+      poly(row.x1 + row.w1, row.y1, row.x1 + row.w1 + r1, row.y1, row.x2 + row.w2 + r2, row.y2, row.x2 + row.w2, row.y2, light ? PINK : INK);
+      if (row.i % 6 < 2) { // short dashes, two dividers → three lanes, like the Lotus 2 motorway
         for (const lane of [-1 / 3, 1 / 3]) {
           const l1 = row.x1 + row.w1 * lane;
           const l2 = row.x2 + row.w2 * lane;
