@@ -90,9 +90,12 @@ soenke.me/
 │   │   ├── Icon.astro          # Shared social icons (email/github/linkedin)
 │   │   ├── Frames.astro        # 04 · Frames (photo gallery, astro:assets)
 │   │   ├── OffTheClock.astro   # 03 · Off the clock (coffee / cycling / photography)
-│   │   └── Projects.astro      # 02 · Projects (MCP servers + walkie-talkie)
+│   │   ├── Projects.astro      # 02 · Projects (MCP servers + walkie-talkie)
+│   │   └── Racer.astro         # Konami-code easter egg: dialog + trigger (game lazy-loads)
 │   ├── layouts/
 │   │   └── Layout.astro        # Base layout: global CSS, fonts, fx overlays, interaction JS
+│   ├── scripts/
+│   │   └── racer-game.ts       # "Baltic Turbo Challenge" pseudo-3D canvas racer (dynamic import)
 │   ├── pages/
 │   │   ├── index.astro         # Homepage (main entry point)
 │   │   ├── datenschutz.astro   # Privacy policy (DSGVO; lang="de", noindex, uses .legal-prose)
@@ -473,6 +476,9 @@ Extends `astro/tsconfigs/strict`; `@/*` → `src/*`.
 ---
 
 ## Changelog
+
+### 2026-07-13 (later)
+- **"Baltic Turbo Challenge" easter egg**: the Konami code (↑↑↓↓←→←→BA) on the homepage opens a native `<dialog>` (`Racer.astro`) with a small canvas pseudo-3D racer — an homage to Lotus Turbo Challenge 2 (Amiga, 1991). Classic segmented-road renderer (Lou's Pseudo 3d Page / jakesgordon javascript-racer school): projected segments, curves faked via accumulated per-segment X offsets, hills via elevation projection, back-to-front painting with hill-crest culling. All vector-drawn in the design tokens (read from `:root` at init) — neon 3-lane road, pink rumble strips, glowing pylons, sunset/starfield sky, wedge car; no image assets. Arcade rules: 45s timer, +20s per checkpoint (3 per lap), off-road slows hard, best distance in `localStorage` (`racer.best`). Controls: ←→/AD steer, ↑/W gas, ↓/S brake, Enter start, Esc quit (native dialog). The game engine (`src/scripts/racer-game.ts`, ~7 kB chunk) is `import()`ed only on first unlock — the main bundle carries just the ~2 kB trigger. HUD/messages are DOM (Press Start 2P), canvas is `aria-hidden`; attract-mode cruise is skipped under `prefers-reduced-motion`. CSS: `.racer`, `.racer-frame` (own scanline overlay — the global `.fx-scan` sits below the dialog top layer), `.racer-hud`, `.racer-msg`, `.racer-flash`, `.racer-hint` in the global sheet. e2e: Konami open → Enter starts → Escape closes; wrong-key sequence reset.
 
 ### 2026-07-13
 - **Playwright smoke tests** (`e2e/smoke.spec.ts`, `playwright.config.ts`, `npm run test:e2e`): mobile menu (open / Escape closes + focus returns to burger / link click closes), lightbox (open, arrow-key navigation + counter, Escape close, `src` dropped on close), scroll reveal (below-the-fold content gets `.in` + opacity 1; reduced-motion shows everything immediately). Runs against the production build via `astro preview` — locally `test:e2e` builds first; CI reuses the existing build. `ci.yml` installs chromium and runs the suite after build. Playwright artifacts gitignored.

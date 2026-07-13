@@ -1,0 +1,58 @@
+---
+// Hidden easter egg: the Konami code (↑↑↓↓←→←→BA) opens "Baltic Turbo
+// Challenge", a tiny canvas homage to Lotus Turbo Challenge 2 (Amiga, 1991).
+// Only the trigger listener ships with the page — the game engine
+// (src/scripts/racer-game.ts) is dynamic-imported on first unlock.
+---
+
+<dialog class="racer" id="racer" aria-label="Baltic Turbo Challenge — a small racing game">
+  <div class="racer-frame">
+    <canvas id="racerCanvas" width="640" height="360" aria-hidden="true"></canvas>
+    <div class="racer-hud">
+      <span>TIME <b id="rcTime">--</b></span>
+      <span>SPEED <b id="rcSpeed">0</b></span>
+      <span>DIST <b id="rcDist">0.00</b></span>
+      <span>BEST <b id="rcBest">0.00</b></span>
+    </div>
+    <div class="racer-flash" id="racerFlash" hidden></div>
+    <div class="racer-msg" id="racerMsg">
+      <div>
+        <span class="rm-title g-pink" id="rmTitle">BALTIC TURBO CHALLENGE</span>
+        <span class="rm-sub" id="rmSub">an homage to lotus turbo challenge 2 · amiga 1991</span>
+        <span class="g-cyan blink" id="rmAction">PRESS ENTER</span>
+      </div>
+    </div>
+  </div>
+  <p class="racer-hint">← → steer · ↑ gas · ↓ brake · enter start · esc quit</p>
+  <button class="lb-btn lb-close" id="racerClose" aria-label="Close game">✕</button>
+</dialog>
+
+<script>
+  /* Konami-code trigger — the game module loads only when unlocked */
+  (function () {
+    var dialog = document.getElementById('racer') as HTMLDialogElement | null;
+    if (!dialog || typeof dialog.showModal !== 'function') return;
+
+    var SEQ = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+    var step = 0;
+    var game: { open(): void } | null = null;
+
+    document.addEventListener('keydown', function (e) {
+      if (dialog!.open) return;
+      var k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+      step = k === SEQ[step] ? step + 1 : k === SEQ[0] ? 1 : 0;
+      if (step < SEQ.length) return;
+      step = 0;
+      import('../scripts/racer-game').then(function (m) {
+        if (!game) game = m.initRacer(dialog!);
+        game.open();
+      });
+    });
+
+    document.getElementById('racerClose')!.addEventListener('click', function () { dialog!.close(); });
+    /* click on the backdrop (event target is the dialog itself) closes */
+    dialog.addEventListener('click', function (e) {
+      if (e.target === dialog) dialog!.close();
+    });
+  })();
+</script>
