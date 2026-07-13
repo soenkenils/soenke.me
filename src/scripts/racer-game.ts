@@ -247,7 +247,7 @@ export function initRacer(dialog: HTMLDialogElement): { open(): void } {
     ctx.save();
     ctx.translate(W / 2 + (offroad ? Math.sin(tick * 60) * 2 : 0), H - 48 + (offroad ? Math.sin(tick * 47) * 1.5 : 0));
     if (state === 'run') ctx.rotate(((keys.left ? -1 : 0) + (keys.right ? 1 : 0)) * 0.03);
-    ctx.scale(1.35, 1.35); // the original car fills a good chunk of the screen
+    ctx.scale(1.2, 1.2); // the original car fills a good chunk of the screen
 
     /* rear view modelled on the Lotus Esprit tail: boxy shell, wide louvered
        rear window, two segmented tail-light clusters, bumper, shoulder mirrors */
