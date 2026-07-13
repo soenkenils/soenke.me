@@ -68,6 +68,57 @@ test.describe('lightbox', () => {
   });
 });
 
+test.describe('racer easter egg', () => {
+  const KONAMI = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+
+  test('Konami code opens the game, Enter starts it, Escape closes', async ({ page }) => {
+    await page.goto('/');
+    const racer = page.locator('#racer');
+    await expect(racer).toBeHidden();
+
+    for (const key of KONAMI) await page.keyboard.press(key);
+    // dialog opens after the game module is lazy-loaded
+    await expect(racer).toBeVisible();
+    await expect(page.locator('#racerMsg')).toContainText('BALTIC TURBO CHALLENGE');
+    await expect(page.locator('#rcTime')).toHaveText('--');
+
+    await page.keyboard.press('Enter');
+    await expect(page.locator('#racerMsg')).toBeHidden();
+    // race is running: the HUD timer shows a countdown
+    await expect(page.locator('#rcTime')).toHaveText(/^\d+$/);
+
+    // native <dialog>: Escape must close, and the page must scroll again
+    await page.keyboard.press('Escape');
+    await expect(racer).toBeHidden();
+    await expect(page.locator('body')).not.toHaveCSS('overflow', 'hidden');
+  });
+
+  test('sound is off by default, toggles via the button, resets on close', async ({ page }) => {
+    await page.goto('/');
+    for (const key of KONAMI) await page.keyboard.press(key);
+    const sound = page.locator('#racerSound');
+    await expect(sound).toHaveAttribute('aria-pressed', 'false');
+
+    await sound.click();
+    await expect(sound).toHaveAttribute('aria-pressed', 'true');
+    await expect(sound).toHaveText(/SOUND: ON/);
+
+    // closing kills the music; the next open must start muted again
+    await page.keyboard.press('Escape');
+    for (const key of KONAMI) await page.keyboard.press(key);
+    await expect(page.locator('#racer')).toBeVisible();
+    await expect(sound).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  test('a wrong key resets the sequence', async ({ page }) => {
+    await page.goto('/');
+    for (const key of KONAMI.slice(0, 5)) await page.keyboard.press(key);
+    await page.keyboard.press('x');
+    for (const key of KONAMI.slice(5)) await page.keyboard.press(key);
+    await expect(page.locator('#racer')).toBeHidden();
+  });
+});
+
 test.describe('scroll reveal', () => {
   test('below-the-fold content becomes visible after scrolling', async ({ page }) => {
     await page.goto('/');
