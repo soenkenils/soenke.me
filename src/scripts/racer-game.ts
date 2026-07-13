@@ -69,6 +69,132 @@ function crossed(cp: number, a: number, b: number): boolean {
   return a < b ? cp > a && cp <= b : cp > a || cp <= b;
 }
 
+/* Procedural 90s-arcade loop, Web Audio only — no audio assets.
+   A-minor synthwave: four-on-the-floor kick, offbeat hats, snare on 2 & 4,
+   driving sawtooth 8th-note bass and a square-wave arpeggio lead through a
+   dotted-8th echo. Am / F / C / G, 4 bars of 16 steps, lookahead scheduler. */
+function createMusic(): { start(): void; stop(): void } {
+  let ac: AudioContext | null = null;
+  let master!: GainNode;
+  let leadBus!: GainNode;
+  let bassFlt!: BiquadFilterNode;
+  let noiseBuf!: AudioBuffer;
+  let timer: ReturnType<typeof setInterval> | null = null;
+  let step = 0;
+  let nextT = 0;
+
+  const BPM = 128;
+  const STEP = 60 / BPM / 4; // one 16th note
+  const freq = (midi: number) => 440 * Math.pow(2, (midi - 69) / 12);
+
+  const BASS = [33, 29, 36, 31]; // A1 F1 C2 G1 — one root per bar
+  const LEAD = [
+    69, 0, 72, 0, 76, 0, 72, 0, 69, 0, 72, 0, 76, 0, 81, 0, // Am
+    65, 0, 69, 0, 72, 0, 69, 0, 65, 0, 69, 0, 72, 0, 77, 0, // F
+    64, 0, 67, 0, 72, 0, 67, 0, 64, 0, 67, 0, 72, 0, 76, 0, // C
+    67, 0, 71, 0, 74, 0, 71, 0, 67, 0, 71, 0, 74, 0, 79, 0, // G
+  ];
+
+  function synth(t: number, hz: number, type: OscillatorType, dur: number, vol: number, dest: AudioNode, dropTo = 0) {
+    const o = ac!.createOscillator();
+    const g = ac!.createGain();
+    o.type = type;
+    o.frequency.setValueAtTime(hz, t);
+    if (dropTo > 0) o.frequency.exponentialRampToValueAtTime(dropTo, t + dur);
+    g.gain.setValueAtTime(vol, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    o.connect(g);
+    g.connect(dest);
+    o.start(t);
+    o.stop(t + dur);
+  }
+
+  function noise(t: number, dur: number, vol: number, hz: number, type: BiquadFilterType) {
+    const src = ac!.createBufferSource();
+    src.buffer = noiseBuf;
+    const flt = ac!.createBiquadFilter();
+    flt.type = type;
+    flt.frequency.value = hz;
+    const g = ac!.createGain();
+    g.gain.setValueAtTime(vol, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    src.connect(flt);
+    flt.connect(g);
+    g.connect(master);
+    src.start(t);
+    src.stop(t + dur);
+  }
+
+  function schedule(t: number, s: number) {
+    const bar = Math.floor(s / 16) % 4;
+    const beat = s % 16;
+    if (beat % 4 === 0) synth(t, 150, 'sine', 0.12, 0.55, master, 40); // kick
+    if (beat % 8 === 4) noise(t, 0.09, 0.22, 1800, 'bandpass'); //        snare on 2 & 4
+    if (beat % 4 === 2) noise(t, 0.04, 0.1, 7000, 'highpass'); //         offbeat hat
+    if (beat % 2 === 0) { // 8th-note bass, octave bounce
+      synth(t, freq(BASS[bar] + (beat % 4 === 2 ? 12 : 0)), 'sawtooth', STEP * 1.8, 0.22, bassFlt);
+    }
+    const m = LEAD[s % LEAD.length];
+    if (m > 0) synth(t, freq(m), 'square', STEP * 1.6, 0.08, leadBus);
+  }
+
+  function tickScheduler() {
+    if (!ac) return;
+    while (nextT < ac.currentTime + 0.12) {
+      schedule(nextT, step);
+      step = (step + 1) % LEAD.length;
+      nextT += STEP;
+    }
+  }
+
+  function setup() {
+    ac = new AudioContext();
+    master = ac.createGain();
+    master.gain.value = 0.5;
+    master.connect(ac.destination);
+
+    noiseBuf = ac.createBuffer(1, Math.floor(ac.sampleRate * 0.2), ac.sampleRate);
+    const data = noiseBuf.getChannelData(0);
+    for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+
+    bassFlt = ac.createBiquadFilter();
+    bassFlt.type = 'lowpass';
+    bassFlt.frequency.value = 700;
+    bassFlt.connect(master);
+
+    leadBus = ac.createGain(); // lead → dry + dotted-8th echo
+    leadBus.connect(master);
+    const delay = ac.createDelay();
+    delay.delayTime.value = STEP * 3;
+    const feedback = ac.createGain();
+    feedback.gain.value = 0.3;
+    const wet = ac.createGain();
+    wet.gain.value = 0.25;
+    leadBus.connect(delay);
+    delay.connect(feedback);
+    feedback.connect(delay);
+    delay.connect(wet);
+    wet.connect(master);
+  }
+
+  return {
+    start() {
+      if (!ac) setup();
+      void ac!.resume();
+      step = 0;
+      nextT = ac!.currentTime + 0.06;
+      if (timer === null) timer = setInterval(tickScheduler, 30);
+    },
+    stop() {
+      if (timer !== null) {
+        clearInterval(timer);
+        timer = null;
+      }
+      void ac?.suspend();
+    },
+  };
+}
+
 export function initRacer(dialog: HTMLDialogElement): { open(): void } {
   const canvas = dialog.querySelector('#racerCanvas') as HTMLCanvasElement;
   const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
@@ -124,6 +250,26 @@ export function initRacer(dialog: HTMLDialogElement): { open(): void } {
 
   let best = 0;
   try { best = parseFloat(localStorage.getItem(BEST_KEY) || '0') || 0; } catch { /* storage blocked — session best only */ }
+
+  /* music — off by default, toggled by the sound button */
+  const soundBtn = dialog.querySelector('#racerSound') as HTMLButtonElement;
+  let music: { start(): void; stop(): void } | null = null;
+  let soundOn = false;
+  function setSound(on: boolean) {
+    soundOn = on;
+    if (on) {
+      if (!music) music = createMusic();
+      music.start();
+    } else {
+      music?.stop();
+    }
+    soundBtn.textContent = on ? '♪ SOUND: ON' : '♪ SOUND: OFF';
+    soundBtn.setAttribute('aria-pressed', String(on));
+  }
+  soundBtn.addEventListener('click', () => {
+    setSound(!soundOn);
+    dialog.focus(); // hand Enter back to the game, not the button
+  });
 
   const keys = { left: false, right: false, up: false, down: false };
   const KEYMAP: Record<string, keyof typeof keys> = {
@@ -249,17 +395,17 @@ export function initRacer(dialog: HTMLDialogElement): { open(): void } {
     if (state === 'run') ctx.rotate(((keys.left ? -1 : 0) + (keys.right ? 1 : 0)) * 0.03);
     ctx.scale(1.2, 1.2); // the original car fills a good chunk of the screen
 
-    /* rear view modelled on the Lotus Esprit tail: boxy shell, wide louvered
-       rear window, two segmented tail-light clusters, bumper, shoulder mirrors */
+    /* rear view, sporty Esprit-SE take: low wide wedge, raked louvered glass,
+       rear wing on struts, slim tail-light clusters, wide stance */
     const DARK = '#08020e';
 
-    ctx.fillStyle = DARK; // wheels peek out under the body
-    ctx.fillRect(-44, 10, 16, 12);
-    ctx.fillRect(28, 10, 16, 12);
+    ctx.fillStyle = DARK; // wheels — wide stance, peeking out under the body
+    ctx.fillRect(-48, 8, 18, 13);
+    ctx.fillRect(30, 8, 18, 13);
 
-    ctx.beginPath(); // body shell — near-rectangular tail, tapering to the roof
-    ctx.moveTo(-48, 16); ctx.lineTo(-46, -10); ctx.lineTo(-40, -14); ctx.lineTo(-28, -30);
-    ctx.lineTo(28, -30); ctx.lineTo(40, -14); ctx.lineTo(46, -10); ctx.lineTo(48, 16);
+    ctx.beginPath(); // body shell — low, wide wedge
+    ctx.moveTo(-50, 14); ctx.lineTo(-48, -6); ctx.lineTo(-40, -10); ctx.lineTo(-28, -22);
+    ctx.lineTo(28, -22); ctx.lineTo(40, -10); ctx.lineTo(48, -6); ctx.lineTo(50, 14);
     ctx.closePath();
     ctx.fillStyle = ROAD_B;
     ctx.fill();
@@ -268,8 +414,8 @@ export function initRacer(dialog: HTMLDialogElement): { open(): void } {
     ctx.stroke();
     ctx.shadowBlur = 0;
 
-    ctx.beginPath(); // rear window
-    ctx.moveTo(-34, -12); ctx.lineTo(-25, -27); ctx.lineTo(25, -27); ctx.lineTo(34, -12);
+    ctx.beginPath(); // rear window — raked hard
+    ctx.moveTo(-34, -9); ctx.lineTo(-24, -19); ctx.lineTo(24, -19); ctx.lineTo(34, -9);
     ctx.closePath();
     ctx.fillStyle = DARK;
     ctx.fill();
@@ -279,40 +425,50 @@ export function initRacer(dialog: HTMLDialogElement): { open(): void } {
     ctx.shadowBlur = 0;
     ctx.strokeStyle = 'rgba(0, 234, 255, 0.35)'; // glass louvers
     ctx.lineWidth = 1;
-    for (const ly of [-16, -20, -24]) {
-      const t = (ly + 12) / -15; // 0 at window base, 1 at top
-      const hw = 34 + (25 - 34) * t - 2;
+    for (const ly of [-12, -15]) {
+      const t = (ly + 9) / -10; // 0 at window base, 1 at top
+      const hw = 34 + (24 - 34) * t - 2;
       ctx.beginPath();
       ctx.moveTo(-hw, ly); ctx.lineTo(hw, ly);
       ctx.stroke();
     }
 
-    ctx.fillStyle = PINK; // tail-light clusters
+    ctx.fillStyle = PINK; // rear wing — struts…
+    ctx.fillRect(-28, -16, 3, 9);
+    ctx.fillRect(25, -16, 3, 9);
+    ctx.fillStyle = ROAD_B; // …and blade
+    ctx.fillRect(-40, -20, 80, 5);
+    ctx.strokeStyle = PINK; ctx.lineWidth = 1.5;
+    ctx.shadowColor = PINK; ctx.shadowBlur = 8;
+    ctx.strokeRect(-40, -20, 80, 5);
+    ctx.shadowBlur = 0;
+
+    ctx.fillStyle = PINK; // tail-light clusters — slim and wide
     ctx.shadowColor = PINK; ctx.shadowBlur = 12;
-    ctx.fillRect(-42, -6, 26, 9);
-    ctx.fillRect(16, -6, 26, 9);
+    ctx.fillRect(-44, -3, 28, 7);
+    ctx.fillRect(16, -3, 28, 7);
     ctx.shadowBlur = 0;
     ctx.fillStyle = DARK; // cluster segment dividers + centre panel
-    ctx.fillRect(-34, -6, 2, 9);
-    ctx.fillRect(-26, -6, 2, 9);
-    ctx.fillRect(24, -6, 2, 9);
-    ctx.fillRect(32, -6, 2, 9);
-    ctx.fillRect(-16, -6, 32, 9);
+    ctx.fillRect(-36, -3, 2, 7);
+    ctx.fillRect(-28, -3, 2, 7);
+    ctx.fillRect(26, -3, 2, 7);
+    ctx.fillRect(34, -3, 2, 7);
+    ctx.fillRect(-16, -3, 32, 7);
     ctx.fillStyle = YELLOW; // badge
-    ctx.fillRect(-3, -4, 6, 3);
+    ctx.fillRect(-3, -1, 6, 3);
 
     ctx.fillStyle = DARK; // bumper strip
-    ctx.fillRect(-46, 8, 92, 6);
+    ctx.fillRect(-48, 8, 96, 5);
 
-    ctx.fillStyle = ROAD_B; // shoulder mirrors
+    ctx.fillStyle = ROAD_B; // mirrors — low and wide
     ctx.strokeStyle = PINK; ctx.lineWidth = 1;
-    ctx.fillRect(-54, -18, 9, 6); ctx.strokeRect(-54, -18, 9, 6);
-    ctx.fillRect(45, -18, 9, 6); ctx.strokeRect(45, -18, 9, 6);
+    ctx.fillRect(-57, -12, 9, 5); ctx.strokeRect(-57, -12, 9, 5);
+    ctx.fillRect(48, -12, 9, 5); ctx.strokeRect(48, -12, 9, 5);
 
     if (state === 'run' && keys.up && Math.floor(tick * 20) % 2 === 0) {
-      ctx.fillStyle = YELLOW; // exhaust flicker
-      ctx.fillRect(-11, 17, 7, 5);
-      ctx.fillRect(4, 17, 7, 5);
+      ctx.fillStyle = YELLOW; // exhaust flicker — dual pipes
+      ctx.fillRect(-18, 15, 7, 4);
+      ctx.fillRect(11, 15, 7, 4);
     }
     ctx.restore();
   }
@@ -430,6 +586,9 @@ export function initRacer(dialog: HTMLDialogElement): { open(): void } {
   function onKey(e: KeyboardEvent, down: boolean) {
     if (!dialog.open) return;
     const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+    /* focused buttons (sound, close) keep native Enter/Space activation */
+    const t = e.target as HTMLElement | null;
+    if (t && t.tagName === 'BUTTON' && (k === 'Enter' || k === ' ')) return;
     if (k in KEYMAP) {
       keys[KEYMAP[k]] = down;
       e.preventDefault();
@@ -444,6 +603,7 @@ export function initRacer(dialog: HTMLDialogElement): { open(): void } {
   dialog.addEventListener('close', () => {
     cancelAnimationFrame(raf);
     keys.left = keys.right = keys.up = keys.down = false;
+    setSound(false); // music never outlives the dialog; next open starts muted again
   });
 
   return {
@@ -457,6 +617,7 @@ export function initRacer(dialog: HTMLDialogElement): { open(): void } {
       flash.hidden = true;
       updateHud();
       dialog.showModal();
+      dialog.focus(); // so Enter starts the race instead of activating the focused button
       last = performance.now();
       cancelAnimationFrame(raf);
       raf = requestAnimationFrame(frame);

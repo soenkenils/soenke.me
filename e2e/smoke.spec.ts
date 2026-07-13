@@ -93,6 +93,23 @@ test.describe('racer easter egg', () => {
     await expect(page.locator('body')).not.toHaveCSS('overflow', 'hidden');
   });
 
+  test('sound is off by default, toggles via the button, resets on close', async ({ page }) => {
+    await page.goto('/');
+    for (const key of KONAMI) await page.keyboard.press(key);
+    const sound = page.locator('#racerSound');
+    await expect(sound).toHaveAttribute('aria-pressed', 'false');
+
+    await sound.click();
+    await expect(sound).toHaveAttribute('aria-pressed', 'true');
+    await expect(sound).toHaveText(/SOUND: ON/);
+
+    // closing kills the music; the next open must start muted again
+    await page.keyboard.press('Escape');
+    for (const key of KONAMI) await page.keyboard.press(key);
+    await expect(page.locator('#racer')).toBeVisible();
+    await expect(sound).toHaveAttribute('aria-pressed', 'false');
+  });
+
   test('a wrong key resets the sequence', async ({ page }) => {
     await page.goto('/');
     for (const key of KONAMI.slice(0, 5)) await page.keyboard.press(key);
