@@ -32,10 +32,9 @@ jobs:
         run: npm run test:e2e
       - name: Lighthouse thresholds
         run: |
-          npm run preview   # daemonises since Astro 7.2, so no & needed
+          node scripts/preview-server.mjs &
           for _ in $(seq 30); do
             curl -sf http://localhost:4321 >/dev/null && break
             sleep 1
           done
           npm run test:lighthouse
-          npx astro preview stop

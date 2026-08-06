@@ -68,7 +68,6 @@ soenke.me/
 │       └── deploy.yml          # GitHub Actions deployment workflow
 ├── e2e/
 │   ├── a11y.spec.ts            # axe WCAG 2.1 A/AA scan of every page + both dialogs
-│   ├── preview-server.ts       # Playwright globalSetup: starts/stops the preview daemon
 │   └── smoke.spec.ts           # Interaction smoke tests (menu, lightbox, reveal, racer)
 ├── public/
 │   ├── apple-touch-icon.png    # iOS home-screen icon (generated, see scripts/)
@@ -78,7 +77,8 @@ soenke.me/
 │   └── robots.txt              # Allows all; points to sitemap-index.xml
 ├── scripts/
 │   ├── generate-og.mjs         # Dependency-free generator for og.png + apple-touch-icon.png
-│   └── lighthouse.mjs          # Lighthouse category thresholds (CI gate)
+│   ├── lighthouse.mjs          # Lighthouse category thresholds (CI gate)
+│   └── preview-server.mjs      # Foreground static server for dist/ (test harness)
 ├── src/
 │   ├── assets/
 │   │   ├── img/                # RAW photo exports (gitignored — originals stay local)
@@ -475,11 +475,11 @@ Extends `astro/tsconfigs/strict`; `@/*` → `src/*`.
 3. Hard refresh (Cmd/Ctrl + Shift + R)
 
 ### Test Issues
-- `Process from config.webServer exited early` / port 4321 busy: a preview
-  daemon is still running. `npx astro preview stop` (or `npx astro preview
-  status` to check). Since Astro 7.2 `astro preview` always backgrounds itself,
-  so the tests manage it from `e2e/preview-server.ts`, not Playwright's
-  `webServer`.
+- Port 4321 busy: a preview daemon from `npm run preview` is still running.
+  Stop it with `npx astro preview stop` (`npx astro preview status` to check).
+  Since Astro 7.2 `astro preview` always backgrounds itself, so the tests use
+  `scripts/preview-server.mjs` instead — don't point Playwright's `webServer`
+  at `astro preview`, it hangs on Linux.
 
 ### Style Issues
 1. Confirm the class exists in the global stylesheet in `Layout.astro`
@@ -522,8 +522,11 @@ Extends `astro/tsconfigs/strict`; `@/*` → `src/*`.
 - **Test harness**: `astro preview` daemonises as of Astro 7.2 (returns 0 while
   the server keeps running, and there is no working `--no-background` despite
   what `--help` implies), which Playwright's `webServer` reads as "exited
-  early". Server lifecycle moved to `e2e/preview-server.ts` (globalSetup +
-  returned teardown).
+  early" — and on Linux CI the spawning process never returns at all, hanging
+  the job. The tests now serve `dist/` with `scripts/preview-server.mjs`, a
+  ~50-line dependency-free foreground static server (directory index, `.html`
+  extension fallback, `404.html`, traversal guard). `npm run preview` is still
+  `astro preview` for interactive use — stop it with `npx astro preview stop`.
 - `npm audit fix`: astro 7.0.6 → 7.2.0, sharp 0.34.4 → 0.35.3, plus postcss /
   svgo / fast-uri. Clears an astro XSS advisory and the libvips CVEs — 10
   vulnerabilities → **0**. New devDeps: `@axe-core/playwright`, `lighthouse`,
