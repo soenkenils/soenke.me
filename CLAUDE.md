@@ -2,7 +2,7 @@
 
 > Comprehensive documentation for AI assistants working on soenke.me
 
-Last Updated: 2026-07-06
+Last Updated: 2026-08-06
 
 ## Table of Contents
 
@@ -64,8 +64,12 @@ soenke.me/
 ├── .github/
 │   ├── dependabot.yml          # Weekly npm (grouped) + GitHub Actions updates
 │   └── workflows/
-│       ├── ci.yml              # PR checks: astro check + build
+│       ├── ci.yml              # PR checks: check + build + e2e/a11y + Lighthouse
 │       └── deploy.yml          # GitHub Actions deployment workflow
+├── e2e/
+│   ├── a11y.spec.ts            # axe WCAG 2.1 A/AA scan of every page + both dialogs
+│   ├── preview-server.ts       # Playwright globalSetup: starts/stops the preview daemon
+│   └── smoke.spec.ts           # Interaction smoke tests (menu, lightbox, reveal, racer)
 ├── public/
 │   ├── apple-touch-icon.png    # iOS home-screen icon (generated, see scripts/)
 │   ├── CNAME                   # Custom domain configuration
@@ -73,7 +77,8 @@ soenke.me/
 │   ├── og.png                  # Social preview image (generated, see scripts/)
 │   └── robots.txt              # Allows all; points to sitemap-index.xml
 ├── scripts/
-│   └── generate-og.mjs         # Dependency-free generator for og.png + apple-touch-icon.png
+│   ├── generate-og.mjs         # Dependency-free generator for og.png + apple-touch-icon.png
+│   └── lighthouse.mjs          # Lighthouse category thresholds (CI gate)
 ├── src/
 │   ├── assets/
 │   │   ├── img/                # RAW photo exports (gitignored — originals stay local)
@@ -138,8 +143,14 @@ npm run dev      # or: npm start
 # Build for production (outputs to dist/)
 npm run build
 
-# Preview production build locally
+# Preview production build locally (daemonises — stop with `npx astro preview stop`)
 npm run preview
+
+# Smoke + accessibility tests (builds first locally, serves dist/ via astro preview)
+npm run test:e2e
+
+# Lighthouse category thresholds against a running preview server
+npm run test:lighthouse
 
 # Run Astro CLI commands
 npm run astro
@@ -181,7 +192,7 @@ npm run build      # → dist/ (static HTML, CSS, JS, assets)
 
 **GitHub Actions** (`.github/workflows/deploy.yml`): checkout → setup Node 22 (npm cache) → setup Pages → `npm ci` → `npm run check` → `npm run build` → upload `dist/` → deploy to GitHub Pages. The deploy step retries up to twice (60s waits) on the Pages backend's transient "Deployment failed, try again later." error, then a smoke check curls https://soenke.me and asserts the page content.
 
-Pull requests run `.github/workflows/ci.yml` instead: `npm ci` → `npm run check` → `npm run build`. A new push to the same PR cancels the superseded in-flight run (`concurrency` with `cancel-in-progress`).
+Pull requests run `.github/workflows/ci.yml` instead: `npm ci` → `npm run check` → `npm run build` → install chromium → `npm run test:e2e` (smoke + axe accessibility) → `npm run test:lighthouse`. A new push to the same PR cancels the superseded in-flight run (`concurrency` with `cancel-in-progress`).
 
 **Environment**:
 - **Runner**: `ubuntu-latest`
@@ -416,7 +427,7 @@ Extends `astro/tsconfigs/strict`; `@/*` → `src/*`.
 #### Adding Photos to the Frames Gallery
 1. Export from the photo library into `src/assets/img/` (gitignored scratch space).
 2. Create a web master: `magick <src> -auto-orient -strip -resize '1600x1600>' -quality 80 src/assets/photos/<group>/<descriptive-name>.jpg` (**always `-strip`** — removes EXIF incl. any location data).
-3. Add an entry (file + alt text) to the matching group in `Frames.astro`. The `import.meta.glob` picks the file up automatically; Astro generates responsive webp variants at build time (`widths` 420/800/1200, lazy-loaded).
+3. Add an entry (file + alt text) to the matching group in `Frames.astro`. The `import.meta.glob` picks the file up automatically; Astro generates responsive avif (q50) + webp (q75) variants at build time (`widths` 420/800/1200, lazy-loaded), served via `<picture>`. Don't equalise the two quality numbers — see the 2026-08-06 changelog entry.
 4. Only commit the prepared masters in `src/assets/photos/` — never the camera originals.
 
 #### Updating Content
@@ -463,6 +474,13 @@ Extends `astro/tsconfigs/strict`; `@/*` → `src/*`.
 2. Clear cache: `rm -rf .astro`
 3. Hard refresh (Cmd/Ctrl + Shift + R)
 
+### Test Issues
+- `Process from config.webServer exited early` / port 4321 busy: a preview
+  daemon is still running. `npx astro preview stop` (or `npx astro preview
+  status` to check). Since Astro 7.2 `astro preview` always backgrounds itself,
+  so the tests manage it from `e2e/preview-server.ts`, not Playwright's
+  `webServer`.
+
 ### Style Issues
 1. Confirm the class exists in the global stylesheet in `Layout.astro`
 2. Check the token name (e.g. `--ink`, not `--text`)
@@ -476,6 +494,40 @@ Extends `astro/tsconfigs/strict`; `@/*` → `src/*`.
 ---
 
 ## Changelog
+
+### 2026-08-06
+- **AVIF for the Frames gallery.** Thumbnails and lightbox images are now a
+  hand-rolled `<picture>` with an `image/avif` `<source>` over a webp `<img>`
+  fallback — **23% fewer bytes** across the thumbnail set. Written by hand
+  rather than with `<Picture>` because that component applies one `quality` to
+  every format, and **sharp's quality scale is not comparable across formats**:
+  at q75 the avif came out *55% larger* than the webp it replaced. Matched on
+  measured PSNR, avif q50 ≈ webp q75 for ~25% fewer bytes, so `AVIF_Q = 50` /
+  `WEBP_Q = 75` in `Frames.astro`. `<a href>` stays webp (it is the no-JS
+  fallback); the avif srcset rides on `data-srcset-avif` and is fed to a
+  `<source>` in the viewer — set *before* the `<img>` so avif wins the pick.
+  Build time 3s → 10s (two formats). Added `.photo-grid picture { display: block }`
+  so the new wrapper does not reintroduce inline layout.
+- **Accessibility gate** (`e2e/a11y.spec.ts`, `@axe-core/playwright`): axe
+  WCAG 2.1 A/AA scan of `/`, `/datenschutz`, `/404` plus the two open dialogs.
+  Caught a real defect — the `/datenschutz` prose links were distinguished by
+  colour alone (WCAG 1.4.1); `.legal-prose a` now carries a permanent
+  underline that hover only brightens.
+- **Lighthouse gate** (`scripts/lighthouse.mjs`, `npm run test:lighthouse`):
+  fails CI when a category drops below its threshold (a11y 100, perf/best-
+  practices/SEO 90). Performance is the loosest bar on purpose — CI runners are
+  noisy. `noindex` pages are exempt from the SEO gate, since Lighthouse scores
+  "blocked from indexing" as a defect and there it is intended. Uses the
+  chromium Playwright already installs. Site currently scores **100/100/100/100**.
+- **Test harness**: `astro preview` daemonises as of Astro 7.2 (returns 0 while
+  the server keeps running, and there is no working `--no-background` despite
+  what `--help` implies), which Playwright's `webServer` reads as "exited
+  early". Server lifecycle moved to `e2e/preview-server.ts` (globalSetup +
+  returned teardown).
+- `npm audit fix`: astro 7.0.6 → 7.2.0, sharp 0.34.4 → 0.35.3, plus postcss /
+  svgo / fast-uri. Clears an astro XSS advisory and the libvips CVEs — 10
+  vulnerabilities → **0**. New devDeps: `@axe-core/playwright`, `lighthouse`,
+  `chrome-launcher`.
 
 ### 2026-07-13 (even later)
 - **Racer: sportier car + music.** Car redrawn as a low, wide Esprit-SE-style wedge: raked louvered rear window, rear wing on struts, slim segmented tail-lights, wide wheel stance, dual exhausts. **Music** is a procedural 90s-arcade loop in pure Web Audio (`createMusic()` in `racer-game.ts`, no audio assets): A-minor Am/F/C/G, four-on-the-floor kick, offbeat hats, snare on 2 & 4, sawtooth 8th-note bass through a lowpass, square-wave arpeggio lead through a dotted-8th feedback echo; lookahead `setInterval` scheduler. **Off by default** — the `♪ SOUND: OFF/ON` button (`#racerSound`, `.racer-sound`, `aria-pressed`) toggles it; closing the dialog always stops the music and resets the toggle. The `AudioContext` is created on first enable (user gesture — autoplay-safe). Focus model: the dialog itself (`tabindex="-1"`) is focused on open and after the sound toggle so Enter starts/restarts the race; focused buttons keep native Enter/Space activation; no focus ring on the dialog.

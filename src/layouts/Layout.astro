@@ -401,6 +401,8 @@ const ogImage = new URL('/og.png', Astro.site);
       .photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
       .photo-grid .ph { margin: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden;
         background: var(--bg-2); transition: transform 0.35s var(--ease), border-color 0.35s, box-shadow 0.35s; }
+      /* <Picture> wraps the img — the wrapper must not reintroduce inline layout */
+      .photo-grid picture { display: block; height: 100%; }
       .photo-grid img { display: block; width: 100%; height: 100%; aspect-ratio: 3 / 2; object-fit: cover; }
       .photo-grid .ph:hover { transform: translateY(-4px);
         border-color: color-mix(in srgb, var(--accent) 55%, transparent);
@@ -542,7 +544,11 @@ const ogImage = new URL('/og.png', Astro.site);
       .legal-prose { max-width: 720px; color: var(--ink-soft); }
       .legal-prose h3 { font-size: 17px; font-weight: 700; color: var(--ink); margin: 30px 0 10px; }
       .legal-prose p { margin: 0 0 14px; }
-      .legal-prose a { color: var(--cyan-soft); border-bottom: 1px solid transparent; transition: border-color 0.25s; }
+      /* WCAG 1.4.1: inline links inside prose need a non-colour cue, so the
+         underline is always on — hover only brightens it */
+      .legal-prose a { color: var(--cyan-soft);
+        border-bottom: 1px solid color-mix(in srgb, var(--cyan) 45%, transparent);
+        transition: border-color 0.25s; }
       .legal-prose a:hover { border-color: var(--cyan); }
       .legal-prose .stand { margin-top: 26px; font-size: 13.5px; color: var(--ink-mut); }
 

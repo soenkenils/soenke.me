@@ -1,9 +1,9 @@
 ---
-import { Image, getImage } from 'astro:assets';
+import { getImage } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
 
 // Masters live in src/assets/photos/<group>/<name>.jpg (1600px, EXIF-stripped).
-// Astro generates responsive webp variants at build time.
+// Astro generates responsive avif + webp variants at build time.
 const sources = import.meta.glob<{ default: ImageMetadata }>('../assets/photos/*/*.jpg', {
   eager: true,
 });
@@ -63,16 +63,41 @@ const imageOf = (file: string): ImageMetadata => {
   return mod.default;
 };
 
-// full-size lightbox targets (the thumbs link to these — works without JS too)
+const THUMB_SIZES = '(max-width: 560px) calc(100vw - 56px), (max-width: 900px) 50vw, 375px';
+const THUMB_WIDTHS = [420, 800, 1200];
+const LARGE_WIDTHS = [800, 1600];
+
+// avif and webp are encoded at different quality numbers on purpose: sharp's
+// scale is not comparable across formats. Measured on these photos, avif q50
+// lands at the same PSNR as webp q75 for ~25% fewer bytes — matching them at
+// q75 would make the avif *larger* than the webp it replaces.
+const AVIF_Q = 50;
+const WEBP_Q = 75;
+
+// Hand-rolled instead of <Picture> because that component applies a single
+// `quality` to every format.
+const variants = async (src: ImageMetadata, widths: number[], webpQuality: number) => ({
+  avif: await getImage({ src, widths, format: 'avif', quality: AVIF_Q }),
+  webp: await getImage({ src, widths, format: 'webp', quality: webpQuality }),
+});
+
 const resolved = await Promise.all(
   groups.map(async (group) => ({
     ...group,
     photos: await Promise.all(
-      group.photos.map(async (photo) => ({
-        ...photo,
-        src: imageOf(photo.file),
-        large: await getImage({ src: imageOf(photo.file), widths: [800, 1600], format: 'webp', quality: 80 }),
-      }))
+      group.photos.map(async (photo) => {
+        const src = imageOf(photo.file);
+        return {
+          ...photo,
+          // intrinsic box for the <img> — keeps the browser from reflowing
+          width: 1200,
+          height: Math.round((1200 * src.height) / src.width),
+          thumb: await variants(src, THUMB_WIDTHS, WEBP_Q),
+          // full-size lightbox targets; the <a href> stays webp because it
+          // doubles as the no-JS fallback
+          large: await variants(src, LARGE_WIDTHS, 80),
+        };
+      })
     ),
   }))
 );
@@ -91,22 +116,26 @@ const resolved = await Promise.all(
             <figure class={`ph reveal d${(i % 3) + 1}`}>
               <a
                 class="ph-link"
-                href={photo.large.src}
-                data-srcset={photo.large.srcSet.attribute}
+                href={photo.large.webp.src}
+                data-srcset={photo.large.webp.srcSet.attribute}
+                data-srcset-avif={photo.large.avif.srcSet.attribute}
                 data-alt={photo.alt}
                 data-accent={group.accent}
                 aria-label={`View larger: ${photo.alt}`}
               >
-                <Image
-                  src={photo.src}
-                  alt={photo.alt}
-                  widths={[420, 800, 1200]}
-                  sizes="(max-width: 560px) calc(100vw - 56px), (max-width: 900px) 50vw, 375px"
-                  format="webp"
-                  quality={75}
-                  loading="lazy"
-                  decoding="async"
-                />
+                <picture>
+                  <source type="image/avif" srcset={photo.thumb.avif.srcSet.attribute} sizes={THUMB_SIZES} />
+                  <img
+                    src={photo.thumb.webp.src}
+                    srcset={photo.thumb.webp.srcSet.attribute}
+                    sizes={THUMB_SIZES}
+                    width={photo.width}
+                    height={photo.height}
+                    alt={photo.alt}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </picture>
               </a>
             </figure>
           ))}
@@ -117,7 +146,10 @@ const resolved = await Promise.all(
 
   <dialog class="lightbox" id="lightbox" aria-label="Photo viewer">
     <figure class="lb-fig">
-      <img class="lb-img" id="lbImg" alt="" />
+      <picture>
+        <source id="lbAvif" type="image/avif" sizes="92vw" />
+        <img class="lb-img" id="lbImg" alt="" />
+      </picture>
       <figcaption class="lb-bar">
         <span class="lb-cap" id="lbCap"></span>
         <span class="lb-count" id="lbCount"></span>
@@ -136,6 +168,7 @@ const resolved = await Promise.all(
     if (!dialog || typeof dialog.showModal !== 'function') return;
 
     var img = document.getElementById('lbImg') as HTMLImageElement;
+    var avif = document.getElementById('lbAvif') as HTMLSourceElement;
     var cap = document.getElementById('lbCap') as HTMLElement;
     var count = document.getElementById('lbCount') as HTMLElement;
     var links = Array.prototype.slice.call(
@@ -148,6 +181,8 @@ const resolved = await Promise.all(
     var show = function (i: number) {
       idx = (i + links.length) % links.length;
       var a = links[idx];
+      /* the <source> must be set before the <img> so avif wins the pick */
+      avif.srcset = a.dataset.srcsetAvif || '';
       img.src = a.href;
       img.srcset = a.dataset.srcset || '';
       img.sizes = '92vw';
@@ -182,6 +217,7 @@ const resolved = await Promise.all(
     dialog.addEventListener('close', function () {
       img.removeAttribute('src');
       img.removeAttribute('srcset');
+      avif.removeAttribute('srcset');
     });
   })();
 </script>

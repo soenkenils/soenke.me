@@ -1,9 +1,10 @@
 import { defineConfig, devices } from '@playwright/test';
 
-// Smoke tests run against the production build via `astro preview`.
-// CI builds beforehand (dist/ exists), so it only starts the preview server;
-// locally the build is included so `npm run test:e2e` works standalone.
+// Smoke and accessibility tests run against the production build via
+// `astro preview`. That command daemonises (Astro 7.2+), so the server is
+// started and stopped from e2e/preview-server.ts rather than `webServer`.
 export default defineConfig({
+  globalSetup: './e2e/preview-server.ts',
   testDir: 'e2e',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
@@ -12,11 +13,5 @@ export default defineConfig({
   use: {
     baseURL: 'http://localhost:4321',
     ...devices['Desktop Chrome'],
-  },
-  webServer: {
-    command: process.env.CI ? 'npm run preview' : 'npm run build && npm run preview',
-    url: 'http://localhost:4321',
-    reuseExistingServer: !process.env.CI,
-    timeout: 120_000,
   },
 });
