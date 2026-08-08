@@ -195,7 +195,7 @@ function createMusic(): { start(): void; stop(): void } {
   };
 }
 
-export function initRacer(dialog: HTMLDialogElement): { open(): void } {
+export function initRacer(dialog: HTMLDialogElement): { open(autoStart?: boolean): void } {
   const canvas = dialog.querySelector('#racerCanvas') as HTMLCanvasElement;
   const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
   const hudTime = dialog.querySelector('#rcTime') as HTMLElement;
@@ -607,7 +607,9 @@ export function initRacer(dialog: HTMLDialogElement): { open(): void } {
   });
 
   return {
-    open() {
+    /* autoStart replays an Enter the player pressed while this module was
+       still downloading, so an eager keypress is never swallowed */
+    open(autoStart?: boolean) {
       state = 'idle';
       pos = 0; playerX = 0; speed = 0; time = START_TIME; km = 0; prevIdx = 0;
       rmTitle.textContent = 'BALTIC TURBO CHALLENGE';
@@ -616,11 +618,14 @@ export function initRacer(dialog: HTMLDialogElement): { open(): void } {
       msg.hidden = false;
       flash.hidden = true;
       updateHud();
-      dialog.showModal();
+      /* the trigger already opens the dialog while this module downloads —
+         showModal() on an open dialog throws, so only open it if needed */
+      if (!dialog.open) dialog.showModal();
       dialog.focus(); // so Enter starts the race instead of activating the focused button
       last = performance.now();
       cancelAnimationFrame(raf);
       raf = requestAnimationFrame(frame);
+      if (autoStart) start();
     },
   };
 }
