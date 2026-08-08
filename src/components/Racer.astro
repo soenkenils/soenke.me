@@ -35,27 +35,70 @@
   (function () {
     var dialog = document.getElementById('racer') as HTMLDialogElement | null;
     if (!dialog || typeof dialog.showModal !== 'function') return;
+    var dlg = dialog;
+    var rmAction = document.getElementById('rmAction')!;
 
     var SEQ = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+    var WARM_AT = 4; //  ↑↑↓↓ — far enough in that no normal browsing hits it
     var step = 0;
-    var game: { open(): void } | null = null;
+    type Game = { open(autoStart?: boolean): void };
+    var game: Game | null = null;
+    var loading: Promise<Game> | null = null;
+    var wantOpen = false;
+    var queuedStart = false;
+
+    /* Start fetching the engine chunk half-way through the code, so the
+       remaining keystrokes cover the download instead of the user waiting
+       on it. Idempotent; on failure the promise is dropped so the next
+       attempt can retry. */
+    function load() {
+      if (!loading) {
+        loading = import('../scripts/racer-game').then(function (m) {
+          game = m.initRacer(dlg);
+          return game;
+        }, function (err) {
+          loading = null;
+          throw err;
+        });
+      }
+      return loading;
+    }
+
+    function unlock() {
+      wantOpen = true;
+      queuedStart = false;
+      /* the cabinet markup ships with the page — show it right away rather
+         than sitting on a dead keypress until the chunk lands */
+      if (!game) {
+        rmAction.textContent = 'LOADING…';
+        dlg.showModal();
+        dlg.focus();
+      }
+      load().then(
+        function (g) { if (wantOpen) g.open(queuedStart); },
+        function () { if (wantOpen) rmAction.textContent = 'LOAD FAILED · ESC'; },
+      );
+    }
 
     document.addEventListener('keydown', function (e) {
-      if (dialog!.open) return;
       var k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+      if (dlg.open) {
+        /* engine not attached yet — hold on to an eager start keypress */
+        if (!game && (k === 'Enter' || k === ' ')) queuedStart = true;
+        return;
+      }
       step = k === SEQ[step] ? step + 1 : k === SEQ[0] ? 1 : 0;
+      if (step === WARM_AT) load().catch(function () { /* retried on unlock */ });
       if (step < SEQ.length) return;
       step = 0;
-      import('../scripts/racer-game').then(function (m) {
-        if (!game) game = m.initRacer(dialog!);
-        game.open();
-      });
+      unlock();
     });
 
-    document.getElementById('racerClose')!.addEventListener('click', function () { dialog!.close(); });
+    dialog.addEventListener('close', function () { wantOpen = false; });
+    document.getElementById('racerClose')!.addEventListener('click', function () { dlg.close(); });
     /* click on the backdrop (event target is the dialog itself) closes */
     dialog.addEventListener('click', function (e) {
-      if (e.target === dialog) dialog!.close();
+      if (e.target === dlg) dlg.close();
     });
   })();
 </script>

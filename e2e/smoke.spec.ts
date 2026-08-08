@@ -110,6 +110,22 @@ test.describe('racer easter egg', () => {
     await expect(sound).toHaveAttribute('aria-pressed', 'false');
   });
 
+  test('the cabinet opens immediately even when the engine chunk is slow', async ({ page }) => {
+    // the engine is lazy-loaded; a slow network must not delay the dialog itself
+    await page.route('**/racer-game*.js', async (route) => {
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      await route.continue();
+    });
+    await page.goto('/');
+    for (const key of KONAMI) await page.keyboard.press(key);
+
+    await expect(page.locator('#racer')).toBeVisible({ timeout: 500 });
+    // and once the engine lands it takes over the title screen
+    await expect(page.locator('#rmAction')).toHaveText('PRESS ENTER');
+    await page.keyboard.press('Enter');
+    await expect(page.locator('#rcTime')).toHaveText(/^\d+$/);
+  });
+
   test('a wrong key resets the sequence', async ({ page }) => {
     await page.goto('/');
     for (const key of KONAMI.slice(0, 5)) await page.keyboard.press(key);

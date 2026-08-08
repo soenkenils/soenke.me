@@ -495,6 +495,27 @@ Extends `astro/tsconfigs/strict`; `@/*` → `src/*`.
 
 ## Changelog
 
+### 2026-08-08
+- **Fixed: the racer sometimes didn't start right away.** Two causes, both in
+  the lazy-load of `racer-game.ts`:
+  1. The chunk was only fetched *after* the Konami code completed, so on a cold
+     cache the dialog sat invisible for the whole round-trip with no feedback
+     (measured 1.5s under a 1.5s throttle). The trigger now **warms the module
+     at `WARM_AT = 4`** (↑↑↓↓ — deep enough that normal browsing never hits it),
+     and **opens the dialog immediately** on unlock showing `LOADING…`, since
+     the cabinet markup already ships with the page. Dialog now appears in
+     ~10ms regardless of chunk latency.
+  2. A failed `import()` is cached as a rejection in the browser's module map,
+     so **one network blip killed the egg for the rest of the page load** — and
+     it failed silently (unhandled rejection, nothing on screen). `load()` now
+     drops the promise on rejection so later attempts retry, and the open
+     dialog shows `LOAD FAILED · ESC`.
+  - `initRacer().open(autoStart?)` takes an autoStart flag; an Enter pressed
+    during the load window is queued and replayed instead of swallowed.
+    `open()` guards `showModal()` (throws on an already-open dialog).
+  - e2e: new smoke test asserts the dialog is visible <500ms with the chunk
+    delayed 1500ms, then that the engine takes over and Enter starts the race.
+
 ### 2026-08-06
 - **AVIF for the Frames gallery.** Thumbnails and lightbox images are now a
   hand-rolled `<picture>` with an `image/avif` `<source>` over a webp `<img>`
