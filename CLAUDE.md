@@ -2,7 +2,7 @@
 
 > Comprehensive documentation for AI assistants working on soenke.me
 
-Last Updated: 2026-08-06
+Last Updated: 2026-09-12
 
 ## Table of Contents
 
@@ -494,6 +494,18 @@ Extends `astro/tsconfigs/strict`; `@/*` → `src/*`.
 ---
 
 ## Changelog
+
+### 2026-09-12
+- **Fixed: the racer's road stayed blank / frozen on first open.** Chrome
+  stamps rAF callbacks with the frame's *start* time, which can be earlier than
+  the `performance.now()` taken in `open()` — most likely on the first open,
+  when module init and first layout run right before it. That gave a negative
+  first `dt`; the attract-mode cruise rolled `pos` below 0, `render()` read
+  `segments[-1].y1`, threw, and the rAF loop never rescheduled. The title text
+  (DOM) still showed, so the dialog looked open but the canvas was dead and
+  Enter "started" a race nothing drew. `frame()` now clamps `dt` to `>= 0`.
+  - e2e: new smoke test shifts every rAF timestamp 20ms early and asserts the
+    canvas keeps changing with no page errors.
 
 ### 2026-08-08
 - **Fixed: the racer sometimes didn't start right away.** Two causes, both in
