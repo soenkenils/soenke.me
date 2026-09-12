@@ -570,7 +570,10 @@ export function initRacer(dialog: HTMLDialogElement): { open(autoStart?: boolean
 
   function frame(now: number) {
     if (!dialog.open) return;
-    const dt = Math.min((now - last) / 1000, 0.05);
+    /* Chrome stamps rAF with the frame's start time, which can predate the
+       performance.now() taken in open() — a negative dt would roll pos below
+       0, index segments[-1] and kill the loop on the very first frame */
+    const dt = Math.max(0, Math.min((now - last) / 1000, 0.05));
     last = now;
     if (state === 'run') {
       update(dt);

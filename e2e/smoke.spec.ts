@@ -126,6 +126,29 @@ test.describe('racer easter egg', () => {
     await expect(page.locator('#rcTime')).toHaveText(/^\d+$/);
   });
 
+  test('the render loop survives a frame stamped before open()', async ({ page }) => {
+    // Chrome stamps rAF with the frame's start time, which can predate the
+    // performance.now() taken in open(). Force that: every frame 20ms "early".
+    await page.addInitScript(() => {
+      const raf = window.requestAnimationFrame.bind(window);
+      window.requestAnimationFrame = (cb) => raf((t) => cb(t - 20));
+    });
+    const errors: string[] = [];
+    page.on('pageerror', (e) => errors.push(e.message));
+    await page.goto('/');
+    for (const key of KONAMI) await page.keyboard.press(key);
+    await expect(page.locator('#rmAction')).toHaveText('PRESS ENTER');
+
+    // attract mode cruises down the road — the canvas must keep changing
+    const snapshot = () => page.evaluate(() => {
+      const c = document.getElementById('racerCanvas') as HTMLCanvasElement;
+      return c.toDataURL();
+    });
+    const first = await snapshot();
+    await expect.poll(snapshot).not.toBe(first);
+    expect(errors).toEqual([]);
+  });
+
   test('a wrong key resets the sequence', async ({ page }) => {
     await page.goto('/');
     for (const key of KONAMI.slice(0, 5)) await page.keyboard.press(key);
