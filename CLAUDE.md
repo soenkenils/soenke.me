@@ -496,6 +496,9 @@ Extends `astro/tsconfigs/strict`; `@/*` → `src/*`.
 ## Changelog
 
 ### 2026-09-12
+- astro 7.2.9 → 7.3.2, @astrojs/sitemap 3.7.3 → 3.7.4 (`npx @astrojs/upgrade`).
+  `npm audit fix` for fast-uri / nanoid / svgo (3 high, all build-time) →
+  **0** vulnerabilities. check, build, e2e all green; no code changes needed.
 - **Fixed: the racer's road stayed blank / frozen on first open.** Chrome
   stamps rAF callbacks with the frame's *start* time, which can be earlier than
   the `performance.now()` taken in `open()` — most likely on the first open,
