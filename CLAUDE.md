@@ -495,6 +495,11 @@ Extends `astro/tsconfigs/strict`; `@/*` → `src/*`.
 
 ## Changelog
 
+### 2026-09-12
+- astro 7.2.9 → 7.3.2, @astrojs/sitemap 3.7.3 → 3.7.4 (`npx @astrojs/upgrade`).
+  `npm audit fix` for fast-uri / nanoid / svgo (3 high, all build-time) →
+  **0** vulnerabilities. check, build, e2e all green; no code changes needed.
+
 ### 2026-08-08
 - **Fixed: the racer sometimes didn't start right away.** Two causes, both in
   the lazy-load of `racer-game.ts`:
