@@ -6,17 +6,37 @@
    assets. This module is dynamic-imported on first unlock, never part of the
    main bundle. */
 
+/* scenery zones — each paints its own roadside */
+const COAST = 0; //  neon pylons, a lighthouse
+const FOREST = 1; // pines
+const TUNNEL = 2; // walls, ceiling lights, portal in a hill face
+const CITY = 3; //   lit blocks — Lübeck by night
+
 interface Segment {
   curve: number;
   y1: number; // world elevation at segment start
   y2: number; // world elevation at segment end
+  zone: number;
 }
 
 interface Row {
   n: number; // draw-distance step (fog)
   i: number; // segment index (color striping, pylons)
+  zone: number;
   x1: number; y1: number; w1: number; // near edge: screen center x, y, half width
   x2: number; y2: number; w2: number; // far edge
+  c1: number; c2: number; //            tunnel ceiling y at near / far edge (tunnel rows only)
+}
+
+interface Rival {
+  z: number; //     world position along the track
+  x: number; //     lateral, road half-widths (like playerX)
+  tx: number; //    lane it is easing towards
+  speed: number;
+  cruise: number; // its own top speed — always well below the player's
+  color: string;
+  laneT: number; // seconds until it considers a lane change
+  last: number; //  distance ahead of the player last frame (overtake detection)
 }
 
 const W = 640;
@@ -32,9 +52,37 @@ const CP_BONUS = 20;
 const TOP_KMH = 320;
 const BEST_KEY = 'racer.best';
 
+/* the player's car is drawn at a fixed spot; this is the world depth where
+   the projected ground meets its wheels, and the road half-width there */
+const CAR_S = 1.2;
+const CAR_Y = H - 48;
+const PLAYER_Z = (CAM_DEPTH * CAM_H * (H / 2)) / (CAR_Y + 21 * CAR_S - H / 2);
+const PLAYER_W = (CAM_DEPTH / PLAYER_Z) * ROAD_W * (W / 2);
+
+/* rivals: few enough and slow enough that overtaking is the fun part */
+const RIVALS = 8;
+const LANES = [-0.62, 0, 0.62];
+const RIVAL_MIN = 0.42; //  cruise speed range as a share of MAX_SPEED
+const RIVAL_SPAN = 0.3; //  → roughly 135–230 km/h vs. the player's 320
+const HIT_W = 0.34; //      lateral contact, road half-widths (true car widths sum to ~0.39)
+const HIT_LEN = 160; //     car length, world units
+
+const TUNNEL_H = 2200; // ceiling height, world units
+const WALL_X = 1.5; //    tunnel walls, road half-widths
+
+/* cheap deterministic 0..1 hash — stable scenery per segment */
+function hash(n: number): number {
+  let h = Math.imul(n ^ 0x9e3779b9, 0x85ebca6b);
+  h ^= h >>> 13;
+  h = Math.imul(h, 0xc2b2ae35);
+  h ^= h >>> 16;
+  return (h >>> 0) / 4294967296;
+}
+
 function buildTrack(): Segment[] {
   const segs: Segment[] = [];
   let y = 0;
+  let zone = COAST;
   const ease = (a: number, b: number, p: number) => a + (b - a) * (0.5 - Math.cos(p * Math.PI) / 2);
   // curve eases in over the first third of a section and out over the last,
   // so consecutive sections always join smoothly
@@ -44,21 +92,46 @@ function buildTrack(): Segment[] {
     for (let n = 0; n < count; n++) {
       const p = n / count;
       const c = p < 1 / 3 ? curve * (p * 3) : p > 2 / 3 ? curve * ((1 - p) * 3) : curve;
-      segs.push({ curve: c, y1: ease(y0, yEnd, p), y2: ease(y0, yEnd, (n + 1) / count) });
+      segs.push({ curve: c, y1: ease(y0, yEnd, p), y2: ease(y0, yEnd, (n + 1) / count), zone });
     }
     y = yEnd;
   };
 
-  add(120, 0, 0); //     starting straight
+  zone = COAST;
+  add(100, 0, 0); //     starting straight
   add(120, 2.2, 10); //  sweeping right, gentle rise
   add(90, 0, -14); //    downhill straight
+  add(50, -3, 0); //     S-bends along the dunes
+  add(50, 3.2, 0);
+  add(50, -3, 0);
+  add(120, 0, 0); //     lighthouse straight
+
+  zone = FOREST;
+  add(40, 0, 6); //      rolling hills
+  add(40, 0, -6);
+  add(40, 0, 8);
+  add(40, 0, -8);
   add(140, -3, 0); //    long left
   add(80, 0, 26); //     climb
   add(110, 3.4, -26); // hard right, dropping
-  add(90, -2.2, 0); //   left
-  add(120, 0, 24); //    big climb
+  add(70, -5, 0); //     tight left
+  add(60, 0, 0); //      flat run-up (tunnels stay flat — the ceiling assumes it)
+
+  zone = TUNNEL;
+  add(180, 0.8, 0); //   long tunnel, gentle right
+
+  zone = CITY;
+  add(60, 0, 0);
+  add(40, 4, 0); //      chicane
+  add(40, -4, 0);
+  add(120, 0, 24); //    up the old-town hill
   add(120, -3.6, -20); // hard left downhill
   add(100, 2.6, 0); //   right
+  add(80, 0, 0);
+
+  zone = COAST;
+  add(40, 0, 6); //      crest
+  add(40, 0, -6);
   add(140, 0, 0); //     back straight
   add(90, 1.8, 0); //    final kink (elevation sums to 0 → seamless wrap)
   return segs;
@@ -202,6 +275,7 @@ export function initRacer(dialog: HTMLDialogElement): { open(autoStart?: boolean
   const hudSpeed = dialog.querySelector('#rcSpeed') as HTMLElement;
   const hudDist = dialog.querySelector('#rcDist') as HTMLElement;
   const hudBest = dialog.querySelector('#rcBest') as HTMLElement;
+  const hudPass = dialog.querySelector('#rcPass') as HTMLElement;
   const msg = dialog.querySelector('#racerMsg') as HTMLElement;
   const rmTitle = dialog.querySelector('#rmTitle') as HTMLElement;
   const rmSub = dialog.querySelector('#rmSub') as HTMLElement;
@@ -222,9 +296,19 @@ export function initRacer(dialog: HTMLDialogElement): { open(autoStart?: boolean
   const SUN = [tok('--sun-1', '#fff35b'), tok('--sun-2', '#ffab2e'), tok('--sun-3', '#ff5fa2'), tok('--sun-4', '#ff2e97')];
   const GRID = `rgba(${tok('--grid', '0, 234, 255')}, 0.16)`;
   const INK = tok('--ink', '#f3ecff'); // light phase of the rumble strip (red/white in the original)
+  const PURPLE = tok('--purple', '#b14aed');
+  const ORANGE = tok('--orange', '#ff7a3d');
+  const BLOCK = tok('--bg-3', '#16092f'); // city buildings
   const HAZE = '#2a0a4d'; //             horizon haze (hero sky mid stop)
+  const MTN = '#34134f'; //              hero .mtn fill — mountains, pines, tunnel hill
+  const DARK = '#08020e'; //             tyres, trunks, window glass
+  const WALL = '#12041f'; //             tunnel walls…
+  const CEIL = '#0b0216'; //             …and ceiling
+  const RIVAL_COLORS = [CYAN, YELLOW, PURPLE, ORANGE];
 
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  /* same query that shows the on-screen pad in the global CSS */
+  const touch = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
   const segments = buildTrack();
   const trackLen = segments.length * SEG_LEN;
   const cps = [Math.floor(segments.length / 3), Math.floor((2 * segments.length) / 3), 0];
@@ -247,6 +331,9 @@ export function initRacer(dialog: HTMLDialogElement): { open(autoStart?: boolean
   let raf = 0;
   let last = 0;
   let flashTimer: ReturnType<typeof setTimeout>;
+  let passed = 0; // net overtakes (being overtaken counts back down)
+  let bump = 0; //   seconds of shake left after nudging a rival
+  const rivals: Rival[] = [];
 
   let best = 0;
   try { best = parseFloat(localStorage.getItem(BEST_KEY) || '0') || 0; } catch { /* storage blocked — session best only */ }
@@ -277,9 +364,97 @@ export function initRacer(dialog: HTMLDialogElement): { open(autoStart?: boolean
     ArrowUp: 'up', w: 'up', ArrowDown: 'down', s: 'down',
   };
 
+  /* signed distance a → b along the looping track, in (-len/2, len/2] */
+  function ahead(from: number, to: number): number {
+    let d = (to - from) % trackLen;
+    if (d > trackLen / 2) d -= trackLen;
+    else if (d <= -trackLen / 2) d += trackLen;
+    return d;
+  }
+  const playerZ = () => (pos + PLAYER_Z) % trackLen;
+  function pick<T>(xs: T[]): T { return xs[Math.floor(Math.random() * xs.length)]; }
+  const cruise = () => MAX_SPEED * (RIVAL_MIN + Math.random() * RIVAL_SPAN);
+
+  /* staggered two-column grid ahead of the player; the middle lane stays
+     open so the first overtakes come within seconds */
+  function gridRivals() {
+    rivals.length = 0;
+    const pz = playerZ();
+    for (let k = 0; k < RIVALS; k++) {
+      const x = k % 2 === 0 ? LANES[0] : LANES[2];
+      const d = (6 + k * 3.5) * SEG_LEN;
+      rivals.push({
+        z: (pz + d) % trackLen, x, tx: x, speed: 0, cruise: cruise(),
+        color: RIVAL_COLORS[k % RIVAL_COLORS.length], laneT: 3 + Math.random() * 4, last: d,
+      });
+    }
+  }
+
+  /* a rival left far behind (or far ahead) re-enters beyond the draw
+     distance — endless traffic without ever popping into view */
+  function respawn(r: Rival, pz: number) {
+    let z = pz + (DRAW_DIST + Math.random() * 120) * SEG_LEN;
+    for (let t = 0; t < 6 && rivals.some((o) => o !== r && Math.abs(ahead(o.z, z)) < 6 * SEG_LEN); t++) z += 8 * SEG_LEN;
+    r.z = z % trackLen;
+    r.x = r.tx = pick(LANES);
+    r.speed = r.cruise = cruise();
+    r.color = pick(RIVAL_COLORS);
+    r.last = ahead(pz, r.z);
+  }
+
+  function updateRivals(dt: number) {
+    const pz = playerZ();
+    for (const r of rivals) {
+      let blocker: Rival | null = null; // slower car right in front
+      for (const o of rivals) {
+        const d = ahead(r.z, o.z);
+        if (o !== r && d > 0 && d < 4 * SEG_LEN && Math.abs(o.x - r.x) < 0.4 && o.speed < r.cruise) blocker = o;
+      }
+      /* fair traffic: nobody swerves in front of a player who is about to pass */
+      const rp = ahead(pz, r.z);
+      const guard = rp > -SEG_LEN && rp < 10 * SEG_LEN;
+      r.laneT -= dt;
+      if (!guard && (blocker || r.laneT <= 0)) {
+        const b = blocker;
+        const free = LANES.filter((l) => Math.abs(l - r.tx) > 0.1 && (!b || Math.abs(l - b.x) > 0.4));
+        if (free.length) r.tx = pick(free);
+        r.laneT = 3 + Math.random() * 4;
+      }
+      const target = blocker ? Math.min(r.cruise, blocker.speed) : r.cruise;
+      const acc = MAX_SPEED / 9; // slower off the line than the player (MAX/5)
+      r.speed = r.speed < target ? Math.min(target, r.speed + acc * dt) : Math.max(target, r.speed - 2 * acc * dt);
+      r.x += Math.max(-0.6 * dt, Math.min(0.6 * dt, r.tx - r.x));
+      r.z = (r.z + r.speed * dt) % trackLen;
+    }
+  }
+
+  /* contact, overtake counting and recycling — runs after everyone moved */
+  function resolveRivals(dt: number) {
+    const pz = playerZ();
+    for (const r of rivals) {
+      let d = ahead(pz, r.z);
+      const closing = (speed - r.speed) * dt; // catches a pass-through at low frame rates
+      if (speed > r.speed && d > -closing && d < HIT_LEN && Math.abs(playerX - r.x) < HIT_W) {
+        speed = r.speed * 0.8; // a gentle tap: lose some speed, glance off sideways
+        playerX += (playerX >= r.x ? 1 : -1) * 0.12;
+        bump = 0.3;
+        if (d <= 0) d = 1; // you bounced, you didn't pass
+      }
+      if (r.last > 0 && d <= 0) passed++;
+      else if (r.last <= 0 && d > 0) passed--;
+      r.last = d;
+      if (d < -20 * SEG_LEN || d > 500 * SEG_LEN) respawn(r, pz);
+    }
+  }
+
+  function reset() {
+    pos = 0; playerX = 0; speed = 0; time = START_TIME; km = 0; prevIdx = 0; passed = 0; bump = 0;
+    gridRivals();
+  }
+
   function start() {
     state = 'run';
-    pos = 0; playerX = 0; speed = 0; time = START_TIME; km = 0; prevIdx = 0;
+    reset();
     msg.hidden = true;
     updateHud(); // sync, so the HUD is correct even before the next frame
   }
@@ -291,8 +466,8 @@ export function initRacer(dialog: HTMLDialogElement): { open(autoStart?: boolean
       try { localStorage.setItem(BEST_KEY, String(best)); } catch { /* session best only */ }
     }
     rmTitle.textContent = 'GAME OVER';
-    rmSub.textContent = `distance ${km.toFixed(2)} km · best ${best.toFixed(2)} km`;
-    rmAction.textContent = 'ENTER = RETRY';
+    rmSub.textContent = `distance ${km.toFixed(2)} km · ${Math.max(0, passed)} passed · best ${best.toFixed(2)} km`;
+    rmAction.textContent = touch ? 'TAP = RETRY' : 'ENTER = RETRY';
     msg.hidden = false;
   }
 
@@ -321,6 +496,9 @@ export function initRacer(dialog: HTMLDialogElement): { open(autoStart?: boolean
     speed = Math.max(0, Math.min(MAX_SPEED, speed));
 
     pos = (pos + speed * dt) % trackLen;
+    updateRivals(dt);
+    resolveRivals(dt);
+    bump = Math.max(0, bump - dt);
     const newIdx = Math.floor(pos / SEG_LEN) % segments.length;
     if (newIdx !== prevIdx) {
       for (const cp of cps) {
@@ -365,7 +543,7 @@ export function initRacer(dialog: HTMLDialogElement): { open(autoStart?: boolean
       [0.08, -16], [0.17, -6], [0.26, -24], [0.37, -9], [0.46, -20],
       [0.57, -7], [0.67, -22], [0.77, -10], [0.88, -18], [1, -4],
     ];
-    ctx.fillStyle = '#34134f'; // hero .mtn fill
+    ctx.fillStyle = MTN;
     ctx.beginPath();
     ctx.moveTo(0, hy);
     for (const [px, dy] of pts) ctx.lineTo(W * px, hy + dy);
@@ -388,16 +566,16 @@ export function initRacer(dialog: HTMLDialogElement): { open(autoStart?: boolean
     ctx.shadowBlur = 0;
   }
 
-  function drawCar() {
-    const offroad = state === 'run' && Math.abs(playerX) > 1.02 && speed > 0;
+  /* rear view, sporty Esprit-SE take: low wide wedge, raked louvered glass,
+     rear wing on struts, slim tail-light clusters, wide stance. (x, y) is the
+     body centre; wheels reach 21·s below it. Rivals share the shape in their
+     own accent colour. */
+  function drawCar(x: number, y: number, s: number, accent: string, tilt = 0, exhaust = false) {
+    const blur = (px: number) => px * s / CAR_S; // shadowBlur ignores the transform
     ctx.save();
-    ctx.translate(W / 2 + (offroad ? Math.sin(tick * 60) * 2 : 0), H - 48 + (offroad ? Math.sin(tick * 47) * 1.5 : 0));
-    if (state === 'run') ctx.rotate(((keys.left ? -1 : 0) + (keys.right ? 1 : 0)) * 0.03);
-    ctx.scale(1.2, 1.2); // the original car fills a good chunk of the screen
-
-    /* rear view, sporty Esprit-SE take: low wide wedge, raked louvered glass,
-       rear wing on struts, slim tail-light clusters, wide stance */
-    const DARK = '#08020e';
+    ctx.translate(x, y);
+    if (tilt) ctx.rotate(tilt);
+    ctx.scale(s, s);
 
     ctx.fillStyle = DARK; // wheels — wide stance, peeking out under the body
     ctx.fillRect(-48, 8, 18, 13);
@@ -409,8 +587,8 @@ export function initRacer(dialog: HTMLDialogElement): { open(autoStart?: boolean
     ctx.closePath();
     ctx.fillStyle = ROAD_B;
     ctx.fill();
-    ctx.strokeStyle = PINK; ctx.lineWidth = 2;
-    ctx.shadowColor = PINK; ctx.shadowBlur = 10;
+    ctx.strokeStyle = accent; ctx.lineWidth = 2;
+    ctx.shadowColor = accent; ctx.shadowBlur = blur(10);
     ctx.stroke();
     ctx.shadowBlur = 0;
 
@@ -420,7 +598,7 @@ export function initRacer(dialog: HTMLDialogElement): { open(autoStart?: boolean
     ctx.fillStyle = DARK;
     ctx.fill();
     ctx.strokeStyle = CYAN; ctx.lineWidth = 1.5;
-    ctx.shadowColor = CYAN; ctx.shadowBlur = 8;
+    ctx.shadowColor = CYAN; ctx.shadowBlur = blur(8);
     ctx.stroke();
     ctx.shadowBlur = 0;
     ctx.strokeStyle = 'rgba(0, 234, 255, 0.35)'; // glass louvers
@@ -433,18 +611,18 @@ export function initRacer(dialog: HTMLDialogElement): { open(autoStart?: boolean
       ctx.stroke();
     }
 
-    ctx.fillStyle = PINK; // rear wing — struts…
+    ctx.fillStyle = accent; // rear wing — struts…
     ctx.fillRect(-28, -16, 3, 9);
     ctx.fillRect(25, -16, 3, 9);
     ctx.fillStyle = ROAD_B; // …and blade
     ctx.fillRect(-40, -20, 80, 5);
-    ctx.strokeStyle = PINK; ctx.lineWidth = 1.5;
-    ctx.shadowColor = PINK; ctx.shadowBlur = 8;
+    ctx.strokeStyle = accent; ctx.lineWidth = 1.5;
+    ctx.shadowColor = accent; ctx.shadowBlur = blur(8);
     ctx.strokeRect(-40, -20, 80, 5);
     ctx.shadowBlur = 0;
 
     ctx.fillStyle = PINK; // tail-light clusters — slim and wide
-    ctx.shadowColor = PINK; ctx.shadowBlur = 12;
+    ctx.shadowColor = PINK; ctx.shadowBlur = blur(12);
     ctx.fillRect(-44, -3, 28, 7);
     ctx.fillRect(16, -3, 28, 7);
     ctx.shadowBlur = 0;
@@ -461,16 +639,192 @@ export function initRacer(dialog: HTMLDialogElement): { open(autoStart?: boolean
     ctx.fillRect(-48, 8, 96, 5);
 
     ctx.fillStyle = ROAD_B; // mirrors — low and wide
-    ctx.strokeStyle = PINK; ctx.lineWidth = 1;
+    ctx.strokeStyle = accent; ctx.lineWidth = 1;
     ctx.fillRect(-57, -12, 9, 5); ctx.strokeRect(-57, -12, 9, 5);
     ctx.fillRect(48, -12, 9, 5); ctx.strokeRect(48, -12, 9, 5);
 
-    if (state === 'run' && keys.up && Math.floor(tick * 20) % 2 === 0) {
+    if (exhaust) {
       ctx.fillStyle = YELLOW; // exhaust flicker — dual pipes
       ctx.fillRect(-18, 15, 7, 4);
       ctx.fillRect(11, 15, 7, 4);
     }
     ctx.restore();
+  }
+
+  function drawPlayer() {
+    const offroad = state === 'run' && Math.abs(playerX) > 1.02 && speed > 0;
+    const shake = offroad || bump > 0;
+    const tilt = state === 'run' ? ((keys.left ? -1 : 0) + (keys.right ? 1 : 0)) * 0.03 : 0;
+    drawCar(
+      W / 2 + (shake ? Math.sin(tick * 60) * 2 : 0),
+      CAR_Y + (shake ? Math.sin(tick * 47) * 1.5 : 0),
+      CAR_S, PINK, tilt,
+      state === 'run' && keys.up && Math.floor(tick * 20) % 2 === 0,
+    );
+  }
+
+  /* a rival standing on a projected row, interpolated within its segment */
+  interface Sprite { x: number; y: number; s: number; color: string; alpha: number }
+  function rivalSprite(r: Rival, row: Row, alpha: number): Sprite | null {
+    const p = (r.z % SEG_LEN) / SEG_LEN;
+    const w = row.w1 + (row.w2 - row.w1) * p;
+    const s = (CAR_S * w) / PLAYER_W;
+    if (s < 0.03) return null; // a speck in the haze
+    return {
+      x: row.x1 + (row.x2 - row.x1) * p + r.x * w,
+      y: row.y1 + (row.y2 - row.y1) * p - 21 * s,
+      s, color: r.color, alpha,
+    };
+  }
+  function drawSprite(sp: Sprite) {
+    ctx.globalAlpha = sp.alpha;
+    drawCar(sp.x, sp.y, sp.s, sp.color);
+    ctx.globalAlpha = 1;
+  }
+
+  function drawTrees(row: Row) {
+    const w = row.w2;
+    for (const dir of [-1, 1]) {
+      const h = hash(row.i * 2 + (dir > 0 ? 1 : 0));
+      const x = row.x2 + dir * w * (1.7 + h * 1.6);
+      const th = w * (1 + h * 0.9);
+      const tw = w * (0.3 + h * 0.12);
+      const y = row.y2;
+      ctx.fillStyle = DARK; // trunk
+      ctx.fillRect(x - tw * 0.08, y - th * 0.25, tw * 0.16, th * 0.25);
+      ctx.beginPath(); // two-tier pine
+      ctx.moveTo(x, y - th); ctx.lineTo(x + tw * 0.6, y - th * 0.45); ctx.lineTo(x - tw * 0.6, y - th * 0.45); ctx.closePath();
+      ctx.moveTo(x, y - th * 0.7); ctx.lineTo(x + tw, y - th * 0.2); ctx.lineTo(x - tw, y - th * 0.2); ctx.closePath();
+      ctx.fillStyle = MTN;
+      ctx.fill();
+      ctx.strokeStyle = PURPLE; ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+  }
+
+  function drawBuildings(row: Row) {
+    const w = row.w2;
+    for (const dir of [-1, 1]) {
+      const h1 = hash(row.i * 2 + (dir > 0 ? 1 : 0));
+      const h2 = hash(row.i * 7 + 3 + dir);
+      const bw = w * (0.8 + h1 * 0.7);
+      const bh = w * (1.2 + h2 * 1.8);
+      const inner = row.x2 + dir * w * 2;
+      const left = dir < 0 ? inner - bw : inner;
+      const top = row.y2 - bh;
+      ctx.fillStyle = BLOCK;
+      ctx.fillRect(left, top, bw, bh);
+      ctx.fillStyle = h1 > 0.5 ? PINK : CYAN; // neon roofline
+      ctx.fillRect(left, top, bw, Math.max(1, w * 0.03));
+      if (bw < 16) continue;
+      const cell = bw / 7; // 3 window columns
+      const floors = Math.min(10, Math.floor((bh - cell) / (cell * 2)));
+      ctx.fillStyle = YELLOW;
+      ctx.globalAlpha = 0.4;
+      for (let f = 0; f < floors; f++) {
+        for (let c = 0; c < 3; c++) {
+          if (hash(row.i * 131 + f * 7 + c + dir * 1000) > 0.45) {
+            ctx.fillRect(left + cell * (1 + c * 2), top + cell * (1.5 + f * 2), cell, cell);
+          }
+        }
+      }
+      ctx.globalAlpha = 1;
+    }
+  }
+
+  function drawLighthouse(row: Row) {
+    const w = row.w2;
+    const x = row.x2 + w * 2.6;
+    const y = row.y2;
+    const th = w * 2.4;
+    for (let k = 0; k < 4; k++) { // striped tower, tapering
+      const b = w * (0.16 - k * 0.015);
+      const t = w * (0.16 - (k + 1) * 0.015);
+      const yb = y - (th * k) / 4;
+      const yt = y - (th * (k + 1)) / 4;
+      poly(x - b, yb, x + b, yb, x + t, yt, x - t, yt, k % 2 === 0 ? PINK : INK);
+    }
+    const ly = y - th - w * 0.22;
+    ctx.globalAlpha = 0.16; // sweeping beam
+    const reach = Math.sin(tick * 1.4) * w * 5;
+    poly(x, ly + w * 0.06, x, ly + w * 0.16, x + reach, ly + w * 0.5, x + reach, ly - w * 0.3, YELLOW);
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = YELLOW; // lamp
+    ctx.shadowColor = YELLOW; ctx.shadowBlur = 12;
+    ctx.fillRect(x - w * 0.1, ly, w * 0.2, w * 0.22);
+    ctx.shadowBlur = 0;
+  }
+
+  function drawGantry(row: Row) { // checkpoint banner across the road
+    const w = row.w2;
+    const top = row.y2 - w * 1.3;
+    const pw = Math.max(1, w * 0.05);
+    ctx.fillStyle = INK;
+    ctx.fillRect(row.x2 - w * 1.25 - pw / 2, top, pw, w * 1.3);
+    ctx.fillRect(row.x2 + w * 1.25 - pw / 2, top, pw, w * 1.3);
+    const bh = Math.max(2, w * 0.16);
+    const sq = (w * 2.5) / 12;
+    for (let k = 0; k < 12; k++) {
+      ctx.fillStyle = k % 2 === 0 ? YELLOW : DARK;
+      ctx.fillRect(row.x2 - w * 1.25 + k * sq, top, sq + 0.5, bh);
+    }
+  }
+
+  function drawTunnel(row: Row) {
+    const xl1 = row.x1 - row.w1 * WALL_X, xr1 = row.x1 + row.w1 * WALL_X;
+    const xl2 = row.x2 - row.w2 * WALL_X, xr2 = row.x2 + row.w2 * WALL_X;
+    const o1 = row.w1 * (WALL_X + 1.5); // walls reach this far out — the portal hill hides the rest
+    ctx.fillStyle = WALL;
+    for (const [xo, xa, xb] of [[row.x1 - o1, xl1, xl2], [row.x1 + o1, xr1, xr2]]) {
+      ctx.beginPath();
+      ctx.moveTo(xo, row.c1); ctx.lineTo(xa, row.c1); ctx.lineTo(xb, row.c2);
+      ctx.lineTo(xb, row.y2); ctx.lineTo(xa, row.y1); ctx.lineTo(xo, row.y1);
+      ctx.closePath();
+      ctx.fill();
+    }
+    poly(xl1, row.c1, xr1, row.c1, xr2, row.c2, xl2, row.c2, CEIL);
+
+    /* dashed neon rail along both walls, a third of the way up */
+    const ra1 = row.y1 + (row.c1 - row.y1) * 0.33, ra2 = row.y2 + (row.c2 - row.y2) * 0.33;
+    const rt1 = Math.max(1, (row.y1 - row.c1) * 0.03), rt2 = Math.max(1, (row.y2 - row.c2) * 0.03);
+    const rail = row.i % 4 < 2 ? PINK : PURPLE;
+    poly(xl1, ra1, xl2, ra2, xl2, ra2 + rt2, xl1, ra1 + rt1, rail);
+    poly(xr1, ra1, xr2, ra2, xr2, ra2 + rt2, xr1, ra1 + rt1, rail);
+
+    if (row.i % 5 === 0) { // ceiling light bar over the first third of the segment
+      const f = 0.3;
+      const cm = row.c1 + (row.c2 - row.c1) * f;
+      const xm = row.x1 + (row.x2 - row.x1) * f;
+      const wm = row.w1 + (row.w2 - row.w1) * f;
+      poly(row.x1 - row.w1 * 0.5, row.c1, row.x1 + row.w1 * 0.5, row.c1, xm + wm * 0.5, cm, xm - wm * 0.5, cm, CYAN);
+    }
+  }
+
+  /* the hill face around a tunnel mouth, drawn at the entrance row's near edge */
+  function drawPortal(row: Row) {
+    const x = row.x1, y = row.y1, w = row.w1;
+    const top = y + (row.c1 - y) * 2.4; // screen y is linear in height at a fixed depth
+    const hy = (f: number) => top + (y - top) * f;
+    ctx.beginPath();
+    ctx.moveTo(x - w * 10, y); ctx.lineTo(x - w * 5, hy(0.2)); ctx.lineTo(x - w * 2, top);
+    ctx.lineTo(x + w * 1.5, hy(0.08)); ctx.lineTo(x + w * 4.5, hy(0.25)); ctx.lineTo(x + w * 10, y);
+    ctx.closePath();
+    ctx.moveTo(x - w * WALL_X, y); ctx.lineTo(x - w * WALL_X, row.c1); // the mouth — cut out
+    ctx.lineTo(x + w * WALL_X, row.c1); ctx.lineTo(x + w * WALL_X, y); ctx.closePath();
+    ctx.fillStyle = MTN;
+    ctx.fill('evenodd');
+    ctx.strokeStyle = PURPLE; ctx.lineWidth = 1; // ridge line
+    ctx.beginPath();
+    ctx.moveTo(x - w * 10, y); ctx.lineTo(x - w * 5, hy(0.2)); ctx.lineTo(x - w * 2, top);
+    ctx.lineTo(x + w * 1.5, hy(0.08)); ctx.lineTo(x + w * 4.5, hy(0.25)); ctx.lineTo(x + w * 10, y);
+    ctx.stroke();
+    ctx.strokeStyle = PINK; ctx.lineWidth = Math.max(1, w * 0.03);
+    ctx.shadowColor = PINK; ctx.shadowBlur = 10;
+    ctx.beginPath();
+    ctx.moveTo(x - w * WALL_X, y); ctx.lineTo(x - w * WALL_X, row.c1);
+    ctx.lineTo(x + w * WALL_X, row.c1); ctx.lineTo(x + w * WALL_X, y);
+    ctx.stroke();
+    ctx.shadowBlur = 0;
   }
 
   function render() {
@@ -515,13 +869,29 @@ export function initRacer(dialog: HTMLDialogElement): { open(autoStart?: boolean
       const y1 = Math.round(H / 2 - sc1 * (seg.y1 - camY) * (H / 2));
       const y2 = Math.round(H / 2 - sc2 * (seg.y2 - camY) * (H / 2));
       if (y2 >= clipY || y2 >= y1) continue; // hidden behind a crest
+      const tun = seg.zone === TUNNEL;
       rows.push({
-        n, i,
+        n, i, zone: seg.zone,
         x1: Math.round(W / 2 + sc1 * (cx1 - camX) * (W / 2)), y1, w1: Math.round(sc1 * ROAD_W * (W / 2)),
         x2: Math.round(W / 2 + sc2 * (cx2 - camX) * (W / 2)), y2, w2: Math.round(sc2 * ROAD_W * (W / 2)),
+        c1: tun ? Math.round(H / 2 - sc1 * (seg.y1 + TUNNEL_H - camY) * (H / 2)) : 0,
+        c2: tun ? Math.round(H / 2 - sc2 * (seg.y2 + TUNNEL_H - camY) * (H / 2)) : 0,
       });
       clipY = y2;
     }
+
+    /* rivals by segment, so each is painted with its row (hill crests and
+       nearer scenery cover it correctly); cars between the camera and the
+       player are held back and painted over the player's car */
+    const bySeg = new Map<number, Rival[]>();
+    for (const rv of rivals) {
+      const si = Math.floor(rv.z / SEG_LEN) % segments.length;
+      const list = bySeg.get(si);
+      if (list) list.push(rv);
+      else bySeg.set(si, [rv]);
+    }
+    const pz = playerZ();
+    const behind: Sprite[] = [];
 
     for (let r = rows.length - 1; r >= 0; r--) {
       const row = rows[r];
@@ -546,9 +916,28 @@ export function initRacer(dialog: HTMLDialogElement): { open(autoStart?: boolean
           poly(l1 - row.w1 * 0.015, row.y1, l1 + row.w1 * 0.015, row.y1, l2 + row.w2 * 0.015, row.y2, l2 - row.w2 * 0.015, row.y2, CYAN);
         }
       }
-      if (row.i % 9 === 0) drawPylons(row);
+
+      if (row.zone === COAST) {
+        if (row.i % 9 === 0) drawPylons(row);
+        if (row.i % 150 === 75) drawLighthouse(row);
+      } else if (row.zone === FOREST) {
+        if (row.i % 4 === 0) drawTrees(row);
+      } else if (row.zone === CITY) {
+        if (row.i % 3 === 0) drawBuildings(row);
+      } else {
+        drawTunnel(row);
+      }
+      if (cps.includes(row.i)) drawGantry(row);
 
       const fog = row.n > DRAW_DIST * 0.7 ? Math.min(1, (row.n - DRAW_DIST * 0.7) / (DRAW_DIST * 0.3)) : 0;
+      for (const rv of bySeg.get(row.i) ?? []) {
+        const sp = rivalSprite(rv, row, 1 - fog);
+        if (!sp) continue;
+        if (ahead(pz, rv.z) < 0) behind.push(sp);
+        else drawSprite(sp);
+      }
+      if (row.zone === TUNNEL && segments[(row.i - 1 + segments.length) % segments.length].zone !== TUNNEL) drawPortal(row);
+
       if (fog > 0) {
         ctx.globalAlpha = fog;
         ctx.fillStyle = HAZE;
@@ -557,7 +946,8 @@ export function initRacer(dialog: HTMLDialogElement): { open(autoStart?: boolean
       }
     }
 
-    drawCar();
+    drawPlayer();
+    for (const sp of behind) drawSprite(sp);
   }
 
   function updateHud() {
@@ -566,6 +956,7 @@ export function initRacer(dialog: HTMLDialogElement): { open(autoStart?: boolean
     hudSpeed.textContent = String(Math.round((speed / MAX_SPEED) * TOP_KMH));
     hudDist.textContent = km.toFixed(2);
     hudBest.textContent = best.toFixed(2);
+    hudPass.textContent = String(Math.max(0, passed));
   }
 
   function frame(now: number) {
@@ -603,9 +994,36 @@ export function initRacer(dialog: HTMLDialogElement): { open(autoStart?: boolean
   window.addEventListener('keydown', (e) => onKey(e, true));
   window.addEventListener('keyup', (e) => onKey(e, false));
 
+  /* touch: tapping the screen (re)starts, the pad drives the same keys */
+  dialog.querySelector('.racer-frame')!.addEventListener('click', () => {
+    if (state !== 'run') start();
+  });
+  const pad = Array.from(dialog.querySelectorAll<HTMLButtonElement>('.rp-btn'));
+  for (const btn of pad) {
+    const k = btn.dataset.key as keyof typeof keys;
+    const set = (on: boolean) => {
+      keys[k] = on;
+      btn.classList.toggle('on', on);
+    };
+    btn.addEventListener('pointerdown', (e) => {
+      /* drop the implicit touch capture, so a thumb sliding ◀ → ▶
+         releases one button and presses the next */
+      if (btn.hasPointerCapture(e.pointerId)) btn.releasePointerCapture(e.pointerId);
+      e.preventDefault();
+      set(true);
+      if (k === 'up' && state !== 'run') start();
+    });
+    btn.addEventListener('pointerenter', (e) => {
+      if (e.pointerType === 'touch' || e.buttons & 1) set(true);
+    });
+    for (const ev of ['pointerup', 'pointerleave', 'pointercancel'] as const) btn.addEventListener(ev, () => set(false));
+    btn.addEventListener('contextmenu', (e) => e.preventDefault()); // long-press menu
+  }
+
   dialog.addEventListener('close', () => {
     cancelAnimationFrame(raf);
     keys.left = keys.right = keys.up = keys.down = false;
+    for (const btn of pad) btn.classList.remove('on');
     setSound(false); // music never outlives the dialog; next open starts muted again
   });
 
@@ -614,10 +1032,10 @@ export function initRacer(dialog: HTMLDialogElement): { open(autoStart?: boolean
        still downloading, so an eager keypress is never swallowed */
     open(autoStart?: boolean) {
       state = 'idle';
-      pos = 0; playerX = 0; speed = 0; time = START_TIME; km = 0; prevIdx = 0;
+      reset(); // the grid waits on the title screen; attract mode cruises past it
       rmTitle.textContent = 'BALTIC TURBO CHALLENGE';
       rmSub.textContent = 'an homage to lotus turbo challenge 2 · amiga 1991';
-      rmAction.textContent = 'PRESS ENTER';
+      rmAction.textContent = touch ? 'TAP TO START' : 'PRESS ENTER';
       msg.hidden = false;
       flash.hidden = true;
       updateHud();

@@ -252,6 +252,10 @@ const ogImage = new URL('/og.png', Astro.site);
         background: linear-gradient(180deg, var(--sun-1) 0%, var(--sun-2) 38%, var(--sun-3) 72%, var(--sun-4) 100%);
         box-shadow: 0 0 calc(70px*var(--glow)) rgba(255,90,160,0.5), 0 0 calc(140px*var(--glow)) rgba(177,74,237,0.36);
       }
+      /* feedback for the racer's sun-tap trigger (Racer.astro) */
+      .sun.poke { animation: sunpoke 0.35s var(--ease); }
+      @keyframes sunpoke { 40% { filter: brightness(1.35) saturate(1.2); } }
+      .hero { touch-action: manipulation; } /* no double-tap zoom eating the taps */
       .sun .bands { position: absolute; left: 0; right: 0; bottom: 0; height: 52%;
         background: repeating-linear-gradient(to bottom, transparent 0 9px, #160830 9px 14px); }
       .mtn { position: absolute; bottom: 33%; left: 0; width: 100%; height: 13%;
@@ -459,7 +463,8 @@ const ogImage = new URL('/og.png', Astro.site);
       .racer[open] { animation: lb-in 0.3s var(--ease); }
 
       .racer-frame { position: relative; }
-      .racer-frame canvas { display: block; width: min(92vw, 880px); aspect-ratio: 16 / 9;
+      /* width also capped by height, so short (landscape) screens fit the whole cabinet */
+      .racer-frame canvas { display: block; width: min(92vw, 880px, calc((100dvh - 150px) * 16 / 9)); aspect-ratio: 16 / 9;
         image-rendering: pixelated;
         border: 1px solid var(--line); border-radius: 6px; background: var(--bg-2);
         box-shadow: 0 0 calc(34px*var(--glow)) rgba(255,46,151,0.3); }
@@ -498,6 +503,49 @@ const ogImage = new URL('/og.png', Astro.site);
         box-shadow: 0 0 calc(14px*var(--glow)) rgba(0, 234, 255, 0.5); }
       .racer-hint { margin: 0; text-align: center; font-size: 12px;
         letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-mut); }
+
+      /* touch pad — only where the primary pointer is a finger. Portrait: pad
+         row under the screen; landscape: steering left, pedals right. */
+      .rp-group, .hint-touch { display: none; }
+      .rp-btn { min-width: 64px; height: 56px; padding: 0 10px; cursor: pointer;
+        font-family: 'Press Start 2P', monospace; font-size: 10px; color: var(--cyan-soft);
+        background: rgba(10, 1, 24, 0.72); border: 1px solid var(--line); border-radius: 8px;
+        touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+      .rp-btn.on { color: #16001a; background: var(--cyan);
+        box-shadow: 0 0 calc(14px*var(--glow)) rgba(0, 234, 255, 0.5); }
+      .rp-steer .rp-btn { font-size: 20px; }
+      .rp-gas { color: var(--pink); border-color: rgba(255, 46, 151, 0.45); }
+      .rp-gas.on { background: var(--pink); box-shadow: 0 0 calc(14px*var(--glow)) rgba(255, 46, 151, 0.5); }
+      @media (hover: none) and (pointer: coarse) {
+        .racer-stage { display: grid; gap: 12px; justify-content: space-between;
+          grid-template-areas: "frame frame" "steer pedals"; }
+        .racer-frame { grid-area: frame; }
+        .rp-steer { grid-area: steer; }
+        .rp-pedals { grid-area: pedals; }
+        .rp-group { display: flex; gap: 10px; }
+        .hint-keys { display: none; }
+        .hint-touch { display: inline; }
+        .racer-frame canvas { width: min(92vw, 880px, calc((100dvh - 220px) * 16 / 9)); }
+        .rp-pedals { justify-self: end; }
+      }
+      @media (hover: none) and (pointer: coarse) and (orientation: portrait) {
+        .rp-btn { min-width: 76px; height: 72px; } /* plenty of room below the screen */
+      }
+      @media (hover: none) and (pointer: coarse) and (orientation: landscape) {
+        .racer-stage { grid-template-areas: "steer frame pedals"; align-items: end; }
+        .rp-pedals { flex-direction: column; }
+        .racer-frame canvas { width: min(calc(100vw - 300px), calc((100dvh - 80px) * 16 / 9)); }
+      }
+
+      /* phone-width cabinet: the canvas is ~360px wide — shrink the overlay type */
+      @media (max-width: 560px) {
+        .racer-hud { top: 8px; left: 10px; right: 10px; gap: 6px; font-size: 7px; }
+        .racer-msg { line-height: 1.8; padding: 0 12px; }
+        .racer-msg .rm-title { font-size: 11px; }
+        .racer-msg .rm-sub { font-size: 11px; margin: 6px 0 10px; }
+        .racer-msg #rmAction { font-size: 9px; }
+        .racer-flash { font-size: 10px; }
+      }
 
       @media (prefers-reduced-motion: reduce) {
         .racer[open] { animation: none; }

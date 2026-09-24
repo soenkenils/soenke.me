@@ -96,7 +96,7 @@ soenke.me/
 │   │   ├── Frames.astro        # 04 · Frames (photo gallery, astro:assets)
 │   │   ├── OffTheClock.astro   # 03 · Off the clock (coffee / cycling / photography)
 │   │   ├── Projects.astro      # 02 · Projects (MCP servers + walkie-talkie)
-│   │   └── Racer.astro         # Konami-code easter egg: dialog + trigger (game lazy-loads)
+│   │   └── Racer.astro         # Racer easter egg (Konami code or 3 taps on the hero sun): dialog + trigger + touch pad
 │   ├── layouts/
 │   │   └── Layout.astro        # Base layout: global CSS, fonts, fx overlays, interaction JS
 │   ├── scripts/
@@ -494,6 +494,52 @@ Extends `astro/tsconfigs/strict`; `@/*` → `src/*`.
 ---
 
 ## Changelog
+
+### 2026-09-24
+- **Racer: rivals + a more varied track.**
+  - **8 CPU rivals** (`Rival`, `gridRivals` / `updateRivals` / `resolveRivals`
+    in `racer-game.ts`). They start on a staggered two-column grid ahead of the
+    player (middle lane open) and cruise at 42–72% of the player's top speed
+    (~135–230 vs 320 km/h), accelerating more slowly off the line. Tuned to be
+    *easy* to pass on purpose — keep it that way: a rival never changes lane
+    while the player is within 10 segments behind it (`guard`), contact is a
+    gentle tap (speed → 80% of the rival's, small sideways nudge, no time
+    penalty), and the hitbox is a little narrower than the drawn cars. Passed
+    rivals respawn beyond the draw distance, so traffic never runs out. HUD
+    shows net overtakes (`#rcPass`); game-over line includes them.
+  - Rivals reuse the player's car drawing (`drawCar(x, y, s, accent)`) in
+    cyan / yellow / purple / orange, painted with their road row so hill
+    crests hide them; cars between camera and player are painted over the
+    player's car. `PLAYER_Z` / `PLAYER_W` derive the player's world depth from
+    where the car is drawn, so collisions match what you see.
+  - **Track ~1.7× longer (2250 segments) with four scenery zones:** Coast
+    (pylons, striped lighthouses with a sweeping beam), Forest (neon pines,
+    rolling hills, a tight left), a **Tunnel** (walls, ceiling light bars, neon
+    wall rails, portal cut into a hill face — tunnels must stay flat, the
+    ceiling projection assumes it) and City (lit blocks, chicane, old-town
+    hill). New S-bends, crests and chicanes; elevation still sums to 0.
+    Checkpoints now show a chequered gantry. Longer laps also tighten the
+    timer balance a bit (3 checkpoints per lap, unchanged).
+  - e2e: new smoke test — full gas from the grid passes at least one rival.
+- **Racer: easier to find, playable on phones.**
+  - **Three quick taps/clicks on the hero sun** (within 800ms of each other)
+    open the game — the only way in on touch devices, where the Konami code
+    can't be typed. The listener sits on `.hero` and hit-tests the sun circle
+    by coordinates, because `.hero-content` covers the sun and would be the
+    event target. Each tap flashes the sun (`.sun.poke`); the second tap
+    warms the engine chunk. `.hero` has `touch-action: manipulation` so
+    double-tap zoom doesn't swallow taps.
+  - **Touch pad** (`.rp-group` / `.rp-btn` with `data-key`) shown only under
+    `(hover: none) and (pointer: coarse)`: ◀ ▶ steer, GAS (also starts the
+    race) and BRAKE. Portrait: pad row under the screen; landscape: steering
+    left, pedals right (`.racer-stage` grid). Buttons drop the implicit touch
+    pointer capture, so a thumb can slide ◀ → ▶. Tapping the screen also
+    (re)starts; start/retry labels read `TAP …` on touch. The ✕ button is the
+    phone's Escape.
+  - Canvas width is now also capped by viewport height, and the HUD/title
+    type shrinks at ≤560px so the overlay fits a ~360px-wide screen.
+  - e2e: desktop triple-click on the sun; phone (390×844, touch) — tap the
+    sun ×3, GAS starts the race, ✕ closes.
 
 ### 2026-09-12
 - astro 7.2.9 → 7.3.2, @astrojs/sitemap 3.7.3 → 3.7.4 (`npx @astrojs/upgrade`).

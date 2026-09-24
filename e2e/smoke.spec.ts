@@ -149,6 +149,37 @@ test.describe('racer easter egg', () => {
     expect(errors).toEqual([]);
   });
 
+  test('rivals line up ahead and can be overtaken', async ({ page }) => {
+    await page.goto('/');
+    for (const key of KONAMI) await page.keyboard.press(key);
+    await expect(page.locator('#rmAction')).toHaveText('PRESS ENTER');
+    await page.keyboard.press('Enter');
+    await expect(page.locator('#rcPass')).toHaveText('0');
+
+    // the grid leaves the middle lane open: full gas, no steering, first
+    // rival passed within a couple of seconds
+    await page.keyboard.down('ArrowUp');
+    await expect.poll(async () => Number(await page.locator('#rcPass').textContent()), { timeout: 20_000 })
+      .toBeGreaterThan(0);
+    await page.keyboard.up('ArrowUp');
+  });
+
+  test('three quick clicks on the hero sun open the game', async ({ page }) => {
+    await page.goto('/');
+    // the sun sits under the hero text — click by coordinates, upper part of the disc
+    const box = (await page.locator('.hero .sun').boundingBox())!;
+    const x = box.x + box.width / 2;
+    const y = box.y + box.height * 0.2;
+    await page.mouse.click(x, y, { clickCount: 2 });
+    await expect(page.locator('#racer')).toBeHidden();
+    await page.waitForTimeout(900); // the tap streak lapses…
+    await page.mouse.click(x, y, { clickCount: 3 }); // …so it takes a fresh three
+    await expect(page.locator('#racer')).toBeVisible();
+    await expect(page.locator('#rmAction')).toHaveText('PRESS ENTER');
+    // desktop: no touch pad
+    await expect(page.locator('.rp-gas')).toBeHidden();
+  });
+
   test('a wrong key resets the sequence', async ({ page }) => {
     await page.goto('/');
     for (const key of KONAMI.slice(0, 5)) await page.keyboard.press(key);
@@ -173,5 +204,31 @@ test.describe('scroll reveal', () => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/');
     await expect(page.locator('#contact h2')).toHaveCSS('opacity', '1');
+  });
+});
+
+test.describe('racer on a touch phone', () => {
+  test.use({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
+
+  test('tapping the sun three times opens it, the pad starts and drives the race', async ({ page }) => {
+    await page.goto('/');
+    const box = (await page.locator('.hero .sun').boundingBox())!;
+    const x = box.x + box.width / 2;
+    const y = box.y + box.height * 0.2;
+    for (let i = 0; i < 3; i++) await page.touchscreen.tap(x, y);
+
+    await expect(page.locator('#racer')).toBeVisible();
+    await expect(page.locator('#rmAction')).toHaveText('TAP TO START');
+    const gas = page.locator('.rp-gas');
+    await expect(gas).toBeVisible();
+
+    // GAS starts the race
+    await gas.tap();
+    await expect(page.locator('#racerMsg')).toBeHidden();
+    await expect(page.locator('#rcTime')).toHaveText(/^\d+$/);
+
+    // the close button is the phone's Escape
+    await page.locator('#racerClose').tap();
+    await expect(page.locator('#racer')).toBeHidden();
   });
 });
