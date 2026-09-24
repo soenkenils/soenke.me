@@ -96,7 +96,7 @@ soenke.me/
 │   │   ├── Frames.astro        # 04 · Frames (photo gallery, astro:assets)
 │   │   ├── OffTheClock.astro   # 03 · Off the clock (coffee / cycling / photography)
 │   │   ├── Projects.astro      # 02 · Projects (MCP servers + walkie-talkie)
-│   │   └── Racer.astro         # Konami-code easter egg: dialog + trigger (game lazy-loads)
+│   │   └── Racer.astro         # Racer easter egg (Konami code or 3 taps on the hero sun): dialog + trigger + touch pad
 │   ├── layouts/
 │   │   └── Layout.astro        # Base layout: global CSS, fonts, fx overlays, interaction JS
 │   ├── scripts/
@@ -521,6 +521,25 @@ Extends `astro/tsconfigs/strict`; `@/*` → `src/*`.
     Checkpoints now show a chequered gantry. Longer laps also tighten the
     timer balance a bit (3 checkpoints per lap, unchanged).
   - e2e: new smoke test — full gas from the grid passes at least one rival.
+- **Racer: easier to find, playable on phones.**
+  - **Three quick taps/clicks on the hero sun** (within 800ms of each other)
+    open the game — the only way in on touch devices, where the Konami code
+    can't be typed. The listener sits on `.hero` and hit-tests the sun circle
+    by coordinates, because `.hero-content` covers the sun and would be the
+    event target. Each tap flashes the sun (`.sun.poke`); the second tap
+    warms the engine chunk. `.hero` has `touch-action: manipulation` so
+    double-tap zoom doesn't swallow taps.
+  - **Touch pad** (`.rp-group` / `.rp-btn` with `data-key`) shown only under
+    `(hover: none) and (pointer: coarse)`: ◀ ▶ steer, GAS (also starts the
+    race) and BRAKE. Portrait: pad row under the screen; landscape: steering
+    left, pedals right (`.racer-stage` grid). Buttons drop the implicit touch
+    pointer capture, so a thumb can slide ◀ → ▶. Tapping the screen also
+    (re)starts; start/retry labels read `TAP …` on touch. The ✕ button is the
+    phone's Escape.
+  - Canvas width is now also capped by viewport height, and the HUD/title
+    type shrinks at ≤560px so the overlay fits a ~360px-wide screen.
+  - e2e: desktop triple-click on the sun; phone (390×844, touch) — tap the
+    sun ×3, GAS starts the race, ✕ closes.
 
 ### 2026-09-12
 - astro 7.2.9 → 7.3.2, @astrojs/sitemap 3.7.3 → 3.7.4 (`npx @astrojs/upgrade`).

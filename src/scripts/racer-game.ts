@@ -307,6 +307,8 @@ export function initRacer(dialog: HTMLDialogElement): { open(autoStart?: boolean
   const RIVAL_COLORS = [CYAN, YELLOW, PURPLE, ORANGE];
 
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  /* same query that shows the on-screen pad in the global CSS */
+  const touch = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
   const segments = buildTrack();
   const trackLen = segments.length * SEG_LEN;
   const cps = [Math.floor(segments.length / 3), Math.floor((2 * segments.length) / 3), 0];
@@ -465,7 +467,7 @@ export function initRacer(dialog: HTMLDialogElement): { open(autoStart?: boolean
     }
     rmTitle.textContent = 'GAME OVER';
     rmSub.textContent = `distance ${km.toFixed(2)} km · ${Math.max(0, passed)} passed · best ${best.toFixed(2)} km`;
-    rmAction.textContent = 'ENTER = RETRY';
+    rmAction.textContent = touch ? 'TAP = RETRY' : 'ENTER = RETRY';
     msg.hidden = false;
   }
 
@@ -992,9 +994,36 @@ export function initRacer(dialog: HTMLDialogElement): { open(autoStart?: boolean
   window.addEventListener('keydown', (e) => onKey(e, true));
   window.addEventListener('keyup', (e) => onKey(e, false));
 
+  /* touch: tapping the screen (re)starts, the pad drives the same keys */
+  dialog.querySelector('.racer-frame')!.addEventListener('click', () => {
+    if (state !== 'run') start();
+  });
+  const pad = Array.from(dialog.querySelectorAll<HTMLButtonElement>('.rp-btn'));
+  for (const btn of pad) {
+    const k = btn.dataset.key as keyof typeof keys;
+    const set = (on: boolean) => {
+      keys[k] = on;
+      btn.classList.toggle('on', on);
+    };
+    btn.addEventListener('pointerdown', (e) => {
+      /* drop the implicit touch capture, so a thumb sliding ◀ → ▶
+         releases one button and presses the next */
+      if (btn.hasPointerCapture(e.pointerId)) btn.releasePointerCapture(e.pointerId);
+      e.preventDefault();
+      set(true);
+      if (k === 'up' && state !== 'run') start();
+    });
+    btn.addEventListener('pointerenter', (e) => {
+      if (e.pointerType === 'touch' || e.buttons & 1) set(true);
+    });
+    for (const ev of ['pointerup', 'pointerleave', 'pointercancel'] as const) btn.addEventListener(ev, () => set(false));
+    btn.addEventListener('contextmenu', (e) => e.preventDefault()); // long-press menu
+  }
+
   dialog.addEventListener('close', () => {
     cancelAnimationFrame(raf);
     keys.left = keys.right = keys.up = keys.down = false;
+    for (const btn of pad) btn.classList.remove('on');
     setSound(false); // music never outlives the dialog; next open starts muted again
   });
 
@@ -1006,7 +1035,7 @@ export function initRacer(dialog: HTMLDialogElement): { open(autoStart?: boolean
       reset(); // the grid waits on the title screen; attract mode cruises past it
       rmTitle.textContent = 'BALTIC TURBO CHALLENGE';
       rmSub.textContent = 'an homage to lotus turbo challenge 2 · amiga 1991';
-      rmAction.textContent = 'PRESS ENTER';
+      rmAction.textContent = touch ? 'TAP TO START' : 'PRESS ENTER';
       msg.hidden = false;
       flash.hidden = true;
       updateHud();
