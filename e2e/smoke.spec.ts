@@ -149,6 +149,21 @@ test.describe('racer easter egg', () => {
     expect(errors).toEqual([]);
   });
 
+  test('rivals line up ahead and can be overtaken', async ({ page }) => {
+    await page.goto('/');
+    for (const key of KONAMI) await page.keyboard.press(key);
+    await expect(page.locator('#rmAction')).toHaveText('PRESS ENTER');
+    await page.keyboard.press('Enter');
+    await expect(page.locator('#rcPass')).toHaveText('0');
+
+    // the grid leaves the middle lane open: full gas, no steering, first
+    // rival passed within a couple of seconds
+    await page.keyboard.down('ArrowUp');
+    await expect.poll(async () => Number(await page.locator('#rcPass').textContent()), { timeout: 20_000 })
+      .toBeGreaterThan(0);
+    await page.keyboard.up('ArrowUp');
+  });
+
   test('a wrong key resets the sequence', async ({ page }) => {
     await page.goto('/');
     for (const key of KONAMI.slice(0, 5)) await page.keyboard.press(key);

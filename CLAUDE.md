@@ -495,6 +495,33 @@ Extends `astro/tsconfigs/strict`; `@/*` → `src/*`.
 
 ## Changelog
 
+### 2026-09-24
+- **Racer: rivals + a more varied track.**
+  - **8 CPU rivals** (`Rival`, `gridRivals` / `updateRivals` / `resolveRivals`
+    in `racer-game.ts`). They start on a staggered two-column grid ahead of the
+    player (middle lane open) and cruise at 42–72% of the player's top speed
+    (~135–230 vs 320 km/h), accelerating more slowly off the line. Tuned to be
+    *easy* to pass on purpose — keep it that way: a rival never changes lane
+    while the player is within 10 segments behind it (`guard`), contact is a
+    gentle tap (speed → 80% of the rival's, small sideways nudge, no time
+    penalty), and the hitbox is a little narrower than the drawn cars. Passed
+    rivals respawn beyond the draw distance, so traffic never runs out. HUD
+    shows net overtakes (`#rcPass`); game-over line includes them.
+  - Rivals reuse the player's car drawing (`drawCar(x, y, s, accent)`) in
+    cyan / yellow / purple / orange, painted with their road row so hill
+    crests hide them; cars between camera and player are painted over the
+    player's car. `PLAYER_Z` / `PLAYER_W` derive the player's world depth from
+    where the car is drawn, so collisions match what you see.
+  - **Track ~1.7× longer (2250 segments) with four scenery zones:** Coast
+    (pylons, striped lighthouses with a sweeping beam), Forest (neon pines,
+    rolling hills, a tight left), a **Tunnel** (walls, ceiling light bars, neon
+    wall rails, portal cut into a hill face — tunnels must stay flat, the
+    ceiling projection assumes it) and City (lit blocks, chicane, old-town
+    hill). New S-bends, crests and chicanes; elevation still sums to 0.
+    Checkpoints now show a chequered gantry. Longer laps also tighten the
+    timer balance a bit (3 checkpoints per lap, unchanged).
+  - e2e: new smoke test — full gas from the grid passes at least one rival.
+
 ### 2026-09-12
 - astro 7.2.9 → 7.3.2, @astrojs/sitemap 3.7.3 → 3.7.4 (`npx @astrojs/upgrade`).
   `npm audit fix` for fast-uri / nanoid / svgo (3 high, all build-time) →
