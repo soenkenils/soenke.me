@@ -50,6 +50,10 @@ const MAX_SPEED = SEG_LEN * 60;
 const START_TIME = 45;
 const CP_BONUS = 20;
 const TOP_KMH = 320;
+/* steering never drops below this fraction of full authority while rolling —
+   otherwise a car crawling on the gravel (gas released, e.g. a phone thumb
+   moved from GAS to ◀) could not be steered back onto the road */
+const STEER_MIN = 0.5;
 const BEST_KEY = 'racer.best';
 
 /* the player's car is drawn at a fixed spot; this is the world depth where
@@ -484,8 +488,9 @@ export function initRacer(dialog: HTMLDialogElement): { open(autoStart?: boolean
     const ratio = speed / MAX_SPEED;
 
     const dx = dt * 2 * ratio;
-    if (keys.left) playerX -= dx;
-    if (keys.right) playerX += dx;
+    const steer = speed > 0 ? dt * 2 * Math.max(ratio, STEER_MIN) : 0;
+    if (keys.left) playerX -= steer;
+    if (keys.right) playerX += steer;
     playerX -= dx * ratio * seg.curve * 0.3; // centrifugal pull
     playerX = Math.max(-2.2, Math.min(2.2, playerX));
 
