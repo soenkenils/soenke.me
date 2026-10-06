@@ -2,6 +2,15 @@
 
 Moved out of CLAUDE.md so it isn't loaded into every session. Newest first; record significant changes (and the *why*) here.
 
+### 2026-09-25
+- **Fixed: on phones the racer couldn't be steered back from the gravel.**
+  Steering authority scaled linearly with speed, and off-road the gravel brakes
+  hard. On a keyboard you keep ↑ held while steering, but on the touch pad a
+  thumb often moves from GAS to ◀/▶ — the car then rolled to a stop on the
+  gravel and ◀/▶ did nothing at all. Steering now keeps at least
+  `STEER_MIN = 0.5` of full authority while the car is rolling (centrifugal
+  pull still scales with real speed; no steering at a standstill).
+
 ### 2026-09-24
 - **Racer: rivals + a more varied track.**
   - **8 CPU rivals** (`Rival`, `gridRivals` / `updateRivals` / `resolveRivals`

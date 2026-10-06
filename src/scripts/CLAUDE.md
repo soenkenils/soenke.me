@@ -1,6 +1,6 @@
 # Racer ("Baltic Turbo Challenge") — gotchas
 
-Full history and rationale: `CHANGELOG.md` (2026-07-13 … 2026-09-24 entries).
+Full history and rationale: `CHANGELOG.md` (2026-07-13 … 2026-09-25 entries).
 
 - **Rivals must stay easy to pass** — deliberate tuning: they cruise at 42–72% of the player's top speed, never change lane while the player is within 10 segments behind (`guard`), contact is a gentle tap with no time penalty, and the hitbox is narrower than the drawn cars. Don't make them harder.
 - **Tunnels must stay flat** — the ceiling projection assumes zero elevation. Track elevation must still sum to 0.
@@ -9,3 +9,4 @@ Full history and rationale: `CHANGELOG.md` (2026-07-13 … 2026-09-24 entries).
 - Lazy load: the trigger warms the chunk at `WARM_AT = 4` (↑↑↓↓) and opens the dialog immediately with `LOADING…`. `load()` drops a rejected `import()` promise so a network blip doesn't kill the egg for the rest of the page load. Keep both.
 - Entry points: Konami code, or three taps/clicks on the hero sun within 800ms (hit-tested by coordinates on `.hero`, because `.hero-content` covers the sun). Touch pad only under `(hover: none) and (pointer: coarse)`.
 - Music is procedural Web Audio, **off by default**; the `AudioContext` is only created on first enable (autoplay policy). Closing the dialog stops it and resets the toggle.
+- Steering keeps at least `STEER_MIN = 0.5` of full authority while rolling — touch players lift off GAS to steer, and the gravel would otherwise strand them. Keep it.
